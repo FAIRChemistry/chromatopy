@@ -1,0 +1,99 @@
+Data File  : C:\Chem32\1\DATA\GC_HAO 2023-07-24 21-36-55\001F0150.D
+Acq. Method: HAO_NEUMANN_GC_VALVE_FOR_LIQUIDE.M
+
+
+The Acq. Method's Instrument Parameters for the Run were : 
+
+
+=============================================================================
+                                 6890 GC METHOD
+=============================================================================
+
+OVEN
+   Initial temp:  100 C (On)               Maximum temp:  280 C
+   Initial time:  0.00 min                 Equilibration time:  1.00 min
+   Ramps:
+     #   Rate  Final temp  Final time
+     1  10.00      220        0.00
+     2    0 (Off)
+   Post temp:  50 C
+   Post time:  0.00 min
+   Run time:  12.00 min
+
+FRONT INLET (SPLIT/SPLITLESS)           BACK INLET (UNKNOWN)
+   Mode:  Split
+   Initial temp:  220 C (On)
+   Pressure:  1.96 bar (On)
+   Split ratio:  20:1
+   Split flow:  122.8 mL/min
+   Total flow:  131.3 mL/min
+   Gas saver:  Off
+   Gas type:  Helium
+
+COLUMN 1                                COLUMN 2
+   Capillary Column                        Capillary Column
+   Description: Rtx-1                      Description: Rtx-1
+   Max temperature:  280 C                 Max temperature:  280 C
+   Nominal length:  60.0 m                 Nominal length:  60.0 m
+   Nominal diameter:  320.00 um            Nominal diameter:  320.00 um
+   Nominal film thickness:  5.00 um        Nominal film thickness:  5.00 um
+   Mode:  constant flow                    Mode:  (see column 1)
+   Initial flow:  3.1 mL/min               Nominal initial flow:  3.1 mL/min
+   Nominal init pressure:  1.96 bar        Nominal init pressure:  1.96 bar
+   Average velocity:  40 cm/sec            Average velocity:  40 cm/sec
+   Inlet:  Front Inlet                     Inlet:  Front Inlet
+   Outlet:  Front Detector                 Outlet:  Back Detector
+   Outlet pressure:  ambient               Outlet pressure:  ambient
+
+FRONT DETECTOR (FID)                    BACK DETECTOR (TCD)
+   Temperature:  350 C (On)                Temperature:  250 C (On)
+   Hydrogen flow:  37.5 mL/min (On)        Reference flow:  20.0 mL/min (On)
+   Air flow:  400.0 mL/min (On)            Mode:  Constant makeup flow
+   Mode:  Constant makeup flow             Makeup flow:  5.0 mL/min (On)
+   Makeup flow:  12.0 mL/min (On)          Makeup Gas Type: Helium
+   Makeup Gas Type: Nitrogen               Filament:  On
+   Flame:  On                              Negative polarity:  Off
+   Electrometer:  On
+   Lit offset:  2.0
+
+SIGNAL 1                                SIGNAL 2
+   Data rate:  5 Hz                        Data rate:  5 Hz
+   Type:  front detector                   Type:  back detector
+   Save Data:  On                          Save Data:  On
+
+THERMAL AUX 2
+   Use:  Valve Box Heater
+   Initial temp:  100 C (Off)
+
+VALVES                                  POST RUN
+   Valve 1  Gas Sampling                   Post Time: 0.00 min
+      Loop Volume: 1.000 mL
+      Load Time: 0.50 min
+      Inject Time: 0.50 min
+      Inlet:  (unspecified)
+
+
+TIME TABLE
+   Time(min)      Parameter & Setpoint
+
+
+
+
+
+
+
+
+=====================================================================
+                              Column(s)
+=====================================================================
+
+Column Description :  Rtx-1
+Inventory#         :   
+Model#             :                    Manufacturer:  
+Diameter           : 320.00 µm          Length :   60.0 m
+Film thickness     :  5.00 µm        Void time :    2.502 min
+Maximum Temperature:  280.0 °C
+Comment            :  
+
+
+
