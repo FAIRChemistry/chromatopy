@@ -1,4 +1,5 @@
 import re
+import os
 from datetime import datetime
 
 from HPLC.core.hplcexperiment import HPLCExperiment
@@ -104,5 +105,20 @@ def parse_measurement(path: str) -> Measurement:
     return measurement
 
 
-def parse_experiemnt(path) -> HPLCExperiment:
+def parse_experiment(path: str) -> HPLCExperiment:
 
+    peak_file_name = "Report.TXT"
+
+    experiment = HPLCExperiment()
+
+    for dir in sorted(os.listdir(path)):
+        if dir.endswith(".D"):
+            measurement_path = os.path.join(path, dir)
+            for file in os.listdir(measurement_path):
+                if file == peak_file_name:
+                    measurement = parse_measurement(
+                        os.path.join(measurement_path, file))
+
+                    experiment.measurements.append(measurement)
+
+    return experiment
