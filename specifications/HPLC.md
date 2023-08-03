@@ -4,12 +4,11 @@
 
 ### HPLCExperiment
 
-- methods
+- method
     - Type: Method
     - Description: Description of the HPLC method
-    - Multiple: True
-- signals
-    - Type: Signal
+- measurements
+    - Type: Measurement
     - Description: Measured signals
     - Multiple: True
 
@@ -232,6 +231,22 @@ Describes properties of a flame ionization detector.
 - inject_time
     - Type: float
     - Description: Inject time 
+
+### Measurement
+
+- signals
+    - Type: Signal
+    - Description: Measured signal
+    - Multiple: True
+- timestamp
+    - Type: datetime
+    - Description: Timestamp of sample injection into the column
+- injection_volume
+    - Type: float
+    - Description: Injection volume
+- injection_volume_unit
+    - Type: string
+    - Description: Unit of injection volume
 
 ### Signal
 

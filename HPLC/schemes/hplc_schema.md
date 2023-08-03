@@ -3,19 +3,20 @@ classDiagram
     Detector <-- TCDDetector
     Detector <-- FIDDetector
     HPLCExperiment *-- Method
-    HPLCExperiment *-- Signal
+    HPLCExperiment *-- Measurement
     Method *-- Oven
     Method *-- Column
     Method *-- Valve
     Oven *-- Ramp
     Column *-- Inlet
     Column *-- Detector
+    Measurement *-- Signal
     Signal *-- SignalType
     Signal *-- Peak
     
     class HPLCExperiment {
-        +Method[0..*] methods
-        +Signal[0..*] signals
+        +Method method
+        +Measurement[0..*] measurements
     }
     
     class Method {
@@ -102,6 +103,13 @@ classDiagram
         +float loop_volume
         +float load_time
         +float inject_time
+    }
+    
+    class Measurement {
+        +Signal[0..*] signals
+        +datetime timestamp
+        +float injection_volume
+        +string injection_volume_unit
     }
     
     class Signal {

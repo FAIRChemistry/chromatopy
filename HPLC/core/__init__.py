@@ -8,6 +8,7 @@ from .detector import Detector
 from .tcddetector import TCDDetector
 from .fiddetector import FIDDetector
 from .valve import Valve
+from .measurement import Measurement
 from .signal import Signal
 from .peak import Peak
 from .signaltype import SignalType
@@ -25,6 +26,7 @@ __all__ = [
     "TCDDetector",
     "FIDDetector",
     "Valve",
+    "Measurement",
     "Signal",
     "Peak",
     "SignalType",
