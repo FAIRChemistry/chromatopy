@@ -132,8 +132,8 @@ classDiagram
     
     class SignalType {
         << Enumeration >>
-        +FID
-        +TCD
+        +fid
+        +tcd
     }
     
 ```

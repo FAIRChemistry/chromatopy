@@ -8,8 +8,8 @@ from sdRDM.base.utils import forge_signature, IDGenerator
 from datetime import datetime as Datetime
 
 from .measurement import Measurement
-from .method import Method
 from .signal import Signal
+from .method import Method
 
 
 @forge_signature

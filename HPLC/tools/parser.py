@@ -1,22 +1,57 @@
 import re
 import os
+import pandas as pd
 from datetime import datetime
 
 from HPLC.core.hplcexperiment import HPLCExperiment
 from HPLC.core.measurement import Measurement
 from HPLC.core.signal import Signal
+from HPLC.core.signaltype import SignalType
+from HPLC.core.method import Method
 
 
 def _read_file(path: str):
 
-    with open(path, encoding="utf-16") as f:
-        return f.readlines()
+    try:
+        with open(path, encoding="utf-16") as f:
+            return f.readlines()
+    except UnicodeError:
+        pass
+
+    try:
+        with open(path) as f:
+            lines = f.readlines()
+            return [line.strip() for line in lines]
+    except UnicodeError:
+        raise UnicodeError()
+
+
+def parse_method(path: str) -> Method:
+
+    SECTION_START = re.compile("^(?![\d\s])[\dA-Z\s]+$")
+
+    lines = _read_file(path)
+
+    method = Method()
+
+    section_slices = []
+    section_started = False
+    for line_id, line in enumerate(lines):
+        if SECTION_START.search(line):
+            section_started = True
+            section_start = line_id
+        if line == "" and section_started:
+            secion_end = line_id
+            section_slices.append(slice(section_start, secion_end))
+            section_started = False
+
+    return section_slices
 
 
 def _get_peak(line: str) -> dict:
 
     attr_slice_dict = {
-        "id": (slice(0, 4), int),
+        "id": (slice(0, 4), str),
         "retention_time": (slice(5, 12), float),
         "type": (slice(13, 17), str),
         "width": (slice(18, 25), float),
@@ -83,6 +118,7 @@ def parse_measurement(path: str) -> Measurement:
     for signal_slice in signal_slices:
 
         signal = Signal()
+
         for line in lines[signal_slice]:
 
             if line.startswith("Signal"):
@@ -122,3 +158,10 @@ def parse_experiment(path: str) -> HPLCExperiment:
                     experiment.measurements.append(measurement)
 
     return experiment
+
+
+def get_peak(signal_type: SignalType, peak_id: int):
+
+    if signal_type not in SignalType.__members__:
+        raise TypeError(
+            f"signal_type must be one of {[s_type.value for s_type in SignalType]}")

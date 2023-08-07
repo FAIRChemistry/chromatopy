@@ -296,6 +296,6 @@ Describes properties of a flame ionization detector.
 ### SignalType
 
 ```python
-FID = "fid"
-TCD = "tcd"
+fid = "fid"
+tcd = "tcd"
 ```

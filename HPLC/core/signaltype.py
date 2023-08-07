@@ -2,5 +2,5 @@ from enum import Enum
 
 
 class SignalType(Enum):
-    FID = "fid"
-    TCD = "tcd"
+    fid = "fid"
+    tcd = "tcd"
