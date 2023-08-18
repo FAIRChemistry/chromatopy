@@ -5,8 +5,8 @@ from pydantic import Field
 from sdRDM.base.utils import forge_signature, IDGenerator
 
 
-from .inlet import Inlet
 from .detector import Detector
+from .inlet import Inlet
 
 
 @forge_signature

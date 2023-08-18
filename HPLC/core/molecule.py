@@ -5,31 +5,60 @@ from pydantic import Field
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature, IDGenerator
 
+from datetime import datetime as Datetime
 
-from .signaltype import SignalType
 from .peak import Peak
 
 
 @forge_signature
-class Signal(sdRDM.DataModel):
+class Molecule(sdRDM.DataModel):
 
     """"""
 
     id: Optional[str] = Field(
         description="Unique identifier of the given object.",
-        default_factory=IDGenerator("signalINDEX"),
+        default_factory=IDGenerator("moleculeINDEX"),
         xml="@id",
     )
 
-    peaks: List[Peak] = Field(
-        description="Peaks in the signal",
-        default_factory=ListPlus,
-        multiple=True,
+    name: Optional[str] = Field(
+        default=None,
+        description="Molecule name",
     )
 
-    type: Optional[SignalType] = Field(
+    inchi: Optional[str] = Field(
         default=None,
-        description="Type of signal",
+        description="Inchi code of the molecule",
+    )
+
+    molecular_weight: Optional[float] = Field(
+        default=None,
+        description="Molar weight of the molecule in g/mol",
+    )
+
+    retention_time: Optional[float] = Field(
+        default=None,
+        description="Approximated retention time of the molecule",
+    )
+
+    times: List[Datetime] = Field(
+        default_factory=ListPlus,
+        multiple=True,
+        description="Time points when the molecule concentration was measured",
+    )
+
+    peaks: List[Peak] = Field(
+        default_factory=ListPlus,
+        multiple=True,
+        description=(
+            "All peaks of the dataset which are within the same retention time interval"
+        ),
+    )
+
+    concentration: List[float] = Field(
+        default_factory=ListPlus,
+        multiple=True,
+        description="Concentration of the molecule",
     )
 
     def add_to_peaks(

@@ -7,10 +7,40 @@
 - method
     - Type: Method
     - Description: Description of the HPLC method
+- molecules
+    - Type: Molecule
+    - Description: Molecule which can be assigned to a peak. 
 - measurements
     - Type: Measurement
     - Description: Measured signals
     - Multiple: True
+
+### Molecule
+
+- name
+    - Type: string
+    - Description: Molecule name
+- inchi
+    - Type: string
+    - Description: Inchi code of the molecule
+- molecular_weight
+    - Type: float
+    - Description: Molar weight of the molecule in g/mol
+- retention_time
+    - Type: float
+    - Description: Approximated retention time of the molecule
+- times
+    - Type: datetime
+    - Multiple: True
+    - Description: Time points when the molecule concentration was measured
+- peaks
+    - Type: Peak
+    - Multiple: True
+    - Description: All peaks of the dataset which are within the same retention time interval
+- concentration
+    - Type: float
+    - Multiple: True
+    - Description: Concentration of the molecule
 
 ### Method
 

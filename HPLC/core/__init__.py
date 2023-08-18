@@ -1,4 +1,5 @@
 from .hplcexperiment import HPLCExperiment
+from .molecule import Molecule
 from .method import Method
 from .oven import Oven
 from .ramp import Ramp
@@ -17,6 +18,7 @@ __doc__ = ""
 
 __all__ = [
     "HPLCExperiment",
+    "Molecule",
     "Method",
     "Oven",
     "Ramp",
