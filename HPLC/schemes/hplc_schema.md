@@ -2,8 +2,10 @@
 classDiagram
     Detector <-- TCDDetector
     Detector <-- FIDDetector
+    HPLCExperiment *-- Molecule
     HPLCExperiment *-- Method
     HPLCExperiment *-- Measurement
+    Molecule *-- Peak
     Method *-- Oven
     Method *-- Column
     Method *-- Valve
@@ -16,7 +18,19 @@ classDiagram
     
     class HPLCExperiment {
         +Method method
+        +Molecule molecules
         +Measurement[0..*] measurements
+        +Molecule[0..*] molecules
+    }
+    
+    class Molecule {
+        +string name
+        +string inchi
+        +float molecular_weight
+        +float retention_time
+        +datetime[0..*] times
+        +Peak[0..*] peaks
+        +float[0..*] concentration
     }
     
     class Method {
