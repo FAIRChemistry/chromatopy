@@ -6,11 +6,11 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature, IDGenerator
 
 
-from .detector import Detector
+from .oven import Oven
 from .inlet import Inlet
 from .column import Column
 from .valve import Valve
-from .oven import Oven
+from .detector import Detector
 
 
 @forge_signature

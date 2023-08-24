@@ -37,10 +37,30 @@
     - Type: Peak
     - Multiple: True
     - Description: All peaks of the dataset which are within the same retention time interval
-- concentration
+- concentrations
     - Type: float
     - Multiple: True
     - Description: Concentration of the molecule
+- standard
+    - Type: Standard
+    - Description: Standard, describing the signal to concentration relationship
+- role
+    - Type: Role
+    - Description: Role of the molecule in the experiment
+
+### Standard
+
+- concentration
+    - Type: float
+    - Multiple: True
+    - Description: Concentration 
+- signal
+    - Type: float
+    - Multiple: True
+    - Description: Signal corresponding to concentration 
+- concentration_unit
+    - Type: string
+    - Description: Concentration 
 
 ### Method
 
@@ -328,4 +348,13 @@ Describes properties of a flame ionization detector.
 ```python
 fid = "fid"
 tcd = "tcd"
+```
+
+## Enumerations
+
+### Role
+
+```python
+ANALYTE = "analyte"
+INTERNAL_STANDARD = "internal_standard"
 ```

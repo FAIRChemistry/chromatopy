@@ -1,5 +1,6 @@
 from .hplcexperiment import HPLCExperiment
 from .molecule import Molecule
+from .standard import Standard
 from .method import Method
 from .oven import Oven
 from .ramp import Ramp
@@ -13,12 +14,14 @@ from .measurement import Measurement
 from .signal import Signal
 from .peak import Peak
 from .signaltype import SignalType
+from .role import Role
 
 __doc__ = ""
 
 __all__ = [
     "HPLCExperiment",
     "Molecule",
+    "Standard",
     "Method",
     "Oven",
     "Ramp",
@@ -32,4 +35,5 @@ __all__ = [
     "Signal",
     "Peak",
     "SignalType",
+    "Role",
 ]

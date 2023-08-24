@@ -5,6 +5,8 @@ classDiagram
     HPLCExperiment *-- Molecule
     HPLCExperiment *-- Method
     HPLCExperiment *-- Measurement
+    Molecule *-- Role
+    Molecule *-- Standard
     Molecule *-- Peak
     Method *-- Oven
     Method *-- Column
@@ -20,7 +22,6 @@ classDiagram
         +Method method
         +Molecule molecules
         +Measurement[0..*] measurements
-        +Molecule[0..*] molecules
     }
     
     class Molecule {
@@ -30,7 +31,15 @@ classDiagram
         +float retention_time
         +datetime[0..*] times
         +Peak[0..*] peaks
+        +float[0..*] concentrations
+        +Standard standard
+        +Role role
+    }
+    
+    class Standard {
         +float[0..*] concentration
+        +float[0..*] signal
+        +string concentration_unit
     }
     
     class Method {
@@ -148,6 +157,12 @@ classDiagram
         << Enumeration >>
         +fid
         +tcd
+    }
+    
+    class Role {
+        << Enumeration >>
+        +ANALYTE
+        +INTERNAL_STANDARD
     }
     
 ```
