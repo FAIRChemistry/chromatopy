@@ -181,7 +181,6 @@ def _get_peak_triangle(peak: Peak) -> (List[float], List[float]):
 
 
 def visualize_measurements(hplc_experiment: HPLCExperiment, detector: SignalType = "fid"):
-
     df = _get_dataframe(hplc_experiment)
 
     df = df[df['signal_type'] == detector]

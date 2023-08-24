@@ -1,5 +1,6 @@
 import sdRDM
 
+from scipy.stats import linregress
 from typing import List, Optional
 from pydantic import Field
 from sdRDM.base.listplus import ListPlus
@@ -7,6 +8,8 @@ from sdRDM.base.utils import forge_signature, IDGenerator
 
 from datetime import datetime as Datetime
 
+from .role import Role
+from .standard import Standard
 from .peak import Peak
 
 
@@ -55,10 +58,20 @@ class Molecule(sdRDM.DataModel):
         ),
     )
 
-    concentration: List[float] = Field(
+    concentrations: List[float] = Field(
         default_factory=ListPlus,
         multiple=True,
         description="Concentration of the molecule",
+    )
+
+    standard: Optional[Standard] = Field(
+        default=None,
+        description="Standard, describing the signal to concentration relationship",
+    )
+
+    role: Optional[Role] = Field(
+        default=None,
+        description="Role of the molecule in the experiment",
     )
 
     def add_to_peaks(
@@ -111,3 +124,66 @@ class Molecule(sdRDM.DataModel):
         self.peaks.append(Peak(**params))
 
         return self.peaks[-1]
+
+    def calculate_concentrations(
+            self,
+            internal_standard: "Molecule",
+    ) -> List[float]:
+
+        if not self.role == Role.ANALYTE.value:
+            raise ValueError(
+                f"Analyte {self.name} is not an analyte"
+            )
+        if not internal_standard.role == Role.INTERNAL_STANDARD.value:
+            raise ValueError(
+                f"Internal standard {internal_standard.name} is not an internal standard"
+            )
+
+        analyte_ares = (peak.area for peak in self.peaks)
+        standard_areas = (peak.area for peak in internal_standard.peaks)
+
+        self.concentrations = [area_analyte / area_standard / internal_standard.slope *
+                               internal_standard.molecular_weight
+                               for area_analyte, area_standard
+                               in zip(analyte_ares, standard_areas)]
+
+    @property
+    def slope(self):
+
+        if self.standard:
+            return linregress(
+                x=self.standard.concentration,
+                y=self.standard.signal
+            ).slope
+
+        else:
+            return None
+
+    @property
+    def seconds(self):
+        return self.datetime_to_relative_time(self.times, unit="s")
+
+    @property
+    def minutes(self):
+        return self.datetime_to_relative_time(self.times, unit="m")
+
+    @property
+    def hours(self):
+        return self.datetime_to_relative_time(self.times, unit="h")
+
+    @staticmethod
+    def datetime_to_relative_time(
+        datetimes: List[Datetime],
+        unit: str = "s"
+    ) -> List[float]:
+
+        time_converter = dict(
+            s=1,
+            m=60,
+            h=3600,
+        )
+
+        deltas = (dt - datetimes[0] for dt in datetimes)
+        total_seconds = (delta.total_seconds() for delta in deltas)
+
+        return [seconds / time_converter[unit] for seconds in total_seconds]
