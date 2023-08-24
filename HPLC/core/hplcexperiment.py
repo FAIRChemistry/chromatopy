@@ -72,3 +72,23 @@ class HPLCExperiment(sdRDM.DataModel):
         self.measurements.append(Measurement(**params))
 
         return self.measurements[-1]
+
+    def _get_peak_records(self) -> List[dict]:
+
+        records = []
+        for measurement in self.measurements:
+            for signal in measurement.signals:
+                for peak in signal.peaks:
+                    peak_data = dict(
+                        timestamp=measurement.timestamp,
+                        signal_type=signal.type,
+                        peak_id=peak.id,
+                        retention_time=peak.retention_time,
+                        area=peak.area,
+                        height=peak.height,
+                        width=peak.width,
+                    )
+
+                    records.append(peak_data)
+
+        return records

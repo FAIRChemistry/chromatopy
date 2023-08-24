@@ -1,15 +1,20 @@
-from typing import List, Tuple, Dict
+from typing import Any, List, Tuple, Dict
+from collections import defaultdict
 from dotted_dict import DottedDict
 from datetime import datetime
+import pandas as pd
+import numpy as np
+import plotly.express as px
+
 from pydantic import BaseModel, Field
 
 from HPLC.core.hplcexperiment import HPLCExperiment
 from HPLC.core.molecule import Molecule
 from HPLC.core.peak import Peak
 from HPLC.core.role import Role
-from HPLC.core.signal import Signal
 from HPLC.core.standard import Standard
 from HPLC.core.signaltype import SignalType
+from HPLC.tools.parser import parse_experiment
 
 
 class HPLCAnalyzer(BaseModel):
@@ -94,17 +99,73 @@ class HPLCAnalyzer(BaseModel):
             analyte.calculate_concentrations(
                 internal_standard=internal_standard)
 
-    def _analytes_to_dataframe(self, analytes: List[Molecule] = None):
+    def _analytes_to_records(
+            self,
+            analytes: List[Molecule] = None
+    ) -> List[Dict]:
 
         if analytes is None:
             analytes = self.analytes.values()
         if isinstance(analytes, Molecule):
             analytes = [analytes]
 
+        dict_records = []
         for analyte in analytes:
-            print(analyte.to_dict())
 
-    def visualize(
+            if not analyte.concentrations:
+                raise ValueError(
+                    f"No calculated concentrations found for {analyte.name}. \
+                    Use 'calculate_concentrations' method first."
+                )
+
+            for time, rel_time, concenrtation in zip(
+                    analyte.times,
+                    analyte.minutes,
+                    analyte.concentrations
+            ):
+
+                dict_records.append(
+                    {
+                        "name": analyte.name,
+                        "time": time,
+                        "rel_time": rel_time,
+                        "concentration": concenrtation
+                    }
+                )
+
+        return dict_records
+
+    def _get_concentration_dict(
+            self,
+            analytes: List[Molecule] = None
+    ) -> Dict[str, List[float]]:
+
+        if analytes is None:
+            analytes = self.analytes.values()
+        if isinstance(analytes, Molecule):
+            analytes = [analytes]
+
+        # Get unique times across all analytes
+        unique_times = self._get_sorted_set_of_attr_values(
+            objects=analytes,
+            attribute="minutes"
+        )
+
+        molecules_conc_dict = defaultdict(list)
+        for time in unique_times:
+            molecules_conc_dict["time [min]"].append(time)
+
+            for analyte in analytes:
+                if time in set(analyte.minutes):
+                    pos = analyte.minutes.index(time)
+                    molecules_conc_dict[analyte.name].append(
+                        analyte.concentrations[pos])
+                else:
+                    molecules_conc_dict[analyte.name].append(float("nan"))
+
+        return molecules_conc_dict
+
+    def visualize_concentrations(
             self,
             analytes: List[Molecule] = None,
     ):
@@ -113,8 +174,51 @@ class HPLCAnalyzer(BaseModel):
         if isinstance(analytes, Molecule):
             analytes = [analytes]
 
-        for analyte in analytes:
-            pass
+        df = pd.DataFrame.from_records(
+            self._analytes_to_records(analytes=analytes)
+        )
+
+        return px.scatter(
+            data_frame=df,
+            x="rel_time",
+            y="concentration",
+            color="name",
+        )
+
+    def visualize_measurements(self, detector: SignalType = "fid"):
+
+        df = pd.DataFrame(self.data._get_peak_records())
+        df = df[df['signal_type'] == detector]
+
+        return px.scatter(
+            x=df["timestamp"],
+            y=df["retention_time"],
+            color=np.log(df["area"]),
+            labels=dict(
+                x="time of HPLC run",
+                y="retention time / min",
+                color="log(peak area)"
+            ),
+            title=f"{detector} detector data",
+        )
+
+    def to_csv(
+            self,
+            path: str,
+            analytes: List[Molecule] = None,
+    ) -> None:
+
+        if analytes is None:
+            analytes = self.analytes.values()
+        if isinstance(analytes, Molecule):
+            analytes = [analytes]
+
+        conc_dict = self._get_concentration_dict(analytes=analytes)
+
+        df = pd.DataFrame.from_dict(conc_dict)
+        df = df.set_index(df.columns[0])
+
+        return df.to_csv(path)
 
     def _set_molecule(
             self,
@@ -153,24 +257,6 @@ class HPLCAnalyzer(BaseModel):
                 signals=signals,
                 concentration_unit=concentration_unit
             )
-
-        return molecule
-
-    @staticmethod
-    def _add_standard_to_molecule(
-        molecule: Molecule,
-        concentrations: List[float],
-        signals: List[float],
-        concentration_unit: str
-    ):
-
-        assert len(concentrations) == len(signals)
-
-        molecule.standard = Standard(
-            concentration=concentrations,
-            signal=signals,
-            concentration_unit=concentration_unit
-        )
 
         return molecule
 
@@ -218,6 +304,36 @@ class HPLCAnalyzer(BaseModel):
         assert len(times) == len(peaks)
         return times, peaks
 
+    @staticmethod
+    def _get_sorted_set_of_attr_values(objects: list, attribute: Any) -> List:
+        """Gets a sorted set of unique values of a given attribute from a list of objects"""
+
+        uniques = set(
+            value for obj in objects for value in getattr(obj, attribute))
+
+        return sorted(uniques)
+
+    @staticmethod
+    def _add_standard_to_molecule(
+        molecule: Molecule,
+        concentrations: List[float],
+        signals: List[float],
+        concentration_unit: str
+    ):
+
+        assert len(concentrations) == len(signals)
+
+        molecule.standard = Standard(
+            concentration=concentrations,
+            signal=signals,
+            concentration_unit=concentration_unit
+        )
+
+        return molecule
+
     @classmethod
     def from_directory(cls, path: str):
-        pass
+
+        data = parse_experiment(path)
+
+        return cls(data=data)
