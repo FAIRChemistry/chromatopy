@@ -1,4 +1,5 @@
-# ChromatogaphyHandler
+# ChromatoPy
+[![Documentation](https://github.com/FAIRChemistry/chromatopy/actions/workflows/make_docs.yaml/badge.svg)](https://github.com/FAIRChemistry/chromatopy/actions/workflows/make_docs.yaml)
 
 ## ℹ️ About
 
