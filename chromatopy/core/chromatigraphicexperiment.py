@@ -9,9 +9,9 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
-from .signal import Signal
-from .measurement import Measurement
 from .method import Method
+from .measurement import Measurement
+from .signal import Signal
 from .molecule import Molecule
 
 
@@ -45,6 +45,12 @@ class ChromatigraphicExperiment(sdRDM.DataModel):
         default_factory=ListPlus,
         tag="measurements",
         json_schema_extra=dict(multiple=True),
+    )
+    _repo: Optional[str] = PrivateAttr(
+        default="https://github.com/FAIRChemistry/HPLC-specification"
+    )
+    _commit: Optional[str] = PrivateAttr(
+        default="e1922ec9220fac3332dbf180c6db0a5fe1eefd25"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

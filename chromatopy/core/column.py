@@ -8,8 +8,8 @@ from lxml.etree import _Element
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.tools.utils import elem2dict
-from .inlet import Inlet
 from .detector import Detector
+from .inlet import Inlet
 
 
 @forge_signature
@@ -105,6 +105,12 @@ class Column(sdRDM.DataModel):
         default=None,
         tag="outlet_pressure",
         json_schema_extra=dict(),
+    )
+    _repo: Optional[str] = PrivateAttr(
+        default="https://github.com/FAIRChemistry/HPLC-specification"
+    )
+    _commit: Optional[str] = PrivateAttr(
+        default="e1922ec9220fac3332dbf180c6db0a5fe1eefd25"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

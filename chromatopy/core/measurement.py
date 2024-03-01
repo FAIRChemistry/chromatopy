@@ -9,9 +9,9 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
-from .signal import Signal
-from .peak import Peak
 from .signaltype import SignalType
+from .peak import Peak
+from .signal import Signal
 
 
 @forge_signature
@@ -51,6 +51,12 @@ class Measurement(sdRDM.DataModel):
         default=None,
         tag="injection_volume_unit",
         json_schema_extra=dict(),
+    )
+    _repo: Optional[str] = PrivateAttr(
+        default="https://github.com/FAIRChemistry/HPLC-specification"
+    )
+    _commit: Optional[str] = PrivateAttr(
+        default="e1922ec9220fac3332dbf180c6db0a5fe1eefd25"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
