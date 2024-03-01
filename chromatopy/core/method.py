@@ -8,11 +8,11 @@ from lxml.etree import _Element
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.tools.utils import elem2dict
-from .oven import Oven
-from .inlet import Inlet
-from .valve import Valve
 from .column import Column
 from .detector import Detector
+from .valve import Valve
+from .inlet import Inlet
+from .oven import Oven
 
 
 @forge_signature
@@ -80,6 +80,12 @@ class Method(sdRDM.DataModel):
         default_factory=ListPlus,
         tag="valves",
         json_schema_extra=dict(multiple=True),
+    )
+    _repo: Optional[str] = PrivateAttr(
+        default="https://github.com/FAIRChemistry/HPLC-specification"
+    )
+    _commit: Optional[str] = PrivateAttr(
+        default="e1922ec9220fac3332dbf180c6db0a5fe1eefd25"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
