@@ -28,10 +28,10 @@ class Standard(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
     _repo: Optional[str] = PrivateAttr(
-        default="https://github.com/FAIRChemistry/HPLC-specification"
+        default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="e1922ec9220fac3332dbf180c6db0a5fe1eefd25"
+        default="117b9dcf20afc909f806d2bcf6a15a0046ba0b7b"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
