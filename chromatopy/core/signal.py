@@ -1,9 +1,13 @@
 import sdRDM
 
-from typing import List, Optional
-from pydantic import Field
+from typing import Dict, List, Optional
+from pydantic import PrivateAttr, model_validator
+from uuid import uuid4
+from pydantic_xml import attr, element
+from lxml.etree import _Element
 from sdRDM.base.listplus import ListPlus
-from sdRDM.base.utils import forge_signature, IDGenerator
+from sdRDM.base.utils import forge_signature
+from sdRDM.tools.utils import elem2dict
 from .signaltype import SignalType
 from .peak import Peak
 
@@ -12,22 +16,38 @@ from .peak import Peak
 class Signal(sdRDM.DataModel):
     """"""
 
-    id: Optional[str] = Field(
+    id: Optional[str] = attr(
+        name="id",
         description="Unique identifier of the given object.",
-        default_factory=IDGenerator("signalINDEX"),
+        default_factory=lambda: str(uuid4()),
         xml="@id",
     )
 
-    peaks: List[Peak] = Field(
+    peaks: List[Peak] = element(
         description="Peaks in the signal",
         default_factory=ListPlus,
-        multiple=True,
+        tag="peaks",
+        json_schema_extra=dict(multiple=True),
     )
 
-    type: Optional[SignalType] = Field(
-        default=None,
+    type: Optional[SignalType] = element(
         description="Type of signal",
+        default=None,
+        tag="type",
+        json_schema_extra=dict(),
     )
+    _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _parse_raw_xml_data(self):
+        for attr, value in self:
+            if isinstance(value, (ListPlus, list)) and all(
+                (isinstance(i, _Element) for i in value)
+            ):
+                self._raw_xml_data[attr] = [elem2dict(i) for i in value]
+            elif isinstance(value, _Element):
+                self._raw_xml_data[attr] = elem2dict(value)
+        return self
 
     def add_to_peaks(
         self,
@@ -42,7 +62,7 @@ class Signal(sdRDM.DataModel):
         height_unit: Optional[str] = None,
         percent_area: Optional[float] = None,
         id: Optional[str] = None,
-    ) -> None:
+    ) -> Peak:
         """
         This method adds an object of type 'Peak' to attribute peaks
 

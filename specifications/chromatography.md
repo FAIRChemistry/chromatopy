@@ -1,8 +1,8 @@
-# HPLC data model
+# Chromatography Data Model
 
 ## Objects
 
-### HPLCExperiment
+### ChromatigraphicExperiment
 
 - method
     - Type: Method
@@ -22,45 +22,96 @@
     - Description: Molecule name
 - inchi
     - Type: string
-    - Description: Inchi code of the molecule
+    - Description: InCHI code of the molecule
 - molecular_weight
     - Type: float
     - Description: Molar weight of the molecule in g/mol
 - retention_time
     - Type: float
     - Description: Approximated retention time of the molecule
-- times
-    - Type: datetime
-    - Multiple: True
-    - Description: Time points when the molecule concentration was measured
 - peaks
     - Type: Peak
     - Multiple: True
-    - Description: All peaks of the dataset which are within the same retention time interval
+    - Description: All peaks of the dataset, which are within the same retention time interval related to the molecule
 - concentrations
     - Type: float
     - Multiple: True
     - Description: Concentration of the molecule
 - standard
     - Type: Standard
-    - Description: Standard, describing the signal to concentration relationship
+    - Description: Standard, describing the signal-to-concentration relationship
 - role
     - Type: Role
     - Description: Role of the molecule in the experiment
 
+## Objects describing measurements
+
+### Measurement
+
+- signals
+    - Type: Signal
+    - Description: Measured signal
+    - Multiple: True
+- timestamp
+    - Type: datetime
+    - Description: Timestamp of sample injection into the column
+- injection_volume
+    - Type: float
+    - Description: Injection volume
+- injection_volume_unit
+    - Type: string
+    - Description: Unit of injection volume
+
+### Signal
+
+- peaks
+    - Type: Peak
+    - Description: Peaks in the signal
+    - Multiple: True
+- type
+    - Type: SignalType
+    - Description: Type of signal 
+
+### Peak
+
+- retention_time
+    - Type: float
+    - Description: Retention time of the peak
+- retention_time_unit
+    - Type: string
+    - Description: Unit of retention time
+- type
+    - Type: string
+    - Description: Type of peak (baseline-baseline / baseline-valey / ...)
+- width
+    - Type: float
+    - Description: Width of the peak
+- width_unit
+    - Type: string
+    - Description: Unit of width
+- area
+    - Type: float
+    - Description: Area of the peak
+- area_unit
+    - Type: string
+    - Description: Unit of area
+- height
+    - Type: float
+    - Description: Height of the peak
+- height_unit
+    - Type: string
+    - Description: Unit of height
+- percent_area
+    - Type: float
+    - Description: Percent area of the peak
+
 ### Standard
 
-- concentration
+- factor
     - Type: float
-    - Multiple: True
-    - Description: Concentration 
-- signal
-    - Type: float
-    - Multiple: True
-    - Description: Signal corresponding to concentration 
-- concentration_unit
-    - Type: string
-    - Description: Concentration 
+    - Description: Factor to convert signal to concentration
+
+## Objects describing the method
 
 ### Method
 
@@ -92,8 +143,7 @@
     - Multiple: True
 
 ### Oven
-
-Describes settings of the oven.
+Describes the settings of the oven.
 
 - init_temp
     - Type: float
@@ -152,7 +202,7 @@ Describes properties of a temperature ramp.
 - split_ratio
     - Type: string
     - Description: Split ratio
-    - regex: (\d+)(:)(\d+)
+    - regex: (d+)(:)(d+)
 - split_flow
     - Type: float
     - Description: Split flow
@@ -171,7 +221,7 @@ Describes properties of a temperature ramp.
 
 ### Column
 
-Descibes properties of a column and its connections to the inlet and detector.
+Describes properties of a column and its connections to the inlet and detector.
 
 - name
     - Type: string
@@ -281,65 +331,6 @@ Describes properties of a flame ionization detector.
 - inject_time
     - Type: float
     - Description: Inject time 
-
-### Measurement
-
-- signals
-    - Type: Signal
-    - Description: Measured signal
-    - Multiple: True
-- timestamp
-    - Type: datetime
-    - Description: Timestamp of sample injection into the column
-- injection_volume
-    - Type: float
-    - Description: Injection volume
-- injection_volume_unit
-    - Type: string
-    - Description: Unit of injection volume
-
-### Signal
-
-- peaks
-    - Type: Peak
-    - Description: Peaks in the signal
-    - Multiple: True
-- type
-    - Type: SignalType
-    - Description: Type of signal 
-
-### Peak
-
-- retention_time
-    - Type: float
-    - Description: Retention time of the peak
-- retention_time_unit
-    - Type: string
-    - Description: Unit of retention time
-- type
-    - Type: string
-    - Description: Type of peak (baseline-baseline / baseline-valey / ...)
-- width
-    - Type: float
-    - Description: Width of the peak
-- width_unit
-    - Type: string
-    - Description: Unit of width
-- area
-    - Type: float
-    - Description: Area of the peak
-- area_unit
-    - Type: string
-    - Description: Unit of area
-- height
-    - Type: float
-    - Description: Height of the peak
-- height_unit
-    - Type: string
-    - Description: Unit of height
-- percent_area
-    - Type: float
-    - Description: Percent area of the peak
 
 ## Enumerations
 

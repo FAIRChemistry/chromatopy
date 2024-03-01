@@ -4,14 +4,11 @@ from typing import List, Optional
 from pydantic import Field
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature, IDGenerator
-
-
 from .ramp import Ramp
 
 
 @forge_signature
 class Oven(sdRDM.DataModel):
-
     """Describes settings of the oven."""
 
     id: Optional[str] = Field(
@@ -74,17 +71,13 @@ class Oven(sdRDM.DataModel):
             hold_time (): Duration to hold the final temperature before starting the next ramp. Defaults to None
             time_unit (): Unit of time. Defaults to None
         """
-
         params = {
             "temp_rate": temp_rate,
             "final_temp": final_temp,
             "hold_time": hold_time,
             "time_unit": time_unit,
         }
-
         if id is not None:
             params["id"] = id
-
         self.ramps.append(Ramp(**params))
-
         return self.ramps[-1]

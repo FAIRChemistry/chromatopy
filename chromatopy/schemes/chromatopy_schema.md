@@ -2,23 +2,23 @@
 classDiagram
     Detector <-- TCDDetector
     Detector <-- FIDDetector
-    HPLCExperiment *-- Molecule
-    HPLCExperiment *-- Method
-    HPLCExperiment *-- Measurement
+    ChromatigraphicExperiment *-- Molecule
+    ChromatigraphicExperiment *-- Measurement
+    ChromatigraphicExperiment *-- Method
     Molecule *-- Role
-    Molecule *-- Standard
     Molecule *-- Peak
+    Molecule *-- Standard
+    Measurement *-- Signal
+    Signal *-- SignalType
+    Signal *-- Peak
     Method *-- Oven
     Method *-- Column
     Method *-- Valve
     Oven *-- Ramp
     Column *-- Inlet
     Column *-- Detector
-    Measurement *-- Signal
-    Signal *-- SignalType
-    Signal *-- Peak
     
-    class HPLCExperiment {
+    class ChromatigraphicExperiment {
         +Method method
         +Molecule molecules
         +Measurement[0..*] measurements
@@ -29,11 +29,35 @@ classDiagram
         +string inchi
         +float molecular_weight
         +float retention_time
-        +datetime[0..*] times
         +Peak[0..*] peaks
         +float[0..*] concentrations
         +Standard standard
         +Role role
+    }
+    
+    class Measurement {
+        +Signal[0..*] signals
+        +datetime timestamp
+        +float injection_volume
+        +string injection_volume_unit
+    }
+    
+    class Signal {
+        +Peak[0..*] peaks
+        +SignalType type
+    }
+    
+    class Peak {
+        +float retention_time
+        +string retention_time_unit
+        +string type
+        +float width
+        +string width_unit
+        +float area
+        +string area_unit
+        +float height
+        +string height_unit
+        +float percent_area
     }
     
     class Standard {
@@ -124,31 +148,6 @@ classDiagram
         +float loop_volume
         +float load_time
         +float inject_time
-    }
-    
-    class Measurement {
-        +Signal[0..*] signals
-        +datetime timestamp
-        +float injection_volume
-        +string injection_volume_unit
-    }
-    
-    class Signal {
-        +Peak[0..*] peaks
-        +SignalType type
-    }
-    
-    class Peak {
-        +float retention_time
-        +string retention_time_unit
-        +string type
-        +float width
-        +string width_unit
-        +float area
-        +string area_unit
-        +float height
-        +string height_unit
-        +float percent_area
     }
     
     class SignalType {

@@ -1,14 +1,12 @@
 import sdRDM
 
-from typing import List, Optional
+from typing import Optional
 from pydantic import Field
-from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature, IDGenerator
 
 
 @forge_signature
 class Standard(sdRDM.DataModel):
-
     """"""
 
     id: Optional[str] = Field(
@@ -17,19 +15,7 @@ class Standard(sdRDM.DataModel):
         xml="@id",
     )
 
-    concentration: List[float] = Field(
-        default_factory=ListPlus,
-        multiple=True,
-        description="Concentration",
-    )
-
-    signal: List[float] = Field(
-        default_factory=ListPlus,
-        multiple=True,
-        description="Signal corresponding to concentration",
-    )
-
-    concentration_unit: Optional[str] = Field(
+    factor: Optional[float] = Field(
         default=None,
-        description="Concentration",
+        description="Factor to convert signal to concentration",
     )

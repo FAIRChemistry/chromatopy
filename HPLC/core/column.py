@@ -3,15 +3,12 @@ import sdRDM
 from typing import Optional
 from pydantic import Field
 from sdRDM.base.utils import forge_signature, IDGenerator
-
-
 from .inlet import Inlet
 from .detector import Detector
 
 
 @forge_signature
 class Column(sdRDM.DataModel):
-
     """Descibes properties of a column and its connections to the inlet and detector."""
 
     id: Optional[str] = Field(

@@ -1,41 +1,63 @@
 import sdRDM
 
-from typing import List, Optional
-from pydantic import Field
+from typing import Dict, List, Optional
+from pydantic import PrivateAttr, model_validator
+from uuid import uuid4
+from pydantic_xml import attr, element
+from lxml.etree import _Element
 from sdRDM.base.listplus import ListPlus
-from sdRDM.base.utils import forge_signature, IDGenerator
+from sdRDM.base.utils import forge_signature
+from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
-from .molecule import Molecule
 from .signal import Signal
-from .method import Method
 from .measurement import Measurement
+from .method import Method
+from .molecule import Molecule
 
 
 @forge_signature
-class HPLCExperiment(sdRDM.DataModel):
+class ChromatigraphicExperiment(sdRDM.DataModel):
     """"""
 
-    id: Optional[str] = Field(
+    id: Optional[str] = attr(
+        name="id",
         description="Unique identifier of the given object.",
-        default_factory=IDGenerator("hplcexperimentINDEX"),
+        default_factory=lambda: str(uuid4()),
         xml="@id",
     )
 
-    method: Optional[Method] = Field(
-        default=Method(),
+    method: Optional[Method] = element(
         description="Description of the HPLC method",
+        default_factory=Method,
+        tag="method",
+        json_schema_extra=dict(),
     )
 
-    molecules: Optional[Molecule] = Field(
-        default=Molecule(),
+    molecules: Optional[Molecule] = element(
         description="Molecule which can be assigned to a peak.",
+        default_factory=Molecule,
+        tag="molecules",
+        json_schema_extra=dict(),
     )
 
-    measurements: List[Measurement] = Field(
+    measurements: List[Measurement] = element(
         description="Measured signals",
         default_factory=ListPlus,
-        multiple=True,
+        tag="measurements",
+        json_schema_extra=dict(multiple=True),
     )
+    _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _parse_raw_xml_data(self):
+        for attr, value in self:
+            if isinstance(value, (ListPlus, list)) and all(
+                (isinstance(i, _Element) for i in value)
+            ):
+                self._raw_xml_data[attr] = [elem2dict(i) for i in value]
+            elif isinstance(value, _Element):
+                self._raw_xml_data[attr] = elem2dict(value)
+        return self
 
     def add_to_measurements(
         self,
@@ -44,7 +66,7 @@ class HPLCExperiment(sdRDM.DataModel):
         injection_volume: Optional[float] = None,
         injection_volume_unit: Optional[str] = None,
         id: Optional[str] = None,
-    ) -> None:
+    ) -> Measurement:
         """
         This method adds an object of type 'Measurement' to attribute measurements
 
@@ -65,22 +87,3 @@ class HPLCExperiment(sdRDM.DataModel):
             params["id"] = id
         self.measurements.append(Measurement(**params))
         return self.measurements[-1]
-
-    def _get_peak_records(self) -> List[dict]:
-        records = []
-        for measurement in self.measurements:
-            for signal in measurement.signals:
-                for peak in signal.peaks:
-                    peak_data = dict(
-                        timestamp=measurement.timestamp,
-                        signal_type=signal.type,
-                        peak_id=peak.id,
-                        retention_time=peak.retention_time,
-                        area=peak.area,
-                        height=peak.height,
-                        width=peak.width,
-                    )
-
-                    records.append(peak_data)
-
-        return records

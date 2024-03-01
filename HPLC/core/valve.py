@@ -7,7 +7,6 @@ from sdRDM.base.utils import forge_signature, IDGenerator
 
 @forge_signature
 class Valve(sdRDM.DataModel):
-
     """"""
 
     id: Optional[str] = Field(

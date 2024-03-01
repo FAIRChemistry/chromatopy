@@ -7,7 +7,6 @@ from sdRDM.base.utils import forge_signature, IDGenerator
 
 @forge_signature
 class Inlet(sdRDM.DataModel):
-
     """"""
 
     id: Optional[str] = Field(
@@ -39,7 +38,7 @@ class Inlet(sdRDM.DataModel):
     split_ratio: Optional[str] = Field(
         default=None,
         description="Split ratio",
-        regex="(\d+)(:)(\d+)",
+        regex="(\\d+)(:)(\\d+)",
     )
 
     split_flow: Optional[float] = Field(
