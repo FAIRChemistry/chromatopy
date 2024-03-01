@@ -1,67 +1,104 @@
 import sdRDM
 
-from typing import List, Optional
-from pydantic import Field
+from typing import Dict, List, Optional
+from pydantic import PrivateAttr, model_validator
+from uuid import uuid4
+from pydantic_xml import attr, element
+from lxml.etree import _Element
 from sdRDM.base.listplus import ListPlus
-from sdRDM.base.utils import forge_signature, IDGenerator
-from .column import Column
-from .oven import Oven
-from .inlet import Inlet
+from sdRDM.base.utils import forge_signature
+from sdRDM.tools.utils import elem2dict
 from .valve import Valve
 from .detector import Detector
+from .inlet import Inlet
+from .column import Column
+from .oven import Oven
 
 
 @forge_signature
 class Method(sdRDM.DataModel):
     """"""
 
-    id: Optional[str] = Field(
+    id: Optional[str] = attr(
+        name="id",
         description="Unique identifier of the given object.",
-        default_factory=IDGenerator("methodINDEX"),
+        default_factory=lambda: str(uuid4()),
         xml="@id",
     )
 
-    injection_time: Optional[float] = Field(
-        default=None,
+    injection_time: Optional[float] = element(
         description="Injection time",
+        default=None,
+        tag="injection_time",
+        json_schema_extra=dict(),
     )
 
-    injection_date: Optional[str] = Field(
-        default=None,
+    injection_date: Optional[str] = element(
         description="Injection date",
+        default=None,
+        tag="injection_date",
+        json_schema_extra=dict(),
     )
 
-    injection_volume: Optional[float] = Field(
-        default=None,
+    injection_volume: Optional[float] = element(
         description="Injection volume",
+        default=None,
+        tag="injection_volume",
+        json_schema_extra=dict(),
     )
 
-    injection_volume_unit: Optional[str] = Field(
-        default=None,
+    injection_volume_unit: Optional[str] = element(
         description="Unit of injection volume",
-    )
-
-    location: Optional[str] = Field(
         default=None,
+        tag="injection_volume_unit",
+        json_schema_extra=dict(),
+    )
+
+    location: Optional[str] = element(
         description="Location of sample vial",
+        default=None,
+        tag="location",
+        json_schema_extra=dict(),
     )
 
-    oven: Optional[Oven] = Field(
-        default=Oven(),
+    oven: Optional[Oven] = element(
         description="Settings of the oven",
+        default_factory=Oven,
+        tag="oven",
+        json_schema_extra=dict(),
     )
 
-    columns: List[Column] = Field(
+    columns: List[Column] = element(
         description="Parameters of the columns",
         default_factory=ListPlus,
-        multiple=True,
+        tag="columns",
+        json_schema_extra=dict(multiple=True),
     )
 
-    valves: List[Valve] = Field(
+    valves: List[Valve] = element(
         description="Settings of the valves",
         default_factory=ListPlus,
-        multiple=True,
+        tag="valves",
+        json_schema_extra=dict(multiple=True),
     )
+    _repo: Optional[str] = PrivateAttr(
+        default="https://github.com/FAIRChemistry/chromatopy"
+    )
+    _commit: Optional[str] = PrivateAttr(
+        default="117b9dcf20afc909f806d2bcf6a15a0046ba0b7b"
+    )
+    _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _parse_raw_xml_data(self):
+        for attr, value in self:
+            if isinstance(value, (ListPlus, list)) and all(
+                (isinstance(i, _Element) for i in value)
+            ):
+                self._raw_xml_data[attr] = [elem2dict(i) for i in value]
+            elif isinstance(value, _Element):
+                self._raw_xml_data[attr] = elem2dict(value)
+        return self
 
     def add_to_columns(
         self,
@@ -78,7 +115,7 @@ class Method(sdRDM.DataModel):
         detector: Optional[Detector] = None,
         outlet_pressure: Optional[float] = None,
         id: Optional[str] = None,
-    ) -> None:
+    ) -> Column:
         """
         This method adds an object of type 'Column' to attribute columns
 
@@ -123,7 +160,7 @@ class Method(sdRDM.DataModel):
         load_time: Optional[float] = None,
         inject_time: Optional[float] = None,
         id: Optional[str] = None,
-    ) -> None:
+    ) -> Valve:
         """
         This method adds an object of type 'Valve' to attribute valves
 

@@ -4,17 +4,14 @@ from typing import List, Optional
 from pydantic import Field
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature, IDGenerator
-
 from datetime import datetime as Datetime
-
-from .signaltype import SignalType
 from .signal import Signal
 from .peak import Peak
+from .signaltype import SignalType
 
 
 @forge_signature
 class Measurement(sdRDM.DataModel):
-
     """"""
 
     id: Optional[str] = Field(
@@ -58,15 +55,8 @@ class Measurement(sdRDM.DataModel):
             peaks (): Peaks in the signal. Defaults to ListPlus()
             type (): Type of signal. Defaults to None
         """
-
-        params = {
-            "peaks": peaks,
-            "type": type,
-        }
-
+        params = {"peaks": peaks, "type": type}
         if id is not None:
             params["id"] = id
-
         self.signals.append(Signal(**params))
-
         return self.signals[-1]

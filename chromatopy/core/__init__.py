@@ -1,5 +1,8 @@
-from .hplcexperiment import HPLCExperiment
+from .chromatigraphicexperiment import ChromatigraphicExperiment
 from .molecule import Molecule
+from .measurement import Measurement
+from .signal import Signal
+from .peak import Peak
 from .standard import Standard
 from .method import Method
 from .oven import Oven
@@ -10,16 +13,16 @@ from .detector import Detector
 from .tcddetector import TCDDetector
 from .fiddetector import FIDDetector
 from .valve import Valve
-from .measurement import Measurement
-from .signal import Signal
-from .peak import Peak
 from .signaltype import SignalType
 from .role import Role
 
 __doc__ = ""
 __all__ = [
-    "HPLCExperiment",
+    "ChromatigraphicExperiment",
     "Molecule",
+    "Measurement",
+    "Signal",
+    "Peak",
     "Standard",
     "Method",
     "Oven",
@@ -30,9 +33,6 @@ __all__ = [
     "TCDDetector",
     "FIDDetector",
     "Valve",
-    "Measurement",
-    "Signal",
-    "Peak",
     "SignalType",
     "Role",
 ]

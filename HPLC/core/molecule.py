@@ -1,21 +1,18 @@
 import sdRDM
 
-from scipy.stats import linregress
 from typing import List, Optional
 from pydantic import Field
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature, IDGenerator
-
 from datetime import datetime as Datetime
-
+from scipy.stats import linregress
+from .peak import Peak
 from .role import Role
 from .standard import Standard
-from .peak import Peak
 
 
 @forge_signature
 class Molecule(sdRDM.DataModel):
-
     """"""
 
     id: Optional[str] = Field(
@@ -65,7 +62,7 @@ class Molecule(sdRDM.DataModel):
     )
 
     standard: Optional[Standard] = Field(
-        default=None,
+        default=Standard(),
         description="Standard, describing the signal to concentration relationship",
     )
 
@@ -104,7 +101,6 @@ class Molecule(sdRDM.DataModel):
             height_unit (): Unit of height. Defaults to None
             percent_area (): Percent area of the peak. Defaults to None
         """
-
         params = {
             "retention_time": retention_time,
             "retention_time_unit": retention_time_unit,
@@ -117,43 +113,39 @@ class Molecule(sdRDM.DataModel):
             "height_unit": height_unit,
             "percent_area": percent_area,
         }
-
         if id is not None:
             params["id"] = id
-
         self.peaks.append(Peak(**params))
-
         return self.peaks[-1]
 
     def calculate_concentrations(
-            self,
-            internal_standard: "Molecule",
+        self,
+        internal_standard: "Molecule",
     ) -> List[float]:
-
         if not self.role == Role.ANALYTE.value:
-            raise ValueError(
-                f"Analyte {self.name} is not an analyte"
-            )
+            raise ValueError(f"Analyte {self.name} is not an analyte")
         if not internal_standard.role == Role.INTERNAL_STANDARD.value:
             raise ValueError(
-                f"Internal standard {internal_standard.name} is not an internal standard"
+                f"Internal standard {internal_standard.name} is not an internal"
+                " standard"
             )
 
         analyte_ares = (peak.area for peak in self.peaks)
         standard_areas = (peak.area for peak in internal_standard.peaks)
 
-        self.concentrations = [area_analyte / area_standard / internal_standard.slope *
-                               internal_standard.molecular_weight
-                               for area_analyte, area_standard
-                               in zip(analyte_ares, standard_areas)]
+        self.concentrations = [
+            area_analyte
+            / area_standard
+            / internal_standard.slope
+            * internal_standard.molecular_weight
+            for area_analyte, area_standard in zip(analyte_ares, standard_areas)
+        ]
 
     @property
     def slope(self):
-
         if self.standard:
             return linregress(
-                x=self.standard.concentration,
-                y=self.standard.signal
+                x=self.standard.concentration, y=self.standard.signal
             ).slope
 
         else:
@@ -173,10 +165,8 @@ class Molecule(sdRDM.DataModel):
 
     @staticmethod
     def datetime_to_relative_time(
-        datetimes: List[Datetime],
-        unit: str = "s"
+        datetimes: List[Datetime], unit: str = "s"
     ) -> List[float]:
-
         time_converter = dict(
             s=1,
             m=60,

@@ -7,7 +7,6 @@ from sdRDM.base.utils import forge_signature, IDGenerator
 
 @forge_signature
 class Detector(sdRDM.DataModel):
-
     """Base class for detectors."""
 
     id: Optional[str] = Field(

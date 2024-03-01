@@ -2,14 +2,11 @@
 from typing import Optional
 from pydantic import Field
 from sdRDM.base.utils import forge_signature, IDGenerator
-
-
 from .detector import Detector
 
 
 @forge_signature
 class FIDDetector(Detector):
-
     """Describes properties of a flame ionization detector."""
 
     id: Optional[str] = Field(

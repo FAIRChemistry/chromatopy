@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "chromatopy"
+version = "0.1.0"
+description = "Tool for processing chromatography data"
+authors = ["haeussma <83341109+haeussma@users.noreply.github.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+sdRDM = { git = "https://github.com/JR-1991/software-driven-rdm.git", rev = "cc2d1e21e898399ed55c164f8c02a57341a0fb80" }
+
+[tool.poetry.group.dev.dependencies]
+mkdocs-material = "^9.5.12"
+ruff = "^0.3.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"

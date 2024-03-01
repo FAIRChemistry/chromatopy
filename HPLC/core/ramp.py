@@ -7,7 +7,6 @@ from sdRDM.base.utils import forge_signature, IDGenerator
 
 @forge_signature
 class Ramp(sdRDM.DataModel):
-
     """Describes properties of a temperature ramp."""
 
     id: Optional[str] = Field(

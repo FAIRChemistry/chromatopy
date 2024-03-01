@@ -7,7 +7,6 @@ from sdRDM.base.utils import forge_signature, IDGenerator
 
 @forge_signature
 class Peak(sdRDM.DataModel):
-
     """"""
 
     id: Optional[str] = Field(
