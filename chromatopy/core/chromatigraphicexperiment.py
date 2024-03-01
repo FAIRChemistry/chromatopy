@@ -9,10 +9,10 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
+from .molecule import Molecule
+from .signal import Signal
 from .method import Method
 from .measurement import Measurement
-from .signal import Signal
-from .molecule import Molecule
 
 
 @forge_signature
@@ -50,7 +50,7 @@ class ChromatigraphicExperiment(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="117b9dcf20afc909f806d2bcf6a15a0046ba0b7b"
+        default="f0b2259e601e7ba4be017d348f7315a280ca776d"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
