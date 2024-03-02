@@ -22,7 +22,7 @@ class Standard(sdRDM.DataModel):
     )
 
     factor: Optional[float] = element(
-        description="Factor to convert signal to concentration",
+        description="Factor to convert the signal to concentration",
         default=None,
         tag="factor",
         json_schema_extra=dict(),
@@ -31,7 +31,7 @@ class Standard(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="f0b2259e601e7ba4be017d348f7315a280ca776d"
+        default="87cfc156e2c331daa65c86fdf6e0060fc9bf3c33"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

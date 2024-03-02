@@ -1,7 +1,7 @@
 from .chromatigraphicexperiment import ChromatigraphicExperiment
 from .molecule import Molecule
 from .measurement import Measurement
-from .signal import Signal
+from .chromatogram import Chromatogram
 from .peak import Peak
 from .standard import Standard
 from .method import Method
@@ -21,7 +21,7 @@ __all__ = [
     "ChromatigraphicExperiment",
     "Molecule",
     "Measurement",
-    "Signal",
+    "Chromatogram",
     "Peak",
     "Standard",
     "Method",

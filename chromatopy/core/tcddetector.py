@@ -29,7 +29,7 @@ class TCDDetector(Detector):
     )
 
     air_flow: Optional[float] = element(
-        description="Air flow",
+        description="Airflow",
         default=None,
         tag="air_flow",
         json_schema_extra=dict(),
@@ -59,7 +59,7 @@ class TCDDetector(Detector):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="f0b2259e601e7ba4be017d348f7315a280ca776d"
+        default="87cfc156e2c331daa65c86fdf6e0060fc9bf3c33"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

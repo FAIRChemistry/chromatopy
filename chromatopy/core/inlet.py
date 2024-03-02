@@ -7,6 +7,7 @@ from pydantic_xml import attr, element
 from lxml.etree import _Element
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
+from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 
 
@@ -22,7 +23,7 @@ class Inlet(sdRDM.DataModel):
     )
 
     mode: Optional[str] = element(
-        description="Mode of the inlet (Split/Splitless)",
+        description="Mode of the inlet (Split / Splitless)",
         default=None,
         tag="mode",
         json_schema_extra=dict(),
@@ -42,7 +43,7 @@ class Inlet(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
 
-    pressure_unit: Optional[str] = element(
+    pressure_unit: Optional[Unit] = element(
         description="Unit of pressure",
         default=None,
         tag="pressure_unit",
@@ -70,7 +71,7 @@ class Inlet(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
 
-    flow_unit: Optional[str] = element(
+    flow_unit: Optional[Unit] = element(
         description="Unit of flow",
         default=None,
         tag="flow_unit",
@@ -94,7 +95,7 @@ class Inlet(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="f0b2259e601e7ba4be017d348f7315a280ca776d"
+        default="87cfc156e2c331daa65c86fdf6e0060fc9bf3c33"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

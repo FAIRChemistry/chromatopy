@@ -7,12 +7,13 @@ from pydantic_xml import attr, element
 from lxml.etree import _Element
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
+from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
-from .column import Column
 from .oven import Oven
-from .valve import Valve
 from .detector import Detector
 from .inlet import Inlet
+from .column import Column
+from .valve import Valve
 
 
 @forge_signature
@@ -47,7 +48,7 @@ class Method(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
 
-    injection_volume_unit: Optional[str] = element(
+    injection_volume_unit: Optional[Unit] = element(
         description="Unit of injection volume",
         default=None,
         tag="injection_volume_unit",
@@ -85,7 +86,7 @@ class Method(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="f0b2259e601e7ba4be017d348f7315a280ca776d"
+        default="87cfc156e2c331daa65c86fdf6e0060fc9bf3c33"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -110,7 +111,7 @@ class Method(sdRDM.DataModel):
         film_thickness: Optional[float] = None,
         flow_mode: Optional[str] = None,
         flow_rate: Optional[float] = None,
-        flow_unit: Optional[str] = None,
+        flow_unit: Optional[Unit] = None,
         inlet: Optional[Inlet] = None,
         detector: Optional[Detector] = None,
         outlet_pressure: Optional[float] = None,

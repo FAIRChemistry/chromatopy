@@ -7,11 +7,12 @@ from pydantic_xml import attr, element
 from lxml.etree import _Element
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
+from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
-from .signal import Signal
 from .peak import Peak
 from .signaltype import SignalType
+from .chromatogram import Chromatogram
 
 
 @forge_signature
@@ -25,10 +26,10 @@ class Measurement(sdRDM.DataModel):
         xml="@id",
     )
 
-    signals: List[Signal] = element(
+    Chromatograms: List[Chromatogram] = element(
         description="Measured signal",
         default_factory=ListPlus,
-        tag="signals",
+        tag="Chromatograms",
         json_schema_extra=dict(multiple=True),
     )
 
@@ -46,7 +47,7 @@ class Measurement(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
 
-    injection_volume_unit: Optional[str] = element(
+    injection_volume_unit: Optional[Unit] = element(
         description="Unit of injection volume",
         default=None,
         tag="injection_volume_unit",
@@ -56,7 +57,7 @@ class Measurement(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="f0b2259e601e7ba4be017d348f7315a280ca776d"
+        default="87cfc156e2c331daa65c86fdf6e0060fc9bf3c33"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -71,22 +72,34 @@ class Measurement(sdRDM.DataModel):
                 self._raw_xml_data[attr] = elem2dict(value)
         return self
 
-    def add_to_signals(
+    def add_to_chromatograms(
         self,
         peaks: List[Peak] = ListPlus(),
+        retention_times: List[float] = ListPlus(),
+        time_unit: Optional[Unit] = None,
+        signals: List[float] = ListPlus(),
         type: Optional[SignalType] = None,
         id: Optional[str] = None,
-    ) -> Signal:
+    ) -> Chromatogram:
         """
-        This method adds an object of type 'Signal' to attribute signals
+        This method adds an object of type 'Chromatogram' to attribute Chromatograms
 
         Args:
-            id (str): Unique identifier of the 'Signal' object. Defaults to 'None'.
+            id (str): Unique identifier of the 'Chromatogram' object. Defaults to 'None'.
             peaks (): Peaks in the signal. Defaults to ListPlus()
+            retention_times (): Retention times of the signal. Defaults to ListPlus()
+            time_unit (): Unit of retention time. Defaults to None
+            signals (): Signal values. Defaults to ListPlus()
             type (): Type of signal. Defaults to None
         """
-        params = {"peaks": peaks, "type": type}
+        params = {
+            "peaks": peaks,
+            "retention_times": retention_times,
+            "time_unit": time_unit,
+            "signals": signals,
+            "type": type,
+        }
         if id is not None:
             params["id"] = id
-        self.signals.append(Signal(**params))
-        return self.signals[-1]
+        self.Chromatograms.append(Chromatogram(**params))
+        return self.Chromatograms[-1]

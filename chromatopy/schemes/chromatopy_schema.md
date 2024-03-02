@@ -8,9 +8,9 @@ classDiagram
     Molecule *-- Role
     Molecule *-- Peak
     Molecule *-- Standard
-    Measurement *-- Signal
-    Signal *-- SignalType
-    Signal *-- Peak
+    Measurement *-- Chromatogram
+    Chromatogram *-- SignalType
+    Chromatogram *-- Peak
     Method *-- Oven
     Method *-- Column
     Method *-- Valve
@@ -36,27 +36,30 @@ classDiagram
     }
     
     class Measurement {
-        +Signal[0..*] signals
+        +Chromatogram[0..*] Chromatograms
         +datetime timestamp
         +float injection_volume
-        +string injection_volume_unit
+        +Unit injection_volume_unit
     }
     
-    class Signal {
+    class Chromatogram {
         +Peak[0..*] peaks
+        +float[0..*] retention_times
+        +Unit time_unit
+        +float[0..*] signals
         +SignalType type
     }
     
     class Peak {
         +float retention_time
-        +string retention_time_unit
+        +Unit retention_time_unit
         +string type
         +float width
-        +string width_unit
+        +Unit width_unit
         +float area
-        +string area_unit
+        +Unit area_unit
         +float height
-        +string height_unit
+        +Unit height_unit
         +float percent_area
     }
     
@@ -68,7 +71,7 @@ classDiagram
         +float injection_time
         +string injection_date
         +float injection_volume
-        +string injection_volume_unit
+        +Unit injection_volume_unit
         +string location
         +Oven oven
         +Column[0..*] columns
@@ -89,18 +92,18 @@ classDiagram
         +float temp_rate
         +float final_temp
         +float hold_time
-        +string time_unit
+        +Unit time_unit
     }
     
     class Inlet {
         +string mode
         +float init_temp
         +float pressure
-        +string pressure_unit
+        +Unit pressure_unit
         +string split_ratio
         +float split_flow
         +float total_flow
-        +string flow_unit
+        +Unit flow_unit
         +boolean gas_saver
         +string gas_type
     }
@@ -114,7 +117,7 @@ classDiagram
         +float film_thickness
         +string flow_mode
         +float flow_rate
-        +string flow_unit
+        +Unit flow_unit
         +Inlet inlet
         +Detector detector
         +float outlet_pressure
@@ -125,7 +128,7 @@ classDiagram
         +string flow_mode
         +float makeup_flow
         +string makeup_gas
-        +string flow_unit
+        +Unit flow_unit
         +float reference_flow
     }
     

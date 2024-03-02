@@ -1,21 +1,27 @@
 import sdRDM
 
 from typing import Dict, List, Optional
-from pydantic import PrivateAttr, model_validator
 from uuid import uuid4
+from pydantic import PrivateAttr, model_validator
 from pydantic_xml import attr, element
 from lxml.etree import _Element
+
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
+
+
+from sdRDM.base.datatypes import Unit
+
 from .peak import Peak
-from .standard import Standard
-from .role import Role
+from .signaltype import SignalType
 
 
 @forge_signature
-class Molecule(sdRDM.DataModel):
+class Chromatogram(
+    sdRDM.DataModel,
+):
     """"""
 
     id: Optional[str] = attr(
@@ -25,64 +31,47 @@ class Molecule(sdRDM.DataModel):
         xml="@id",
     )
 
-    name: Optional[str] = element(
-        description="Molecule name",
-        default=None,
-        tag="name",
-        json_schema_extra=dict(),
-    )
-
-    inchi: Optional[str] = element(
-        description="InCHI code of the molecule",
-        default=None,
-        tag="inchi",
-        json_schema_extra=dict(),
-    )
-
-    molecular_weight: Optional[float] = element(
-        description="Molar weight of the molecule in g/mol",
-        default=None,
-        tag="molecular_weight",
-        json_schema_extra=dict(),
-    )
-
-    retention_time: Optional[float] = element(
-        description="Approximated retention time of the molecule",
-        default=None,
-        tag="retention_time",
-        json_schema_extra=dict(),
-    )
-
     peaks: List[Peak] = element(
-        description=(
-            "All peaks of the dataset, which are within the same retention time"
-            " interval related to the molecule"
-        ),
+        description="Peaks in the signal",
         default_factory=ListPlus,
         tag="peaks",
-        json_schema_extra=dict(multiple=True),
+        json_schema_extra=dict(
+            multiple=True,
+        ),
     )
 
-    concentrations: List[float] = element(
-        description="Concentration of the molecule",
+    retention_times: List[float] = element(
+        description="Retention times of the signal",
         default_factory=ListPlus,
-        tag="concentrations",
-        json_schema_extra=dict(multiple=True),
+        tag="retention_times",
+        json_schema_extra=dict(
+            multiple=True,
+        ),
     )
 
-    standard: Optional[Standard] = element(
-        description="Standard, describing the signal-to-concentration relationship",
-        default_factory=Standard,
-        tag="standard",
-        json_schema_extra=dict(),
-    )
-
-    role: Optional[Role] = element(
-        description="Role of the molecule in the experiment",
+    time_unit: Optional[Unit] = element(
+        description="Unit of retention time",
         default=None,
-        tag="role",
+        tag="time_unit",
         json_schema_extra=dict(),
     )
+
+    signals: List[float] = element(
+        description="Signal values",
+        default_factory=ListPlus,
+        tag="signals",
+        json_schema_extra=dict(
+            multiple=True,
+        ),
+    )
+
+    type: Optional[SignalType] = element(
+        description="Type of signal",
+        default=None,
+        tag="type",
+        json_schema_extra=dict(),
+    )
+
     _repo: Optional[str] = PrivateAttr(
         default="https://github.com/FAIRChemistry/chromatopy"
     )
@@ -95,11 +84,12 @@ class Molecule(sdRDM.DataModel):
     def _parse_raw_xml_data(self):
         for attr, value in self:
             if isinstance(value, (ListPlus, list)) and all(
-                (isinstance(i, _Element) for i in value)
+                isinstance(i, _Element) for i in value
             ):
                 self._raw_xml_data[attr] = [elem2dict(i) for i in value]
             elif isinstance(value, _Element):
                 self._raw_xml_data[attr] = elem2dict(value)
+
         return self
 
     def add_to_peaks(
@@ -132,6 +122,7 @@ class Molecule(sdRDM.DataModel):
             height_unit (): Unit of height. Defaults to None
             percent_area (): Percent area of the peak. Defaults to None
         """
+
         params = {
             "retention_time": retention_time,
             "retention_time_unit": retention_time_unit,
@@ -144,7 +135,10 @@ class Molecule(sdRDM.DataModel):
             "height_unit": height_unit,
             "percent_area": percent_area,
         }
+
         if id is not None:
             params["id"] = id
+
         self.peaks.append(Peak(**params))
+
         return self.peaks[-1]

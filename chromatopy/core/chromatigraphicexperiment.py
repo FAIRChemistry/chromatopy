@@ -7,12 +7,13 @@ from pydantic_xml import attr, element
 from lxml.etree import _Element
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
+from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
-from .molecule import Molecule
-from .signal import Signal
 from .method import Method
+from .chromatogram import Chromatogram
 from .measurement import Measurement
+from .molecule import Molecule
 
 
 @forge_signature
@@ -34,7 +35,7 @@ class ChromatigraphicExperiment(sdRDM.DataModel):
     )
 
     molecules: Optional[Molecule] = element(
-        description="Molecule which can be assigned to a peak.",
+        description="Molecule that can be assigned to a peak.",
         default_factory=Molecule,
         tag="molecules",
         json_schema_extra=dict(),
@@ -50,7 +51,7 @@ class ChromatigraphicExperiment(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="f0b2259e601e7ba4be017d348f7315a280ca776d"
+        default="87cfc156e2c331daa65c86fdf6e0060fc9bf3c33"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -67,10 +68,10 @@ class ChromatigraphicExperiment(sdRDM.DataModel):
 
     def add_to_measurements(
         self,
-        signals: List[Signal] = ListPlus(),
+        Chromatograms: List[Chromatogram] = ListPlus(),
         timestamp: Optional[Datetime] = None,
         injection_volume: Optional[float] = None,
-        injection_volume_unit: Optional[str] = None,
+        injection_volume_unit: Optional[Unit] = None,
         id: Optional[str] = None,
     ) -> Measurement:
         """
@@ -78,13 +79,13 @@ class ChromatigraphicExperiment(sdRDM.DataModel):
 
         Args:
             id (str): Unique identifier of the 'Measurement' object. Defaults to 'None'.
-            signals (): Measured signal. Defaults to ListPlus()
+            Chromatograms (): Measured signal. Defaults to ListPlus()
             timestamp (): Timestamp of sample injection into the column. Defaults to None
             injection_volume (): Injection volume. Defaults to None
             injection_volume_unit (): Unit of injection volume. Defaults to None
         """
         params = {
-            "signals": signals,
+            "Chromatograms": Chromatograms,
             "timestamp": timestamp,
             "injection_volume": injection_volume,
             "injection_volume_unit": injection_volume_unit,
