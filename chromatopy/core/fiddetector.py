@@ -45,7 +45,7 @@ class FIDDetector(Detector):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="87cfc156e2c331daa65c86fdf6e0060fc9bf3c33"
+        default="65c557d19a8e17c9382138acff6a72e138c5ee2b"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

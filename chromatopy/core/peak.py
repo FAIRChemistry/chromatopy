@@ -43,6 +43,20 @@ class Peak(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
 
+    peak_start: Optional[float] = element(
+        description="Start retention time of the peak",
+        default=None,
+        tag="peak_start",
+        json_schema_extra=dict(),
+    )
+
+    peak_end: Optional[float] = element(
+        description="End retention time of the peak",
+        default=None,
+        tag="peak_end",
+        json_schema_extra=dict(),
+    )
+
     width: Optional[float] = element(
         description="Width of the peak",
         default=None,
@@ -91,11 +105,25 @@ class Peak(sdRDM.DataModel):
         tag="percent_area",
         json_schema_extra=dict(),
     )
+
+    tailing_factor: Optional[float] = element(
+        description="Tailing factor of the peak",
+        default=None,
+        tag="tailing_factor",
+        json_schema_extra=dict(),
+    )
+
+    separation_factor: Optional[float] = element(
+        description="Separation factor of the peak",
+        default=None,
+        tag="separation_factor",
+        json_schema_extra=dict(),
+    )
     _repo: Optional[str] = PrivateAttr(
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="87cfc156e2c331daa65c86fdf6e0060fc9bf3c33"
+        default="65c557d19a8e17c9382138acff6a72e138c5ee2b"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

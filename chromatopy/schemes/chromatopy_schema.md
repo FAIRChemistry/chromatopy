@@ -54,6 +54,8 @@ classDiagram
         +float retention_time
         +Unit retention_time_unit
         +string type
+        +float peak_start
+        +float peak_end
         +float width
         +Unit width_unit
         +float area
@@ -61,6 +63,8 @@ classDiagram
         +float height
         +Unit height_unit
         +float percent_area
+        +float tailing_factor
+        +float separation_factor
     }
     
     class Standard {

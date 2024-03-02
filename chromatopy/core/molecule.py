@@ -9,9 +9,9 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
-from .peak import Peak
 from .standard import Standard
 from .role import Role
+from .peak import Peak
 
 
 @forge_signature
@@ -87,7 +87,7 @@ class Molecule(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="87cfc156e2c331daa65c86fdf6e0060fc9bf3c33"
+        default="65c557d19a8e17c9382138acff6a72e138c5ee2b"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -107,6 +107,8 @@ class Molecule(sdRDM.DataModel):
         retention_time: Optional[float] = None,
         retention_time_unit: Optional[Unit] = None,
         type: Optional[str] = None,
+        peak_start: Optional[float] = None,
+        peak_end: Optional[float] = None,
         width: Optional[float] = None,
         width_unit: Optional[Unit] = None,
         area: Optional[float] = None,
@@ -114,6 +116,8 @@ class Molecule(sdRDM.DataModel):
         height: Optional[float] = None,
         height_unit: Optional[Unit] = None,
         percent_area: Optional[float] = None,
+        tailing_factor: Optional[float] = None,
+        separation_factor: Optional[float] = None,
         id: Optional[str] = None,
     ) -> Peak:
         """
@@ -124,6 +128,8 @@ class Molecule(sdRDM.DataModel):
             retention_time (): Retention time of the peak. Defaults to None
             retention_time_unit (): Unit of retention time. Defaults to None
             type (): Type of peak (baseline-baseline / baseline-valley / ...). Defaults to None
+            peak_start (): Start retention time of the peak. Defaults to None
+            peak_end (): End retention time of the peak. Defaults to None
             width (): Width of the peak. Defaults to None
             width_unit (): Unit of width. Defaults to None
             area (): Area of the peak. Defaults to None
@@ -131,11 +137,15 @@ class Molecule(sdRDM.DataModel):
             height (): Height of the peak. Defaults to None
             height_unit (): Unit of height. Defaults to None
             percent_area (): Percent area of the peak. Defaults to None
+            tailing_factor (): Tailing factor of the peak. Defaults to None
+            separation_factor (): Separation factor of the peak. Defaults to None
         """
         params = {
             "retention_time": retention_time,
             "retention_time_unit": retention_time_unit,
             "type": type,
+            "peak_start": peak_start,
+            "peak_end": peak_end,
             "width": width,
             "width_unit": width_unit,
             "area": area,
@@ -143,6 +153,8 @@ class Molecule(sdRDM.DataModel):
             "height": height,
             "height_unit": height_unit,
             "percent_area": percent_area,
+            "tailing_factor": tailing_factor,
+            "separation_factor": separation_factor,
         }
         if id is not None:
             params["id"] = id
