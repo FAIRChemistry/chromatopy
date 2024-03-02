@@ -9,7 +9,7 @@
     - Description: Description of the HPLC method
 - molecules
     - Type: Molecule
-    - Description: Molecule which can be assigned to a peak. 
+    - Description: Molecule that can be assigned to a peak. 
 - measurements
     - Type: Measurement
     - Description: Measured signals
@@ -48,8 +48,8 @@
 
 ### Measurement
 
-- signals
-    - Type: Signal
+- Chromatograms
+    - Type: Chromatogram
     - Description: Measured signal
     - Multiple: True
 - timestamp
@@ -59,14 +59,25 @@
     - Type: float
     - Description: Injection volume
 - injection_volume_unit
-    - Type: string
+    - Type: Unit
     - Description: Unit of injection volume
 
-### Signal
+### Chromatogram
 
 - peaks
     - Type: Peak
     - Description: Peaks in the signal
+    - Multiple: True
+- retention_times
+    - Type: float
+    - Description: Retention times of the signal
+    - Multiple: True
+- time_unit
+    - Type: Unit
+    - Description: Unit of retention time
+- signals
+    - Type: float
+    - Description: Signal values
     - Multiple: True
 - type
     - Type: SignalType
@@ -78,28 +89,28 @@
     - Type: float
     - Description: Retention time of the peak
 - retention_time_unit
-    - Type: string
+    - Type: Unit
     - Description: Unit of retention time
 - type
     - Type: string
-    - Description: Type of peak (baseline-baseline / baseline-valey / ...)
+    - Description: Type of peak (baseline-baseline / baseline-valley / ...)
 - width
     - Type: float
     - Description: Width of the peak
 - width_unit
-    - Type: string
+    - Type: Unit
     - Description: Unit of width
 - area
     - Type: float
     - Description: Area of the peak
 - area_unit
-    - Type: string
+    - Type: Unit
     - Description: Unit of area
 - height
     - Type: float
     - Description: Height of the peak
 - height_unit
-    - Type: string
+    - Type: Unit
     - Description: Unit of height
 - percent_area
     - Type: float
@@ -109,7 +120,7 @@
 
 - factor
     - Type: float
-    - Description: Factor to convert signal to concentration
+    - Description: Factor to convert the signal to concentration
 
 ## Objects describing the method
 
@@ -125,7 +136,7 @@
     - Type: float
     - Description: Injection volume
 - injection_volume_unit
-    - Type: string
+    - Type: Unit
     - Description: Unit of injection volume
 - location
     - Type: string
@@ -182,14 +193,14 @@ Describes properties of a temperature ramp.
     - Type: float
     - Description: Duration to hold the final temperature before starting the next ramp
 - time_unit
-    - Type: string
+    - Type: Unit
     - Description: Unit of time
 
 ### Inlet
 
 - mode
     - Type: string
-    - Description: Mode of the inlet (Split/Splitless)
+    - Description: Mode of the inlet (Split / Splitless)
 - init_temp
     - Type: float
     - Description: Initial temperature
@@ -197,7 +208,7 @@ Describes properties of a temperature ramp.
     - Type: float
     - Description: Inlet pressure
 - pressure_unit
-    - Type: string
+    - Type: Unit
     - Description: Unit of pressure
 - split_ratio
     - Type: string
@@ -210,7 +221,7 @@ Describes properties of a temperature ramp.
     - Type: float
     - Description: Total flow
 - flow_unit
-    - Type: string
+    - Type: Unit
     - Description: Unit of flow
 - gas_saver
     - Type: boolean
@@ -248,7 +259,7 @@ Describes properties of a column and its connections to the inlet and detector.
     - Type: float
     - Description: Flow rate of the column
 - flow_unit
-    - Type: string
+    - Type: Unit
     - Description: Unit of flow rate
 - inlet
     - Type: Inlet
@@ -269,7 +280,7 @@ Base class for detectors.
     - Description: Type of detector
 - flow_mode
     - Type: string
-    - Description: Air flow mode
+    - Description: Airflow mode
 - makeup_flow
     - Type: float
     - Description: Makeup flow
@@ -277,7 +288,7 @@ Base class for detectors.
     - Type: string
     - Description: Makeup gas
 - flow_unit
-    - Type: string
+    - Type: Unit
     - Description: Unit of flow
 - reference_flow
     - Type: float
@@ -292,7 +303,7 @@ Describes properties of a thermal conductivity detector.
     - Description: Hydrogen flow
 - air_flow
     - Type: float
-    - Description: Air flow
+    - Description: Airflow
 - flame
     - Type: boolean
     - Description: Flame on/off
