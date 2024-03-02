@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from io import StringIO
-from typing import TextIO, Optional
+import os
+import pathlib
+from typing import Optional
 import re
 
 import pandas as pd
@@ -10,22 +12,25 @@ class AbstractReader(ABC):
 
     def __init__(self, path: str):
         self.path = path
+        self._is_directory: bool = os.path.isdir(path)
+
+    def _paths(self):
+        if self._is_directory:
+            return [os.path.join(self.path, f) for f in os.listdir(self.path)]
+        else:
+            return [self.path]
 
     @abstractmethod
     def read(self):
-        pass
-
-    @abstractmethod
-    def read_directory(self):
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def extract_peaks(self):
-        pass
+        raise NotImplementedError()
 
     @abstractmethod
     def extract_signal(self):
-        pass
+        raise NotImplementedError()
 
 
 class CSVReader(AbstractReader):
@@ -33,9 +38,6 @@ class CSVReader(AbstractReader):
     def read_csv(self):
         data = pd.read_csv(self.path, header=None)
         return data
-
-    def read_directory(self, path: str):
-        pass
 
     def extract_peaks(self):
         pass
@@ -53,28 +55,58 @@ class ChemStationReader(AbstractReader):
 class ShimadzuReader(AbstractReader):
     re_sections = re.compile(r"\[(.*)\]")
 
+    def _paths(self):
+        if self._is_directory:
+            return [
+                os.path.join(self.path, f)
+                for f in os.listdir(self.path)
+                if f.endswith(".txt")
+            ]
+        else:
+            return [self.path]
+
     def read(self):
+        """
+        Reads the contents of one or multiple files and returns them as a list of strings.
+
+        Returns:
+            A list of strings, where each string represents the contents of a file.
+        """
+        file_contents = []
+        for path in self._paths():
+            try:
+                file_contents.append(
+                    pathlib.Path(path).read_text(encoding="ISO-8859-1")
+                )
+            except IOError as e:
+                print(f"Error reading file: {path}")
+                raise e
+
+        sections = [self._parse_sections(content) for content in file_contents]
+
+        peak_tables = [self.get_peak_table(section) for section in sections]
+        peaks = [self._map_peak_table(table) for table in peak_tables]
+
+        return peaks
+
+    def extract_peaks(self):
         pass
 
-    def read_directory(self, path: str):
+    def extract_signal(self):
         pass
 
-    def parse_sections(self) -> dict:
+    def _parse_sections(self, file_content: str) -> dict:
         """Parse a Shimadzu ASCII-export file into sections."""
-        with open(self.path, "r", encoding="ISO-8859-1") as f:
-            fulltext = f.read()
 
         # Split file into sections using section header pattern
-        split = self.re_sections.split(fulltext)
-        assert len(split[0]) == 0, "the file should start with a section header"
+        section_splits = re.split(self.re_sections, file_content)
+        if len(section_splits[0]) != 0:
+            raise IOError("The file should start with a section header")
 
-        section_names = [split[i] for i in range(1, len(split), 2)]
-        section_contents = [split[i] for i in range(2, len(split), 2)]
+        section_names = section_splits[1::2]
+        section_contents = [content for content in section_splits[2::2]]
 
-        sections = {
-            name: content for name, content in zip(section_names, section_contents)
-        }
-        return sections
+        return dict(zip(section_names, section_contents))
 
     def parse_meta(self, sections: dict, section_name: str, nrows: int) -> dict:
         """Parse the metadata in a section as keys-values."""
@@ -92,23 +124,37 @@ class ShimadzuReader(AbstractReader):
         table_str = sections[section_name]
 
         # Count number of non-empty lines
-        num_lines = len([l for l in re.split("[\r\n]+", table_str) if len(l)])
+        num_lines = len([le for le in re.split("[\r\n]+", table_str) if len(le)])
 
         if num_lines <= 1:
             return None
 
-        return pd.read_table(StringIO(table_str), header=1, skiprows=skiprows)
+        return pd.read_table(StringIO(table_str), header=1, skiprows=skiprows, sep=",")
+
+    def _map_peak_table(self, table: pd.DataFrame) -> dict:
+        retention_time_col = "R.Time"
+        height_col = "Height"
+        area_col = "Area"
+        peak_start_col = "I.Time"
+        peak_end_col = "F.Time"
+
+        return table.apply(
+            lambda row: {
+                "retention_time": row[retention_time_col],
+                "retention_time_unit": "min",
+                "height": row[height_col],
+                "area": row[area_col],
+                "width": row[peak_end_col] - row[peak_start_col],
+                "width_unit": "min",
+            },
+            axis=1,
+        ).tolist()
 
     def get_peak_table(
-        self, sections: dict, detector: str = "A"
+        self, sections: dict, detector: str = "A-Ch1"
     ) -> Optional[pd.DataFrame]:
         section_name = f"Peak Table(Detector {detector})"
-        meta = self.parse_meta(sections, section_name, 1)
         table = self.parse_table(sections, section_name, skiprows=1)
-
-        assert (
-            table is None or int(meta["# of Peaks"]) == table.shape[0]
-        ), "Declared number of peaks and table size differ"
 
         return table
 

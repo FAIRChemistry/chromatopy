@@ -94,3 +94,7 @@ class ChromatigraphicExperiment(sdRDM.DataModel):
             params["id"] = id
         self.measurements.append(Measurement(**params))
         return self.measurements[-1]
+
+    @classmethod
+    def read(cls, path: str):
+        """Reads in data from file or direcotry"""

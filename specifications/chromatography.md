@@ -94,6 +94,12 @@
 - type
     - Type: string
     - Description: Type of peak (baseline-baseline / baseline-valley / ...)
+- peak_start
+    - Type: float
+    - Description: Start retention time of the peak
+- peak_end
+    - Type: float
+    - Description: End retention time of the peak
 - width
     - Type: float
     - Description: Width of the peak
@@ -115,6 +121,12 @@
 - percent_area
     - Type: float
     - Description: Percent area of the peak
+- tailing_factor
+    - Type: float
+    - Description: Tailing factor of the peak
+- separation_factor
+    - Type: float
+    - Description: Separation factor of the peak
 
 ### Standard
 
