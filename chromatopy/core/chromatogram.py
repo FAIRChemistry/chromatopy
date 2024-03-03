@@ -1,4 +1,7 @@
 import sdRDM
+import pandas as pd
+from functools import cache
+
 
 from typing import Dict, List, Optional
 from pydantic import PrivateAttr, model_validator
@@ -11,6 +14,9 @@ from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 from .peak import Peak
 from .signaltype import SignalType
+
+import plotly.graph_objects as go
+from hplc.quant import Chromatogram as hplcChromatogram
 
 
 @forge_signature
@@ -142,3 +148,90 @@ class Chromatogram(sdRDM.DataModel):
             params["id"] = id
         self.peaks.append(Peak(**params))
         return self.peaks[-1]
+
+    @classmethod
+    def from_csv(cls, path: str, time_unit: Unit) -> "Chromatogram":
+        """
+        This method reads a chromatogram from a CSV file
+
+        Args:
+            path (str): Path to the CSV file
+        """
+        df = pd.read_csv(path, header=None)
+        retention_times = df[0].values.tolist()
+        signals = df[1].values.tolist()
+
+        return cls(
+            retention_times=retention_times,
+            signals=signals,
+            time_unit=time_unit,
+        )
+
+    def fit(
+        self,
+        visualize: bool = False,
+        **hplc_py_kwargs,
+    ) -> hplcChromatogram:
+        """
+        Fit the chromatogram peaks using the `hplc-py` `Chromatogram` class.
+
+        Parameters:
+            visualize (bool, optional): Whether to visualize the fitted peaks. Defaults to False.
+            **hplc_py_kwargs: Additional keyword arguments to pass to the hplc.quant.Chromatogram.fit_peaks() method.
+
+        Returns:
+            hplcChromatogram: The fitted chromatogram.
+        """
+        fitter = hplcChromatogram(file=self.to_dataframe())
+        fitter.fit_peaks(**hplc_py_kwargs)
+        if visualize:
+            fitter.show()
+        self.peaks = self._map_hplcpy_peaks(fitter.peaks)
+        return fitter
+
+    def _map_hplcpy_peaks(self, fitter_peaks: pd.DataFrame) -> List[Peak]:
+        peaks = fitter_peaks.to_dict(orient="records")
+        return [
+            Peak(
+                retention_time=peak["retention_time"],
+                retention_time_unit=self.time_unit,
+                area=peak["area"],
+                height=peak["amplitude"],
+            )
+            for peak in peaks
+        ]
+
+    def to_dataframe(self) -> pd.DataFrame:
+        """
+        Returns the chromatogram as a pandas DataFrame with the columns 'time' and 'signal'
+        """
+        return pd.DataFrame(
+            {
+                "time": self.retention_times,
+                "signal": self.signals,
+            }
+        )
+
+    def plot(self) -> go.Figure:
+        """
+        Plot the chromatogram.
+
+        This method creates a plot of the chromatogram using the plotly library.
+        It adds a scatter trace for the retention times and signals, and if there are peaks present, it adds vertical lines for each peak.
+
+        Returns:
+            go.Figure: The plotly figure object.
+        """
+        fig = go.Figure()
+        fig.add_trace(go.Scatter(x=self.retention_times, y=self.signals))
+
+        if self.peaks:
+            for peak in self.peaks:
+                fig.add_vline(x=peak.retention_time, line_dash="dash", line_color="red")
+
+        fig.update_layout(
+            xaxis_title=f"Retention time / {self.time_unit.name}",
+            yaxis_title="Signal",
+        )
+
+        return fig
