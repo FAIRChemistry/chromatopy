@@ -10,10 +10,10 @@ from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 from .detector import Detector
-from .oven import Oven
-from .valve import Valve
-from .column import Column
 from .inlet import Inlet
+from .valve import Valve
+from .oven import Oven
+from .column import Column
 
 
 @forge_signature
@@ -86,7 +86,7 @@ class Method(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="a2315aa263d2980bb5b222724cbb01fc09cb5e65"
+        default="a3f6bfb42d2f8da231d2467b7835acc4f9b94981"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -132,7 +132,7 @@ class Method(sdRDM.DataModel):
             flow_rate (): Flow rate of the column. Defaults to None
             flow_unit (): Unit of flow rate. Defaults to None
             inlet (): Inlet of the column. Defaults to None
-            detector (): Outlet of the column, connected to detector. Defaults to None
+            detector (): Outlet of the column, connected to the detector. Defaults to None
             outlet_pressure (): Outlet pressure of the column. Defaults to None
         """
         params = {

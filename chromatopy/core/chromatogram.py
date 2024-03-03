@@ -9,8 +9,8 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
-from .peak import Peak
 from .signaltype import SignalType
+from .peak import Peak
 
 
 @forge_signature
@@ -52,6 +52,13 @@ class Chromatogram(sdRDM.DataModel):
         json_schema_extra=dict(multiple=True),
     )
 
+    wavelength: Optional[float] = element(
+        description="Wavelength of the signal in nm",
+        default=None,
+        tag="wavelength",
+        json_schema_extra=dict(),
+    )
+
     type: Optional[SignalType] = element(
         description="Type of signal",
         default=None,
@@ -62,7 +69,7 @@ class Chromatogram(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="a2315aa263d2980bb5b222724cbb01fc09cb5e65"
+        default="a3f6bfb42d2f8da231d2467b7835acc4f9b94981"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

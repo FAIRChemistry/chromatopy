@@ -1,3 +1,3 @@
 
 __URL__ = "https://github.com/FAIRChemistry/chromatopy"
-__COMMIT__ = "a2315aa263d2980bb5b222724cbb01fc09cb5e65"
+__COMMIT__ = "a3f6bfb42d2f8da231d2467b7835acc4f9b94981"

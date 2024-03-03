@@ -10,9 +10,9 @@ from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
-from .chromatogram import Chromatogram
-from .peak import Peak
 from .signaltype import SignalType
+from .peak import Peak
+from .chromatogram import Chromatogram
 
 
 @forge_signature
@@ -57,7 +57,7 @@ class Measurement(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="a2315aa263d2980bb5b222724cbb01fc09cb5e65"
+        default="a3f6bfb42d2f8da231d2467b7835acc4f9b94981"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -78,6 +78,7 @@ class Measurement(sdRDM.DataModel):
         retention_times: List[float] = ListPlus(),
         time_unit: Optional[Unit] = None,
         signals: List[float] = ListPlus(),
+        wavelength: Optional[float] = None,
         type: Optional[SignalType] = None,
         id: Optional[str] = None,
     ) -> Chromatogram:
@@ -90,6 +91,7 @@ class Measurement(sdRDM.DataModel):
             retention_times (): Retention times of the signal. Defaults to ListPlus()
             time_unit (): Unit of retention time. Defaults to None
             signals (): Signal values. Defaults to ListPlus()
+            wavelength (): Wavelength of the signal in nm. Defaults to None
             type (): Type of signal. Defaults to None
         """
         params = {
@@ -97,6 +99,7 @@ class Measurement(sdRDM.DataModel):
             "retention_times": retention_times,
             "time_unit": time_unit,
             "signals": signals,
+            "wavelength": wavelength,
             "type": type,
         }
         if id is not None:

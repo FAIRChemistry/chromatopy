@@ -1,28 +1,21 @@
 import sdRDM
 
 from typing import Dict, List, Optional
-from uuid import uuid4
 from pydantic import PrivateAttr, model_validator
+from uuid import uuid4
 from pydantic_xml import attr, element
 from lxml.etree import _Element
-
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
-
-
-from sdRDM.base.datatypes import Unit
-
-from .standard import Standard
 from .peak import Peak
+from .standard import Standard
 from .role import Role
 
 
 @forge_signature
-class Analyte(
-    sdRDM.DataModel,
-):
+class Analyte(sdRDM.DataModel):
     """"""
 
     id: Optional[str] = attr(
@@ -67,18 +60,14 @@ class Analyte(
         ),
         default_factory=ListPlus,
         tag="peaks",
-        json_schema_extra=dict(
-            multiple=True,
-        ),
+        json_schema_extra=dict(multiple=True),
     )
 
     concentrations: List[float] = element(
         description="Concentration of the molecule",
         default_factory=ListPlus,
         tag="concentrations",
-        json_schema_extra=dict(
-            multiple=True,
-        ),
+        json_schema_extra=dict(multiple=True),
     )
 
     standard: Optional[Standard] = element(
@@ -94,12 +83,11 @@ class Analyte(
         tag="role",
         json_schema_extra=dict(),
     )
-
     _repo: Optional[str] = PrivateAttr(
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="a2315aa263d2980bb5b222724cbb01fc09cb5e65"
+        default="a3f6bfb42d2f8da231d2467b7835acc4f9b94981"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -107,12 +95,11 @@ class Analyte(
     def _parse_raw_xml_data(self):
         for attr, value in self:
             if isinstance(value, (ListPlus, list)) and all(
-                isinstance(i, _Element) for i in value
+                (isinstance(i, _Element) for i in value)
             ):
                 self._raw_xml_data[attr] = [elem2dict(i) for i in value]
             elif isinstance(value, _Element):
                 self._raw_xml_data[attr] = elem2dict(value)
-
         return self
 
     def add_to_peaks(
@@ -153,7 +140,6 @@ class Analyte(
             tailing_factor (): Tailing factor of the peak. Defaults to None
             separation_factor (): Separation factor of the peak. Defaults to None
         """
-
         params = {
             "retention_time": retention_time,
             "retention_time_unit": retention_time_unit,
@@ -170,10 +156,7 @@ class Analyte(
             "tailing_factor": tailing_factor,
             "separation_factor": separation_factor,
         }
-
         if id is not None:
             params["id"] = id
-
         self.peaks.append(Peak(**params))
-
         return self.peaks[-1]

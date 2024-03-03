@@ -45,6 +45,7 @@ classDiagram
         +float[0..*] retention_times
         +Unit time_unit
         +float[0..*] signals
+        +float wavelength
         +SignalType type
     }
     

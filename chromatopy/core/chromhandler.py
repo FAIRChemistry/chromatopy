@@ -1,32 +1,25 @@
 import sdRDM
 
 from typing import Dict, List, Optional
-from uuid import uuid4
 from pydantic import PrivateAttr, model_validator
+from uuid import uuid4
 from pydantic_xml import attr, element
 from lxml.etree import _Element
-
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
-
-
 from datetime import datetime as Datetime
-from sdRDM.base.datatypes import Unit
-
-from .analyte import Analyte
+from .peak import Peak
 from .measurement import Measurement
 from .standard import Standard
 from .chromatogram import Chromatogram
-from .peak import Peak
+from .analyte import Analyte
 from .role import Role
 
 
 @forge_signature
-class ChromHandler(
-    sdRDM.DataModel,
-):
+class ChromHandler(sdRDM.DataModel):
     """"""
 
     id: Optional[str] = attr(
@@ -40,25 +33,20 @@ class ChromHandler(
         description="Molecule that can be assigned to a peak.",
         default_factory=ListPlus,
         tag="analytes",
-        json_schema_extra=dict(
-            multiple=True,
-        ),
+        json_schema_extra=dict(multiple=True),
     )
 
     measurements: List[Measurement] = element(
         description="Measured signals",
         default_factory=ListPlus,
         tag="measurements",
-        json_schema_extra=dict(
-            multiple=True,
-        ),
+        json_schema_extra=dict(multiple=True),
     )
-
     _repo: Optional[str] = PrivateAttr(
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="a2315aa263d2980bb5b222724cbb01fc09cb5e65"
+        default="a3f6bfb42d2f8da231d2467b7835acc4f9b94981"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -66,12 +54,11 @@ class ChromHandler(
     def _parse_raw_xml_data(self):
         for attr, value in self:
             if isinstance(value, (ListPlus, list)) and all(
-                isinstance(i, _Element) for i in value
+                (isinstance(i, _Element) for i in value)
             ):
                 self._raw_xml_data[attr] = [elem2dict(i) for i in value]
             elif isinstance(value, _Element):
                 self._raw_xml_data[attr] = elem2dict(value)
-
         return self
 
     def add_to_analytes(
@@ -100,7 +87,6 @@ class ChromHandler(
             standard (): Standard, describing the signal-to-concentration relationship. Defaults to None
             role (): Role of the molecule in the experiment. Defaults to None
         """
-
         params = {
             "name": name,
             "inchi": inchi,
@@ -111,12 +97,9 @@ class ChromHandler(
             "standard": standard,
             "role": role,
         }
-
         if id is not None:
             params["id"] = id
-
         self.analytes.append(Analyte(**params))
-
         return self.analytes[-1]
 
     def add_to_measurements(
@@ -137,17 +120,13 @@ class ChromHandler(
             injection_volume (): Injection volume. Defaults to None
             injection_volume_unit (): Unit of injection volume. Defaults to None
         """
-
         params = {
             "chromatograms": chromatograms,
             "timestamp": timestamp,
             "injection_volume": injection_volume,
             "injection_volume_unit": injection_volume_unit,
         }
-
         if id is not None:
             params["id"] = id
-
         self.measurements.append(Measurement(**params))
-
         return self.measurements[-1]
