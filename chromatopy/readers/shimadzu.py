@@ -6,6 +6,7 @@ from datetime import datetime
 from io import StringIO
 import pandas as pd
 
+from chromatopy.core.signaltype import SignalType
 from chromatopy.readers.abstractreader import AbstractReader
 
 
@@ -36,6 +37,7 @@ class ShimadzuReader(AbstractReader):
         sections = self._parse_sections(content)
 
         measurement_dict = self._map_measurement(sections)
+
         peak_dict = self.extract_peaks(sections)
         chromatogram_dict = self.extract_signal(sections)
         chromatogram_dict["peaks"] = peak_dict
@@ -61,7 +63,6 @@ class ShimadzuReader(AbstractReader):
             "timestamp": timestamp,
             "injection_volume": injection_volume,
             "injection_volume_unit": "µL",
-            "type": "UV",
         }
 
     def extract_peaks(self, sections: dict):
@@ -69,8 +70,10 @@ class ShimadzuReader(AbstractReader):
         return self._map_peak_table(table)
 
     def extract_signal(self, sections) -> dict:
-        table = self.get_chromatogram_table(sections)
-        return self._map_chromatogram_table(table)
+        table, wavelength = self.get_chromatogram_table(sections)
+        chromatogram_dict = self._map_chromatogram_table(table)
+        chromatogram_dict["wavelength"] = wavelength
+        return chromatogram_dict
 
     def _parse_sections(self, file_content: str) -> dict:
         """Parse a Shimadzu ASCII-export file into sections."""
@@ -156,6 +159,8 @@ class ShimadzuReader(AbstractReader):
             "retention_times": table["R.Time (min)"].tolist(),
             "signals": table["Value (mV)"].tolist(),
             "time_unit": "min",
+            "type": SignalType.UV.value,
+            "wavelength": table,
         }
 
     def get_peak_table(
@@ -184,7 +189,7 @@ class ShimadzuReader(AbstractReader):
     ) -> Optional[pd.DataFrame]:
         section_name = f"LC Chromatogram(Detector {detector}-Ch{channel})"
 
-        meta = self.parse_meta(sections, section_name, 6)
+        meta = self.parse_meta(sections, section_name, 7)
         table = self.parse_table(sections, section_name, skiprows=7)
 
         # Convert intensity values into what they are supposed to be
@@ -197,7 +202,9 @@ class ShimadzuReader(AbstractReader):
             int(meta["# of Points"]) == table.shape[0]
         ), "Declared number of points and table size differ"
 
-        return table
+        wavelength = meta["Wavelength(nm)"]
+
+        return table, wavelength
 
     def get_header(self, sections: dict) -> dict:
         return self.parse_meta(sections, "Header", nrows=None)
