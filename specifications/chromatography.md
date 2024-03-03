@@ -17,7 +17,7 @@
 
 - name
     - Type: string
-    - Description: Molecule name
+    - Description: Name of the analyte
 - inchi
     - Type: string
     - Description: InCHI code of the molecule
@@ -358,10 +358,10 @@ Describes properties of a flame ionization detector.
 ### SignalType
 
 ```python
-UV = "UV/Visible Absorbance Detectors
+UV = "uv/visible absorbance detector"
 FLD = "fluorescence detector"
 FID = "flame ionization detector"
-TCD = "termal conductivity detector"
+TCD = "thermal conductivity detector"
 RID = "refractive index detector"
 ELSD = "evaporative light scattering detector"
 MS = "mass spectrometry"
