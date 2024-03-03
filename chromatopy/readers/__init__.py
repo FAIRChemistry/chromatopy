@@ -1,2 +1,1 @@
-from .abstractreader import CSVReader
-from .abstractreader import ShimadzuReader
+from .shimadzu import ShimadzuReader

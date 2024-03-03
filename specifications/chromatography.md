@@ -77,6 +77,9 @@
     - Type: float
     - Description: Signal values
     - Multiple: True
+- wavelength
+    - Type: float
+    - Description: Wavelength of the signal in nm
 - type
     - Type: SignalType
     - Description: Type of signal 
@@ -276,7 +279,7 @@ Describes properties of a column and its connections to the inlet and detector.
     - Description: Inlet of the column
 - detector
     - Type: Detector
-    - Description: Outlet of the column, connected to detector
+    - Description: Outlet of the column, connected to the detector
 - outlet_pressure
     - Type: float
     - Description: Outlet pressure of the column
