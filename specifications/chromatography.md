@@ -2,11 +2,8 @@
 
 ## Objects
 
-### ChromatigraphicExperiment
+### ChromHandler
 
-- method
-    - Type: Method
-    - Description: Description of the HPLC method
 - molecules
     - Type: Molecule
     - Description: Molecule that can be assigned to a peak. 
@@ -15,7 +12,7 @@
     - Description: Measured signals
     - Multiple: True
 
-### Molecule
+### Analyte
 
 - name
     - Type: string
@@ -360,15 +357,19 @@ Describes properties of a flame ionization detector.
 ### SignalType
 
 ```python
-fid = "fid"
-tcd = "tcd"
+UV = "UV/Visible Absorbance Detectors
+FLD = "fluorescence detector"
+FID = "flame ionization detector"
+TCD = "termal conductivity detector"
+RID = "refractive index detector"
+ELSD = "evaporative light scattering detector"
+MS = "mass spectrometry"
+DAD = "diode array detector"
 ```
-
-## Enumerations
 
 ### Role
 
 ```python
 ANALYTE = "analyte"
-INTERNAL_STANDARD = "internal_standard"
+STANDARD = "standard"
 ```

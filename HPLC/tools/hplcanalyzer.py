@@ -24,13 +24,13 @@ class HPLCAnalyzer(BaseModel):
     internal_standards: Dict[str, Molecule] = Field(default_factory=DottedDict)
 
     def add_analyte(
-            self,
-            name: str,
-            retention_time: float,
-            molecular_weight: float = None,
-            inchi: str = None,
-            tolerance: float = 0.1,
-            detector: SignalType = "fid"
+        self,
+        name: str,
+        retention_time: float,
+        molecular_weight: float = None,
+        inchi: str = None,
+        tolerance: float = 0.1,
+        detector: SignalType = "fid",
     ) -> Molecule:
 
         analyte = self._set_molecule(
@@ -40,7 +40,7 @@ class HPLCAnalyzer(BaseModel):
             molecular_weight=molecular_weight,
             inchi=inchi,
             tolerance=tolerance,
-            detector=detector
+            detector=detector,
         )
 
         self.analytes[name] = analyte
@@ -48,15 +48,15 @@ class HPLCAnalyzer(BaseModel):
         return analyte
 
     def add_internal_standard(
-            self,
-            name: str,
-            retention_time: float,
-            concentrations: List[float],
-            signals: List[float],
-            molecular_weight: float,
-            inchi: str = None,
-            tolerance: float = 0.1,
-            detector: SignalType = "fid"
+        self,
+        name: str,
+        retention_time: float,
+        concentrations: List[float],
+        signals: List[float],
+        molecular_weight: float,
+        inchi: str = None,
+        tolerance: float = 0.1,
+        detector: SignalType = "fid",
     ) -> Molecule:
 
         internal_standard = self._set_molecule(
@@ -68,7 +68,7 @@ class HPLCAnalyzer(BaseModel):
             molecular_weight=molecular_weight,
             inchi=inchi,
             tolerance=tolerance,
-            detector=detector
+            detector=detector,
         )
 
         self.internal_standards[name] = internal_standard
@@ -76,9 +76,9 @@ class HPLCAnalyzer(BaseModel):
         return internal_standard
 
     def calculate_concentrations(
-            self,
-            analytes: List[Molecule] = None,
-            internal_standard: Molecule = None,
+        self,
+        analytes: List[Molecule] = None,
+        internal_standard: Molecule = None,
     ):
 
         if analytes is None:
@@ -96,13 +96,9 @@ class HPLCAnalyzer(BaseModel):
             )
 
         for analyte in self.analytes.values():
-            analyte.calculate_concentrations(
-                internal_standard=internal_standard)
+            analyte.calculate_concentrations(internal_standard=internal_standard)
 
-    def _analytes_to_records(
-            self,
-            analytes: List[Molecule] = None
-    ) -> List[Dict]:
+    def _analytes_to_records(self, analytes: List[Molecule] = None) -> List[Dict]:
 
         if analytes is None:
             analytes = self.analytes.values()
@@ -119,9 +115,7 @@ class HPLCAnalyzer(BaseModel):
                 )
 
             for time, rel_time, concenrtation in zip(
-                    analyte.times,
-                    analyte.minutes,
-                    analyte.concentrations
+                analyte.times, analyte.minutes, analyte.concentrations
             ):
 
                 dict_records.append(
@@ -129,15 +123,14 @@ class HPLCAnalyzer(BaseModel):
                         "name": analyte.name,
                         "time": time,
                         "rel_time": rel_time,
-                        "concentration": concenrtation
+                        "concentration": concenrtation,
                     }
                 )
 
         return dict_records
 
     def _get_concentration_dict(
-            self,
-            analytes: List[Molecule] = None
+        self, analytes: List[Molecule] = None
     ) -> Dict[str, List[float]]:
 
         if analytes is None:
@@ -147,8 +140,7 @@ class HPLCAnalyzer(BaseModel):
 
         # Get unique times across all analytes
         unique_times = self._get_sorted_set_of_attr_values(
-            objects=analytes,
-            attribute="minutes"
+            objects=analytes, attribute="minutes"
         )
 
         molecules_conc_dict = defaultdict(list)
@@ -159,24 +151,23 @@ class HPLCAnalyzer(BaseModel):
                 if time in set(analyte.minutes):
                     pos = analyte.minutes.index(time)
                     molecules_conc_dict[analyte.name].append(
-                        analyte.concentrations[pos])
+                        analyte.concentrations[pos]
+                    )
                 else:
                     molecules_conc_dict[analyte.name].append(float("nan"))
 
         return molecules_conc_dict
 
     def visualize_concentrations(
-            self,
-            analytes: List[Molecule] = None,
+        self,
+        analytes: List[Molecule] = None,
     ):
         if analytes is None:
             analytes = self.analytes.values()
         if isinstance(analytes, Molecule):
             analytes = [analytes]
 
-        df = pd.DataFrame.from_records(
-            self._analytes_to_records(analytes=analytes)
-        )
+        df = pd.DataFrame.from_records(self._analytes_to_records(analytes=analytes))
 
         return px.scatter(
             data_frame=df,
@@ -188,24 +179,22 @@ class HPLCAnalyzer(BaseModel):
     def visualize_measurements(self, detector: SignalType = "fid"):
 
         df = pd.DataFrame(self.data._get_peak_records())
-        df = df[df['signal_type'] == detector]
+        df = df[df["signal_type"] == detector]
 
         return px.scatter(
             x=df["timestamp"],
             y=df["retention_time"],
             color=np.log(df["area"]),
             labels=dict(
-                x="time of HPLC run",
-                y="retention time / min",
-                color="log(peak area)"
+                x="time of HPLC run", y="retention time / min", color="log(peak area)"
             ),
             title=f"{detector} detector data",
         )
 
     def to_csv(
-            self,
-            path: str,
-            analytes: List[Molecule] = None,
+        self,
+        path: str,
+        analytes: List[Molecule] = None,
     ) -> None:
 
         if analytes is None:
@@ -221,23 +210,21 @@ class HPLCAnalyzer(BaseModel):
         return df.to_csv(path)
 
     def _set_molecule(
-            self,
-            name: str,
-            retention_time: float,
-            role: Role,
-            molecular_weight: float = None,
-            concentrations: float = None,
-            signals: float = None,
-            concentration_unit: str = None,
-            inchi: str = None,
-            tolerance: float = 0.1,
-            detector: SignalType = "fid"
+        self,
+        name: str,
+        retention_time: float,
+        role: Role,
+        molecular_weight: float = None,
+        concentrations: float = None,
+        signals: float = None,
+        concentration_unit: str = None,
+        inchi: str = None,
+        tolerance: float = 0.1,
+        detector: SignalType = "fid",
     ):
 
         times, peaks = self._get_peaks_by_retention_time(
-            retention_time=retention_time,
-            tolerance=tolerance,
-            detector=detector
+            retention_time=retention_time, tolerance=tolerance, detector=detector
         )
 
         molecule = Molecule(
@@ -247,7 +234,7 @@ class HPLCAnalyzer(BaseModel):
             molecular_weight=molecular_weight,
             times=times,
             peaks=peaks,
-            role=role
+            role=role,
         )
 
         if concentrations is not None and signals is not None:
@@ -255,7 +242,7 @@ class HPLCAnalyzer(BaseModel):
                 molecule=molecule,
                 concentrations=concentrations,
                 signals=signals,
-                concentration_unit=concentration_unit
+                concentration_unit=concentration_unit,
             )
 
         return molecule
@@ -278,13 +265,12 @@ class HPLCAnalyzer(BaseModel):
             time = measurement.timestamp
 
             detector_signals = measurement.get(
-                path="signals",
-                attribute="type",
-                target=detector
+                path="signals", attribute="type", target=detector
             )[0][0]
 
             peaks_in_retention_interval = [
-                peak for peak in detector_signals.peaks
+                peak
+                for peak in detector_signals.peaks
                 if lower_ret < peak.retention_time < upper_ret
             ]
 
@@ -308,8 +294,7 @@ class HPLCAnalyzer(BaseModel):
     def _get_sorted_set_of_attr_values(objects: list, attribute: Any) -> List:
         """Gets a sorted set of unique values of a given attribute from a list of objects"""
 
-        uniques = set(
-            value for obj in objects for value in getattr(obj, attribute))
+        uniques = set(value for obj in objects for value in getattr(obj, attribute))
 
         return sorted(uniques)
 
@@ -318,7 +303,7 @@ class HPLCAnalyzer(BaseModel):
         molecule: Molecule,
         concentrations: List[float],
         signals: List[float],
-        concentration_unit: str
+        concentration_unit: str,
     ):
 
         assert len(concentrations) == len(signals)
@@ -326,7 +311,7 @@ class HPLCAnalyzer(BaseModel):
         molecule.standard = Standard(
             concentration=concentrations,
             signal=signals,
-            concentration_unit=concentration_unit
+            concentration_unit=concentration_unit,
         )
 
         return molecule

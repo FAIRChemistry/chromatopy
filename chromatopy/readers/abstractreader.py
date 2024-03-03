@@ -22,6 +22,10 @@ class AbstractReader(ABC):
             return [self.path]
 
     @abstractmethod
+    def read(self):
+        raise NotImplementedError
+
+    @abstractmethod
     def read_file(self):
         raise NotImplementedError()
 
@@ -35,6 +39,9 @@ class AbstractReader(ABC):
 
 
 class CSVReader(AbstractReader):
+
+    def read(self):
+        pass
 
     def read_csv(self):
         data = pd.read_csv(self.path, header=None)
@@ -54,7 +61,7 @@ class ChemStationReader(AbstractReader):
 
 
 class ShimadzuReader(AbstractReader):
-    re_sections = re.compile(r"\[(.*)\]")
+    RE_SECTION = re.compile(r"\[(.*)\]")
 
     def _paths(self):
         if self._is_directory:
@@ -65,6 +72,9 @@ class ShimadzuReader(AbstractReader):
             ]
         else:
             return [self.path]
+
+    def read(self):
+        return [self.read_file(f) for f in self._paths()]
 
     def read_file(self, path: str):
         """
@@ -80,7 +90,7 @@ class ShimadzuReader(AbstractReader):
         peak_dict = self.extract_peaks(sections)
         chromatogram_dict = self.extract_signal(sections)
         chromatogram_dict["peaks"] = peak_dict
-        measurement_dict["Chromatograms"] = [chromatogram_dict]
+        measurement_dict["chromatograms"] = [chromatogram_dict]
 
         return measurement_dict
 
@@ -116,7 +126,7 @@ class ShimadzuReader(AbstractReader):
         """Parse a Shimadzu ASCII-export file into sections."""
 
         # Split file into sections using section header pattern
-        section_splits = re.split(self.re_sections, file_content)
+        section_splits = re.split(self.RE_SECTION, file_content)
         if len(section_splits[0]) != 0:
             raise IOError("The file should start with a section header")
 
