@@ -48,7 +48,7 @@
 
 ### Measurement
 
-- Chromatograms
+- chromatograms
     - Type: Chromatogram
     - Description: Measured signal
     - Multiple: True
