@@ -10,10 +10,10 @@ from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
-from .method import Method
-from .chromatogram import Chromatogram
-from .measurement import Measurement
 from .molecule import Molecule
+from .method import Method
+from .measurement import Measurement
+from .chromatogram import Chromatogram
 
 
 @forge_signature
@@ -51,7 +51,7 @@ class ChromatigraphicExperiment(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="65c557d19a8e17c9382138acff6a72e138c5ee2b"
+        default="5dbbb3efba145cf71128e1f754ece504f2d77f52"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -68,7 +68,7 @@ class ChromatigraphicExperiment(sdRDM.DataModel):
 
     def add_to_measurements(
         self,
-        Chromatograms: List[Chromatogram] = ListPlus(),
+        chromatograms: List[Chromatogram] = ListPlus(),
         timestamp: Optional[Datetime] = None,
         injection_volume: Optional[float] = None,
         injection_volume_unit: Optional[Unit] = None,
@@ -79,13 +79,13 @@ class ChromatigraphicExperiment(sdRDM.DataModel):
 
         Args:
             id (str): Unique identifier of the 'Measurement' object. Defaults to 'None'.
-            Chromatograms (): Measured signal. Defaults to ListPlus()
+            chromatograms (): Measured signal. Defaults to ListPlus()
             timestamp (): Timestamp of sample injection into the column. Defaults to None
             injection_volume (): Injection volume. Defaults to None
             injection_volume_unit (): Unit of injection volume. Defaults to None
         """
         params = {
-            "Chromatograms": Chromatograms,
+            "chromatograms": chromatograms,
             "timestamp": timestamp,
             "injection_volume": injection_volume,
             "injection_volume_unit": injection_volume_unit,

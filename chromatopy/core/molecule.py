@@ -9,9 +9,9 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
-from .standard import Standard
 from .role import Role
 from .peak import Peak
+from .standard import Standard
 
 
 @forge_signature
@@ -87,7 +87,7 @@ class Molecule(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="65c557d19a8e17c9382138acff6a72e138c5ee2b"
+        default="5dbbb3efba145cf71128e1f754ece504f2d77f52"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

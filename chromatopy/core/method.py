@@ -9,11 +9,11 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
-from .valve import Valve
-from .oven import Oven
-from .inlet import Inlet
 from .column import Column
+from .inlet import Inlet
 from .detector import Detector
+from .oven import Oven
+from .valve import Valve
 
 
 @forge_signature
@@ -86,7 +86,7 @@ class Method(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="65c557d19a8e17c9382138acff6a72e138c5ee2b"
+        default="5dbbb3efba145cf71128e1f754ece504f2d77f52"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

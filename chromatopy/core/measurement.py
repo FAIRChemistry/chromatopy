@@ -26,10 +26,10 @@ class Measurement(sdRDM.DataModel):
         xml="@id",
     )
 
-    Chromatograms: List[Chromatogram] = element(
+    chromatograms: List[Chromatogram] = element(
         description="Measured signal",
         default_factory=ListPlus,
-        tag="Chromatograms",
+        tag="chromatograms",
         json_schema_extra=dict(multiple=True),
     )
 
@@ -57,7 +57,7 @@ class Measurement(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="65c557d19a8e17c9382138acff6a72e138c5ee2b"
+        default="5dbbb3efba145cf71128e1f754ece504f2d77f52"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -82,7 +82,7 @@ class Measurement(sdRDM.DataModel):
         id: Optional[str] = None,
     ) -> Chromatogram:
         """
-        This method adds an object of type 'Chromatogram' to attribute Chromatograms
+        This method adds an object of type 'Chromatogram' to attribute chromatograms
 
         Args:
             id (str): Unique identifier of the 'Chromatogram' object. Defaults to 'None'.
@@ -101,5 +101,5 @@ class Measurement(sdRDM.DataModel):
         }
         if id is not None:
             params["id"] = id
-        self.Chromatograms.append(Chromatogram(**params))
-        return self.Chromatograms[-1]
+        self.chromatograms.append(Chromatogram(**params))
+        return self.chromatograms[-1]

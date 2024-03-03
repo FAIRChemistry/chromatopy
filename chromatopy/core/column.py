@@ -111,7 +111,7 @@ class Column(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="65c557d19a8e17c9382138acff6a72e138c5ee2b"
+        default="5dbbb3efba145cf71128e1f754ece504f2d77f52"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

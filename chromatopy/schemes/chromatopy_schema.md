@@ -36,7 +36,7 @@ classDiagram
     }
     
     class Measurement {
-        +Chromatogram[0..*] Chromatograms
+        +Chromatogram[0..*] chromatograms
         +datetime timestamp
         +float injection_volume
         +Unit injection_volume_unit
