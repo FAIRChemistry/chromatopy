@@ -22,9 +22,9 @@ class AbstractReader(ABC):
     """
 
     def __init__(self, path: str):
-        self._validate_path()
         self.path = path
         self._is_directory: bool = os.path.isdir(path)
+        self._validate_path()
 
     def _validate_path(self):
         if not os.path.exists(self.path):

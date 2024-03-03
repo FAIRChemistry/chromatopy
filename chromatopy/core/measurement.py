@@ -106,3 +106,11 @@ class Measurement(sdRDM.DataModel):
             params["id"] = id
         self.chromatograms.append(Chromatogram(**params))
         return self.chromatograms[-1]
+
+    def get_detector(self, detector: SignalType) -> List[Chromatogram]:
+        """Gets the chromatogram of a specific detector"""
+        for chromatogram in self.chromatograms:
+            if chromatogram.type == detector:
+                return chromatogram
+
+        raise ValueError(f"No chromatogram of from {detector} found in measurement")

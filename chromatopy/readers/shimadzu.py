@@ -33,7 +33,7 @@ class ShimadzuReader(AbstractReader):
         Returns:
             A list of strings, where each string represents the contents of a file.
         """
-        content = pathlib.Path(path).read_text(encoding="ISO-8859-1")
+        content = self._get_content(path)
         sections = self._parse_sections(content)
 
         measurement_dict = self._map_measurement(sections)
@@ -44,6 +44,9 @@ class ShimadzuReader(AbstractReader):
         measurement_dict["chromatograms"] = [chromatogram_dict]
 
         return measurement_dict
+
+    def _get_content(self, path: str) -> str:
+        return pathlib.Path(path).read_text(encoding="ISO-8859-1")
 
     def _map_measurement(self, sections: dict) -> dict:
         header = self.get_header(sections)

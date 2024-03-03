@@ -1,6 +1,8 @@
 import sdRDM
+import warnings
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
+from datetime import datetime
 from pydantic import PrivateAttr, model_validator
 from uuid import uuid4
 from pydantic_xml import attr, element
@@ -16,6 +18,14 @@ from .standard import Standard
 from .chromatogram import Chromatogram
 from .analyte import Analyte
 from .role import Role
+from .signaltype import SignalType
+
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
+
+from ..readers.abstractreader import AbstractReader
 
 
 @forge_signature
@@ -130,3 +140,266 @@ class ChromHandler(sdRDM.DataModel):
             params["id"] = id
         self.measurements.append(Measurement(**params))
         return self.measurements[-1]
+
+    def add_analyte(
+        self,
+        name: str,
+        retention_time: float,
+        detector: SignalType = None,
+        molecular_weight: float = None,
+        inchi: str = None,
+        tolerance: float = 0.1,
+    ) -> Analyte:
+        """
+        This method adds an object of type 'Analyte' to the 'analytes' attribute.
+
+        Args:
+            name (str): Name of the analyte.
+            retention_time (float): Approximated retention time of the molecule.
+            detector (SignalType, optional): The type of detector used.
+                Defaults to None.
+            molecular_weight (float, optional): Molar weight of the molecule in g/mol.
+                Defaults to None.
+            inchi (str, optional): InCHI code of the molecule.
+                Defaults to None.
+            tolerance (float, optional): Tolerance for the retention time. Defaults to 0.1.
+
+        Returns:
+            Analyte: The added Analyte object.
+        """
+        detector = self._handel_detector(detector)
+
+        analyte = self._set_analyte(
+            name=name,
+            retention_time=retention_time,
+            role=Role.ANALYTE,
+            molecular_weight=molecular_weight,
+            inchi=inchi,
+            tolerance=tolerance,
+            detector=detector,
+        )
+        self.analytes.append(analyte)
+
+        return analyte
+
+    def _handel_detector(self, detector: SignalType):
+        """
+        Handles the detector selection for the given SignalType.
+        If only one detector is found in a measurement, it is selected.
+
+        Args:
+            detector (SignalType): The type of detector to handle.
+
+        Returns:
+            SignalType: The selected detector.
+
+        Raises:
+            ValueError: If data from multiple detectors is found and no specific detector is specified.
+
+        """
+        chromatograms = self.get(path="measurements/chromatograms")[0]
+        detectors = [chromatogram.type for chromatogram in chromatograms]
+
+        if detector in detectors:
+            return detector
+        if all(detector == detectors[0] for detector in detectors):
+            return detectors[0]
+
+        raise ValueError(
+            f"Data from multiple detectors found. Please specify detector. {list(set(detectors))}"
+        )
+
+    def _set_analyte(
+        self,
+        name: str,
+        retention_time: float,
+        role: Role,
+        detector: SignalType,
+        molecular_weight: float = None,
+        concentrations: float = None,
+        signals: float = None,
+        concentration_unit: str = None,
+        inchi: str = None,
+        tolerance: float = 0.1,
+    ):
+
+        times, peaks = self._get_peaks_by_retention_time(
+            retention_time=retention_time, tolerance=tolerance, detector=detector
+        )
+
+        molecule = Analyte(
+            name=name,
+            inchi=inchi,
+            retention_time=retention_time,
+            molecular_weight=molecular_weight,
+            peaks=peaks,
+            role=role,
+        )
+
+        if concentrations is not None and signals is not None:
+            molecule = self._add_standard_to_molecule(
+                molecule=molecule,
+                concentrations=concentrations,
+                signals=signals,
+                concentration_unit=concentration_unit,
+            )
+
+        return molecule
+
+    def _get_peaks_in_retention_interval(
+        self,
+        chromatogram: Chromatogram,
+        lower_retention_time: float,
+        upper_retention_time: float,
+    ) -> List[Peak]:
+        return [
+            peak
+            for peak in chromatogram.peaks
+            if lower_retention_time < peak.retention_time < upper_retention_time
+        ]
+
+    def _get_peaks_by_retention_time(
+        self,
+        retention_time: float,
+        detector: SignalType,
+        tolerance: float = 0.1,
+    ) -> "Tuple[List[datetime], List[Peak]]":
+        """
+        Returns a list of peaks within a specified retention time interval.
+
+        Args:
+            chromatogram (Chromatogram): The chromatogram object containing the peaks.
+            lower_retention_time (float): The lower bound of the retention time interval.
+            upper_retention_time (float): The upper bound of the retention time interval.
+
+        Returns:
+            List[Peak]: A list of peaks within the specified retention time interval.
+        """
+
+        lower_ret = retention_time - tolerance
+        upper_ret = retention_time + tolerance
+
+        times = []
+        peaks = []
+        sorted_measurements = sorted(self.measurements, key=lambda x: x.timestamp)
+
+        for measurement in sorted_measurements:
+
+            time = measurement.timestamp
+
+            chromatogram = measurement.get_detector(detector)
+
+            peaks_in_retention_interval = self._get_peaks_in_retention_interval(
+                chromatogram=chromatogram,
+                lower_retention_time=lower_ret,
+                upper_retention_time=upper_ret,
+            )
+
+            if len(peaks_in_retention_interval) == 1:
+                times.append(time)
+                peaks.append(peaks_in_retention_interval[0])
+
+            elif len(peaks_in_retention_interval) == 0:
+                warnings.warn(
+                    f"No peak annotated within retention time interval [{lower_ret:.2f} : {upper_ret:.2f}] "
+                    f"for masurement at {time} from {detector} found. Skipping measurement."
+                )
+
+            else:
+                raise ValueError(
+                    f"Multiple {len(peaks_in_retention_interval)} peaks found within"
+                    f"retention time interval [{lower_ret} : {upper_ret}]"
+                )
+
+        assert len(times) == len(peaks)
+        return times, peaks
+
+    @classmethod
+    def read(cls, path: str, reader: AbstractReader):
+        """
+        Reads data from a file or directory using the specified reader.
+
+        Args:
+            path (str): The path to the file or directory.
+            reader (AbstractReader): The reader object used to read the data.
+
+        Returns:
+            ChromHandler: An instance of the ChromHandler class initialized with the read data.
+
+        Raises:
+            FileNotFoundError: If the specified path does not exist.
+            NotADirectoryError: If the specified path is not a directory when it should be.
+            FileNotFoundError: If the specified path is not a file when it should be.
+
+        """
+
+        measurements = reader(path).read()
+        data = {"measurements": measurements}
+        return cls(**data)
+
+    def visualize_chromatograms(self, color_scale: str = "Turbo"):
+
+        fig = go.Figure()
+
+        colors = self._sample_colorscale(len(self.measurements), color_scale)
+        for color, measurement in zip(colors, self.measurements):
+            for chromatogram in measurement.chromatograms:
+
+                fig.add_trace(
+                    go.Scatter(
+                        x=chromatogram.retention_times,
+                        y=chromatogram.signals,
+                        mode="lines",
+                        name=f"{measurement.timestamp.time()}",
+                        customdata=[chromatogram.type],
+                        line=dict(color=color),
+                        hovertemplate="<br>Retention Time: %{x:.2f} min<br>Signal: %{y:.2f}<extra></extra>",
+                    )
+                )
+
+        fig.update_xaxes(title_text=f"Retention Time / {chromatogram.time_unit.name} ")
+        fig.update_yaxes(title_text="Signal")
+        fig.update_layout(legend_title_text="Injection Time")
+
+        return fig
+
+    def visualize_peaks(self, detector: SignalType = None, color_scale: str = "Turbo"):
+
+        detector = self._handel_detector(detector)
+
+        df = pd.DataFrame(self._get_peak_records())
+        df = df[df["signal_type"] == detector]
+
+        return px.scatter(
+            x=df["timestamp"],
+            y=df["retention_time"],
+            color=df["area"],
+            labels=dict(
+                x="Injection Time", y="retention time / min", color="Peak Area"
+            ),
+        )
+
+    def _get_peak_records(self) -> List[dict]:
+        records = []
+        for measurement in self.measurements:
+            for chromatogram in measurement.chromatograms:
+                for peak in chromatogram.peaks:
+                    peak_data = dict(
+                        timestamp=measurement.timestamp,
+                        signal_type=chromatogram.type,
+                        peak_id=peak.id,
+                        retention_time=peak.retention_time,
+                        area=peak.area,
+                        height=peak.height,
+                        width=peak.width,
+                    )
+
+                    records.append(peak_data)
+
+        return records
+
+    @staticmethod
+    def _sample_colorscale(size: int, plotly_scale: str) -> List[str]:
+        return px.colors.sample_colorscale(
+            plotly_scale, [i / size for i in range(size)]
+        )
