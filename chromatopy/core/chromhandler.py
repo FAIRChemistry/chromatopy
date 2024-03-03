@@ -1,8 +1,10 @@
 import sdRDM
-import warnings
 
+import warnings
+import pandas as pd
+import plotly.graph_objects as go
+import plotly.express as px
 from typing import Dict, List, Optional, Tuple
-from datetime import datetime
 from pydantic import PrivateAttr, model_validator
 from uuid import uuid4
 from pydantic_xml import attr, element
@@ -12,19 +14,13 @@ from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
-from .peak import Peak
-from .measurement import Measurement
 from .standard import Standard
 from .chromatogram import Chromatogram
-from .analyte import Analyte
+from .measurement import Measurement
+from .peak import Peak
 from .role import Role
+from .analyte import Analyte
 from .signaltype import SignalType
-
-import numpy as np
-import pandas as pd
-import plotly.graph_objects as go
-import plotly.express as px
-
 from ..readers.abstractreader import AbstractReader
 
 
@@ -56,7 +52,7 @@ class ChromHandler(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="a3f6bfb42d2f8da231d2467b7835acc4f9b94981"
+        default="e644bb97567b9f707760537f4d4df61a48a9a29a"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -206,7 +202,8 @@ class ChromHandler(sdRDM.DataModel):
             return detectors[0]
 
         raise ValueError(
-            f"Data from multiple detectors found. Please specify detector. {list(set(detectors))}"
+            "Data from multiple detectors found. Please specify detector."
+            f" {list(set(detectors))}"
         )
 
     def _set_analyte(
@@ -301,8 +298,9 @@ class ChromHandler(sdRDM.DataModel):
 
             elif len(peaks_in_retention_interval) == 0:
                 warnings.warn(
-                    f"No peak annotated within retention time interval [{lower_ret:.2f} : {upper_ret:.2f}] "
-                    f"for masurement at {time} from {detector} found. Skipping measurement."
+                    "No peak annotated within retention time interval"
+                    f" [{lower_ret:.2f} : {upper_ret:.2f}] for masurement at"
+                    f" {time} from {detector} found. Skipping measurement."
                 )
 
             else:
@@ -353,7 +351,10 @@ class ChromHandler(sdRDM.DataModel):
                         name=f"{measurement.timestamp.time()}",
                         customdata=[chromatogram.type],
                         line=dict(color=color),
-                        hovertemplate="<br>Retention Time: %{x:.2f} min<br>Signal: %{y:.2f}<extra></extra>",
+                        hovertemplate=(
+                            "<br>Retention Time: %{x:.2f} min<br>Signal:"
+                            " %{y:.2f}<extra></extra>"
+                        ),
                     )
                 )
 

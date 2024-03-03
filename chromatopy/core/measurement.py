@@ -10,9 +10,9 @@ from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
-from .signaltype import SignalType
-from .peak import Peak
 from .chromatogram import Chromatogram
+from .peak import Peak
+from .signaltype import SignalType
 
 
 @forge_signature
@@ -57,7 +57,7 @@ class Measurement(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="a3f6bfb42d2f8da231d2467b7835acc4f9b94981"
+        default="e644bb97567b9f707760537f4d4df61a48a9a29a"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
