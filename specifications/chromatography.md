@@ -4,9 +4,10 @@
 
 ### ChromHandler
 
-- molecules
-    - Type: Molecule
+- analytes
+    - Type: Analyte
     - Description: Molecule that can be assigned to a peak. 
+    - Multiple: True
 - measurements
     - Type: Measurement
     - Description: Measured signals
