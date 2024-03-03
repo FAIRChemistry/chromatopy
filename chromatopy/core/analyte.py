@@ -1,20 +1,28 @@
 import sdRDM
 
 from typing import Dict, List, Optional
-from pydantic import PrivateAttr, model_validator
 from uuid import uuid4
+from pydantic import PrivateAttr, model_validator
 from pydantic_xml import attr, element
 from lxml.etree import _Element
+
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
+
+
+from sdRDM.base.datatypes import Unit
+
+from .standard import Standard
 from .peak import Peak
-from .signaltype import SignalType
+from .role import Role
 
 
 @forge_signature
-class Chromatogram(sdRDM.DataModel):
+class Analyte(
+    sdRDM.DataModel,
+):
     """"""
 
     id: Optional[str] = attr(
@@ -24,40 +32,69 @@ class Chromatogram(sdRDM.DataModel):
         xml="@id",
     )
 
+    name: Optional[str] = element(
+        description="Name of the analyte",
+        default=None,
+        tag="name",
+        json_schema_extra=dict(),
+    )
+
+    inchi: Optional[str] = element(
+        description="InCHI code of the molecule",
+        default=None,
+        tag="inchi",
+        json_schema_extra=dict(),
+    )
+
+    molecular_weight: Optional[float] = element(
+        description="Molar weight of the molecule in g/mol",
+        default=None,
+        tag="molecular_weight",
+        json_schema_extra=dict(),
+    )
+
+    retention_time: Optional[float] = element(
+        description="Approximated retention time of the molecule",
+        default=None,
+        tag="retention_time",
+        json_schema_extra=dict(),
+    )
+
     peaks: List[Peak] = element(
-        description="Peaks in the signal",
+        description=(
+            "All peaks of the dataset, which are within the same retention time"
+            " interval related to the molecule"
+        ),
         default_factory=ListPlus,
         tag="peaks",
-        json_schema_extra=dict(multiple=True),
+        json_schema_extra=dict(
+            multiple=True,
+        ),
     )
 
-    retention_times: List[float] = element(
-        description="Retention times of the signal",
+    concentrations: List[float] = element(
+        description="Concentration of the molecule",
         default_factory=ListPlus,
-        tag="retention_times",
-        json_schema_extra=dict(multiple=True),
+        tag="concentrations",
+        json_schema_extra=dict(
+            multiple=True,
+        ),
     )
 
-    time_unit: Optional[Unit] = element(
-        description="Unit of retention time",
-        default=None,
-        tag="time_unit",
+    standard: Optional[Standard] = element(
+        description="Standard, describing the signal-to-concentration relationship",
+        default_factory=Standard,
+        tag="standard",
         json_schema_extra=dict(),
     )
 
-    signals: List[float] = element(
-        description="Signal values",
-        default_factory=ListPlus,
-        tag="signals",
-        json_schema_extra=dict(multiple=True),
-    )
-
-    type: Optional[SignalType] = element(
-        description="Type of signal",
+    role: Optional[Role] = element(
+        description="Role of the molecule in the experiment",
         default=None,
-        tag="type",
+        tag="role",
         json_schema_extra=dict(),
     )
+
     _repo: Optional[str] = PrivateAttr(
         default="https://github.com/FAIRChemistry/chromatopy"
     )
@@ -70,11 +107,12 @@ class Chromatogram(sdRDM.DataModel):
     def _parse_raw_xml_data(self):
         for attr, value in self:
             if isinstance(value, (ListPlus, list)) and all(
-                (isinstance(i, _Element) for i in value)
+                isinstance(i, _Element) for i in value
             ):
                 self._raw_xml_data[attr] = [elem2dict(i) for i in value]
             elif isinstance(value, _Element):
                 self._raw_xml_data[attr] = elem2dict(value)
+
         return self
 
     def add_to_peaks(
@@ -115,6 +153,7 @@ class Chromatogram(sdRDM.DataModel):
             tailing_factor (): Tailing factor of the peak. Defaults to None
             separation_factor (): Separation factor of the peak. Defaults to None
         """
+
         params = {
             "retention_time": retention_time,
             "retention_time_unit": retention_time_unit,
@@ -131,7 +170,10 @@ class Chromatogram(sdRDM.DataModel):
             "tailing_factor": tailing_factor,
             "separation_factor": separation_factor,
         }
+
         if id is not None:
             params["id"] = id
+
         self.peaks.append(Peak(**params))
+
         return self.peaks[-1]

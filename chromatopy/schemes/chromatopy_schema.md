@@ -2,12 +2,11 @@
 classDiagram
     Detector <-- TCDDetector
     Detector <-- FIDDetector
-    ChromatigraphicExperiment *-- Molecule
-    ChromatigraphicExperiment *-- Measurement
-    ChromatigraphicExperiment *-- Method
-    Molecule *-- Role
-    Molecule *-- Peak
-    Molecule *-- Standard
+    ChromHandler *-- Analyte
+    ChromHandler *-- Measurement
+    Analyte *-- Role
+    Analyte *-- Peak
+    Analyte *-- Standard
     Measurement *-- Chromatogram
     Chromatogram *-- SignalType
     Chromatogram *-- Peak
@@ -18,13 +17,12 @@ classDiagram
     Column *-- Inlet
     Column *-- Detector
     
-    class ChromatigraphicExperiment {
-        +Method method
-        +Molecule molecules
+    class ChromHandler {
+        +Analyte[0..*] analytes
         +Measurement[0..*] measurements
     }
     
-    class Molecule {
+    class Analyte {
         +string name
         +string inchi
         +float molecular_weight
@@ -159,14 +157,20 @@ classDiagram
     
     class SignalType {
         << Enumeration >>
-        +fid
-        +tcd
+        +UV
+        +FLD
+        +FID
+        +TCD
+        +RID
+        +ELSD
+        +MS
+        +DAD
     }
     
     class Role {
         << Enumeration >>
         +ANALYTE
-        +INTERNAL_STANDARD
+        +STANDARD
     }
     
 ```

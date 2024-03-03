@@ -75,7 +75,7 @@ class Oven(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="5dbbb3efba145cf71128e1f754ece504f2d77f52"
+        default="a2315aa263d2980bb5b222724cbb01fc09cb5e65"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

@@ -1,5 +1,5 @@
-from .chromatigraphicexperiment import ChromatigraphicExperiment
-from .molecule import Molecule
+from .chromhandler import ChromHandler
+from .analyte import Analyte
 from .measurement import Measurement
 from .chromatogram import Chromatogram
 from .peak import Peak
@@ -18,8 +18,8 @@ from .role import Role
 
 __doc__ = ""
 __all__ = [
-    "ChromatigraphicExperiment",
-    "Molecule",
+    "ChromHandler",
+    "Analyte",
     "Measurement",
     "Chromatogram",
     "Peak",
