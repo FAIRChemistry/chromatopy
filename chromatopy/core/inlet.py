@@ -95,7 +95,7 @@ class Inlet(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="06012ccc13f9113091a227c38764a99b882ff24a"
+        default="5467e344e4144c07adcae85786a0830c96da7507"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
