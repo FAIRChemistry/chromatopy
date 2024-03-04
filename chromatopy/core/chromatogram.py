@@ -1,6 +1,6 @@
 import sdRDM
-import numpy as np
 
+import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 from typing import Dict, List, Optional
@@ -82,7 +82,7 @@ class Chromatogram(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="5467e344e4144c07adcae85786a0830c96da7507"
+        default="10cacc0f6eea0feefa9a3bc7a4b4e90ee75bd03f"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -214,12 +214,10 @@ class Chromatogram(sdRDM.DataModel):
         """
         Returns the chromatogram as a pandas DataFrame with the columns 'time' and 'signal'
         """
-        return pd.DataFrame(
-            {
-                "time": self.retention_times,
-                "signal": self.signals,
-            }
-        )
+        return pd.DataFrame({
+            "time": self.retention_times,
+            "signal": self.signals,
+        })
 
     def visualize(self) -> go.Figure:
         """

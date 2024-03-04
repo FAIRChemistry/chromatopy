@@ -14,12 +14,12 @@ from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
-from .standard import Standard
-from .measurement import Measurement
 from .signaltype import SignalType
-from .peak import Peak
-from .role import Role
 from .analyte import Analyte
+from .standard import Standard
+from .peak import Peak
+from .measurement import Measurement
+from .role import Role
 from .chromatogram import Chromatogram
 from ..readers.abstractreader import AbstractReader
 
@@ -52,7 +52,7 @@ class ChromHandler(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="5467e344e4144c07adcae85786a0830c96da7507"
+        default="10cacc0f6eea0feefa9a3bc7a4b4e90ee75bd03f"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
