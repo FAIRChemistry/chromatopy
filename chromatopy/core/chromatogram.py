@@ -1,8 +1,7 @@
 import sdRDM
+
 import pandas as pd
-from functools import cache
-
-
+import plotly.graph_objects as go
 from typing import Dict, List, Optional
 from pydantic import PrivateAttr, model_validator
 from uuid import uuid4
@@ -12,11 +11,9 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
-from .peak import Peak
-from .signaltype import SignalType
-
-import plotly.graph_objects as go
 from hplc.quant import Chromatogram as hplcChromatogram
+from .signaltype import SignalType
+from .peak import Peak
 
 
 @forge_signature
@@ -75,7 +72,7 @@ class Chromatogram(sdRDM.DataModel):
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="371223791b951fed8b47aa4129c84c4e7d5f82aa"
+        default="06012ccc13f9113091a227c38764a99b882ff24a"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -205,12 +202,10 @@ class Chromatogram(sdRDM.DataModel):
         """
         Returns the chromatogram as a pandas DataFrame with the columns 'time' and 'signal'
         """
-        return pd.DataFrame(
-            {
-                "time": self.retention_times,
-                "signal": self.signals,
-            }
-        )
+        return pd.DataFrame({
+            "time": self.retention_times,
+            "signal": self.signals,
+        })
 
     def plot(self) -> go.Figure:
         """
