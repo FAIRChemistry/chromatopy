@@ -1,4 +1,5 @@
 import sdRDM
+import numpy as np
 
 import pandas as pd
 import plotly.graph_objects as go
@@ -193,6 +194,8 @@ class Chromatogram(sdRDM.DataModel):
         if visualize:
             fitter.show()
         self.peaks = self._map_hplcpy_peaks(fitter.peaks)
+        self.processed_signal = np.sum(fitter.unmixed_chromatograms, axis=1)
+
         return fitter
 
     def _map_hplcpy_peaks(self, fitter_peaks: pd.DataFrame) -> List[Peak]:
@@ -211,12 +214,14 @@ class Chromatogram(sdRDM.DataModel):
         """
         Returns the chromatogram as a pandas DataFrame with the columns 'time' and 'signal'
         """
-        return pd.DataFrame({
-            "time": self.retention_times,
-            "signal": self.signals,
-        })
+        return pd.DataFrame(
+            {
+                "time": self.retention_times,
+                "signal": self.signals,
+            }
+        )
 
-    def plot(self) -> go.Figure:
+    def visualize(self) -> go.Figure:
         """
         Plot the chromatogram.
 
@@ -227,15 +232,37 @@ class Chromatogram(sdRDM.DataModel):
             go.Figure: The plotly figure object.
         """
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=self.retention_times, y=self.signals))
+        fig.add_trace(
+            go.Scatter(
+                x=self.retention_times,
+                y=self.signals,
+                name="Signal",
+            )
+        )
 
         if self.peaks:
             for peak in self.peaks:
-                fig.add_vline(x=peak.retention_time, line_dash="dash", line_color="red")
+                fig.add_vline(
+                    x=peak.retention_time,
+                    line_dash="dash",
+                    line_color="gray",
+                )
+
+        if self.processed_signal:
+            fig.add_trace(
+                go.Scatter(
+                    x=self.retention_times,
+                    y=self.processed_signal,
+                    mode="lines",
+                    line=dict(dash="dot", width=1),
+                    name="Processed signal",
+                )
+            )
 
         fig.update_layout(
             xaxis_title=f"Retention time / {self.time_unit.name}",
             yaxis_title="Signal",
+            height=600,
         )
 
         return fig
