@@ -77,6 +77,10 @@
     - Type: float
     - Description: Signal values
     - Multiple: True
+- processed_signal
+    - Type: float
+    - Description: Processed signal values after baseline correction and deconvolution
+    - Multiple: True
 - wavelength
     - Type: float
     - Description: Wavelength of the signal in nm
