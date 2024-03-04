@@ -9,7 +9,7 @@ packages = [{include = "chromatopy"}]
 
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 sdRDM = { git = "https://github.com/JR-1991/software-driven-rdm.git", rev = "cc2d1e21e898399ed55c164f8c02a57341a0fb80" }
 plotly = "^5.19.0"
 rainbow-api = "^1.0.6"

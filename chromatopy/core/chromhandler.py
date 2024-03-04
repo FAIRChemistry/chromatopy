@@ -22,6 +22,7 @@ from .measurement import Measurement
 from .peak import Peak
 from .signaltype import SignalType
 from ..readers.abstractreader import AbstractReader
+from datetime import timedelta
 
 
 @forge_signature
@@ -333,7 +334,10 @@ class ChromHandler(sdRDM.DataModel):
 
         measurements = reader(path).read()
         data = {"measurements": measurements}
-        return cls(**data)
+        instance = cls(**data)
+        # sort measurements by timestamp
+        instance.measurements = sorted(instance.measurements, key=lambda x: x.timestamp)
+        return instance
 
     def visualize_chromatograms(self, color_scale: str = "Turbo"):
 
@@ -404,3 +408,13 @@ class ChromHandler(sdRDM.DataModel):
         return px.colors.sample_colorscale(
             plotly_scale, [i / size for i in range(size)]
         )
+
+    @property
+    def injection_times(self):
+        # convert timestamps to relative times
+        start_time = self.measurements[0].timestamp
+        relative_times = [
+            (measurement.timestamp - start_time).total_seconds()
+            for measurement in self.measurements
+        ]
+        return relative_times
