@@ -1,0 +1,106 @@
+# BEGIN: 8zv7t5r2n6p1
+name: generate-sdrdm-api
+description: |
+  "This action generates the sdRDM API from an sdRDM Markdown schema."
+inputs:
+  library_name:
+    description: "The name of the library to be generated."
+    required: true
+  schema_path:
+    description: "Path to the sdRDM schema."
+    required: true
+    default: "./specifications/"
+  out_dir:
+    description: "Target directory for the generated API."
+    required: true
+    default: "./"
+  branch:
+    description: "The sdRDM branch to be used for the generated API. Meant for dev purposes. Standard installaton uses the latest pip release."
+    required: false
+  push:
+    description: "Push the generated API to the specified branch."
+    required: true
+    default: "true"
+  schema_out_dir:
+    description: "Target directory for the generated schema."
+    required: true
+    default: "./"
+  schema:
+    description: "Generate the sdRDM schema."
+    required: true
+    default: "false"
+runs:
+  using: "composite"
+  steps:
+    - name: "Checkout"
+      uses: "actions/checkout@v2"
+    - name: "Install Python"
+      uses: "actions/setup-python@v2"
+      with:
+        python-version: "3.11"
+
+    - name: Check for requirements.txt
+      id: check-requirements
+      run: |
+        echo "checking for requirements.txt"
+        if [ -f requirements.txt ]; then
+          echo "::set-output name=exists::true"
+        else
+          echo "::set-output name=exists::false"
+        fi
+    - name: Install dependencies from requirements.txt
+      if: steps.check-requirements.outputs.exists == 'true'
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Check for pyproject.toml
+      id: check-pyproject
+      run: |
+        echo "checking for pyproject.toml"
+        if [ -f pyproject.toml ]; then
+          echo "::set-output name=exists::true"
+        else
+          echo "::set-output name=exists::false"
+        fi
+    - name: Install dependencies from pyproject.toml
+      if: steps.check-pyproject.outputs.exists == 'true'
+      run: |
+        python -m pip install --upgrade pip
+        pip install poetry
+        poetry install
+
+    - name: "Generating API"
+      shell: "bash"
+      run: |
+        printf "::group::🔧 Installing dependencies\n"
+
+        if [[ -n "${{ inputs.branch }}" ]]; then
+          printf "::group::🔧 Installing dependencies\n"
+          python -m pip install git+https://github.com/JR-1991/software-driven-rdm.git@${{ inputs.branch }}
+        else
+          printf "::group::🔧 Installing dependencies\n"
+          python -m pip install sdrdm
+        fi
+
+        sdrdm generate \
+          --path "${{ inputs.schema_path }}" \
+          --out "${{ inputs.out_dir }}" \
+          --name "${{ inputs.library_name }}" \
+          --url "${{ github.server_url }}/${{ github.repository }}" \
+          --commit "${{ github.sha }}"
+
+        printf "✅ Done\n"
+        printf "::endgroup::\n"
+    - name: "Pushing API"
+      if: ${{ inputs.push == 'true' }}
+      shell: "bash"
+      run: |
+        if [[ `git status --porcelain` ]]; then
+            git add --all
+            git config --global user.name 'sdRDM Bot'
+            git config --global user.email 'sdRDM@bot.com'
+            git commit -am "API update"
+            git push
+        else
+          echo "Nothing changed!"
+        fi

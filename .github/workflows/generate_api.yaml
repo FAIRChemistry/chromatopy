@@ -1,6 +1,9 @@
 name: Generate API
 
-on: push
+on:
+  push:
+    tags:
+      - v1.**
 
 jobs:
   generate-api:
@@ -8,12 +11,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-        
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install poetry
-          poetry install
 
       - name: Generate sdRDM library
         uses: JR-1991/generate-sdrdm-api@main

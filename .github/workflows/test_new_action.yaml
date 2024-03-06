@@ -1,0 +1,16 @@
+name: Test Action
+
+on: 
+  push
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Generate sdRDM library
+        uses: ./
+        with:
+          library_name: "chromatopy"
+          # schema_path: "./.github/workflows/model.md"
+          push: "false"
