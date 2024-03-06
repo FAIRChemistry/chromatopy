@@ -91,6 +91,8 @@ runs:
 
         printf "✅ Done\n"
         printf "::endgroup::\n"
+      shell: bash
+
     - name: "Pushing API"
       if: ${{ inputs.push == 'true' }}
       shell: "bash"
