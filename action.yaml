@@ -40,6 +40,7 @@ runs:
         python-version: "3.11"
 
     - name: Check for requirements.txt
+      shell: "bash"
       id: check-requirements
       run: |
         echo "checking for requirements.txt"
@@ -49,11 +50,14 @@ runs:
           echo "::set-output name=exists::false"
         fi
     - name: Install dependencies from requirements.txt
+      shell: "bash"
       if: steps.check-requirements.outputs.exists == 'true'
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: Check for pyproject.toml
+      shell: "bash"
+
       id: check-pyproject
       run: |
         echo "checking for pyproject.toml"
@@ -63,6 +67,7 @@ runs:
           echo "::set-output name=exists::false"
         fi
     - name: Install dependencies from pyproject.toml
+      shell: "bash"
       if: steps.check-pyproject.outputs.exists == 'true'
       run: |
         python -m pip install --upgrade pip
@@ -91,7 +96,6 @@ runs:
 
         printf "✅ Done\n"
         printf "::endgroup::\n"
-      shell: bash
 
     - name: "Pushing API"
       if: ${{ inputs.push == 'true' }}
