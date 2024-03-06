@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Generate sdRDM library
-        uses: ./new_generation_test.yaml
+        uses: ./
         with:
           library_name: "chromatopy"
           # schema_path: "./.github/workflows/model.md"
