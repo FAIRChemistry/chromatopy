@@ -27,6 +27,8 @@ class ShimadzuReader(AbstractReader):
         return [self.read_file(f) for f in self._paths()]
 
     def read_file(self, path: str):
+        from chromatopy.core import Measurement
+
         """
         Reads the contents of one or multiple files and returns them as a list of strings.
 
@@ -43,7 +45,7 @@ class ShimadzuReader(AbstractReader):
         chromatogram_dict["peaks"] = peak_dict
         measurement_dict["chromatograms"] = [chromatogram_dict]
 
-        return measurement_dict
+        return Measurement(**measurement_dict)
 
     def _get_content(self, path: str) -> str:
         return pathlib.Path(path).read_text(encoding="ISO-8859-1")

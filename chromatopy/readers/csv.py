@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 
-from .abstractreader import AbstractReader
+from chromatopy.readers.abstractreader import AbstractReader
 
 
 class CSVReader(AbstractReader):
