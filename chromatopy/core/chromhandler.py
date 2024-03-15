@@ -224,7 +224,7 @@ class ChromHandler(sdRDM.DataModel):
             retention_time=retention_time, tolerance=tolerance, detector=detector
         )
 
-        molecule = Analyte(
+        analyte = Analyte(
             name=name,
             inchi=inchi,
             retention_time=retention_time,
@@ -234,6 +234,7 @@ class ChromHandler(sdRDM.DataModel):
         )
 
         if concentrations is not None and signals is not None:
+            analyte.standard = Standard()
             molecule = self._add_standard_to_molecule(
                 molecule=molecule,
                 concentrations=concentrations,
@@ -260,7 +261,7 @@ class ChromHandler(sdRDM.DataModel):
         retention_time: float,
         detector: SignalType,
         tolerance: float = 0.1,
-    ) -> "Tuple[List[datetime], List[Peak]]":
+    ) -> "Tuple[List[Datetime], List[Peak]]":
         """
         Returns a list of peaks within a specified retention time interval.
 
@@ -332,8 +333,8 @@ class ChromHandler(sdRDM.DataModel):
         """
 
         measurements = reader(path).read()
-        data = {"measurements": measurements}
-        instance = cls(**data)
+        instance = cls(measurements=measurements)
+
         # sort measurements by timestamp
         instance.measurements = sorted(instance.measurements, key=lambda x: x.timestamp)
         return instance
@@ -401,6 +402,55 @@ class ChromHandler(sdRDM.DataModel):
                     records.append(peak_data)
 
         return records
+
+    def add_internal_standard(
+        self,
+        name: str,
+        retention_time: float,
+        concentrations: List[float],
+        signals: List[float],
+        molecular_weight: float,
+        detector: SignalType,
+        inchi: str = None,
+        tolerance: float = 0.1,
+    ) -> Analyte:
+
+        internal_standard = self._set_analyte(
+            name=name,
+            retention_time=retention_time,
+            concentrations=concentrations,
+            signals=signals,
+            role=Role.STANDARD,
+            molecular_weight=molecular_weight,
+            inchi=inchi,
+            tolerance=tolerance,
+            detector=detector,
+        )
+
+        return internal_standard
+
+    def calculate_concentrations(
+        self,
+        analytes: List[Analyte] = None,
+        internal_standard: Analyte = None,
+    ):
+
+        if analytes is None:
+            analytes = self.analytes.values()
+        if isinstance(analytes, Analyte):
+            analytes = [analytes]
+
+        # if one internal standard is defined, it is used for all analytes
+        if internal_standard is None and len(self.internal_standards.keys()) == 1:
+            internal_standard = next(iter(self.internal_standards.values()))
+
+        if internal_standard.role is not Role.INTERNAL_STANDARD.value:
+            raise ValueError(
+                f"Internal standard {internal_standard.name} is not an internal standard"
+            )
+
+        for analyte in self.analytes.values():
+            analyte.calculate_concentrations(internal_standard=internal_standard)
 
     @staticmethod
     def _sample_colorscale(size: int, plotly_scale: str) -> List[str]:
