@@ -162,3 +162,15 @@ class Analyte(sdRDM.DataModel):
             params["id"] = id
         self.peaks.append(Peak(**params))
         return self.peaks[-1]
+
+    def get_peak_by_injection_time(self, injection_time: Datetime) -> Peak:
+        """
+        This method returns the peak with the given injection time
+
+        Args:
+            injection_time (Datetime): Injection time of the peak
+        """
+        for peak, peak_injection_time in zip(self.peaks, self.injection_times):
+            if injection_time == peak_injection_time:
+                return peak
+        return None

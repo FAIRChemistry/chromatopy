@@ -1,6 +1,6 @@
+import numpy as np
 import sdRDM
 
-import numpy as np
 import warnings
 import pandas as pd
 import plotly.graph_objects as go
@@ -15,13 +15,13 @@ from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
-from .standard import Standard
-from .chromatogram import Chromatogram
-from .analyte import Analyte
-from .peak import Peak
-from .role import Role
-from .measurement import Measurement
 from .signaltype import SignalType
+from .analyte import Analyte
+from .standard import Standard
+from .peak import Peak
+from .measurement import Measurement
+from .role import Role
+from .chromatogram import Chromatogram
 from ..readers.abstractreader import AbstractReader
 
 
@@ -49,6 +49,12 @@ class ChromHandler(sdRDM.DataModel):
         tag="measurements",
         json_schema_extra=dict(multiple=True),
     )
+    _repo: Optional[str] = PrivateAttr(
+        default="https://github.com/FAIRChemistry/chromatopy"
+    )
+    _commit: Optional[str] = PrivateAttr(
+        default="10cacc0f6eea0feefa9a3bc7a4b4e90ee75bd03f"
+    )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
     @model_validator(mode="after")
@@ -69,7 +75,6 @@ class ChromHandler(sdRDM.DataModel):
         molecular_weight: Optional[float] = None,
         retention_time: Optional[float] = None,
         peaks: List[Peak] = ListPlus(),
-        injection_times: List[Datetime] = ListPlus(),
         concentrations: List[float] = ListPlus(),
         standard: Optional[Standard] = None,
         role: Optional[Role] = None,
@@ -85,7 +90,6 @@ class ChromHandler(sdRDM.DataModel):
             molecular_weight (): Molar weight of the molecule in g/mol. Defaults to None
             retention_time (): Approximated retention time of the molecule. Defaults to None
             peaks (): All peaks of the dataset, which are within the same retention time interval related to the molecule. Defaults to ListPlus()
-            injection_times (): Injection times of the molecule measured peaks. Defaults to ListPlus()
             concentrations (): Concentration of the molecule. Defaults to ListPlus()
             standard (): Standard, describing the signal-to-concentration relationship. Defaults to None
             role (): Role of the molecule in the experiment. Defaults to None
@@ -96,7 +100,6 @@ class ChromHandler(sdRDM.DataModel):
             "molecular_weight": molecular_weight,
             "retention_time": retention_time,
             "peaks": peaks,
-            "injection_times": injection_times,
             "concentrations": concentrations,
             "standard": standard,
             "role": role,
@@ -230,6 +233,7 @@ class ChromHandler(sdRDM.DataModel):
             retention_time=retention_time,
             molecular_weight=molecular_weight,
             peaks=peaks,
+            injection_times=times,
             role=role,
         )
 
@@ -432,7 +436,6 @@ class ChromHandler(sdRDM.DataModel):
                 for analyte in self.analytes
                 if analyte.role == Role.STANDARD.value
             ][0]
-            standard_areas = np.array([peak.area for peak in internal_standard.peaks])
 
         if not analytes:
             analytes = [
@@ -441,16 +444,63 @@ class ChromHandler(sdRDM.DataModel):
                 if analyte.role == Role.ANALYTE.value
             ]
 
-        for analyte in analytes:
-            analyte_areas = np.array([peak.area for peak in analyte.peaks])
-            analyte_concs = (
-                analyte_areas
-                / standard_areas
-                / analyte.standard.factor
-                * internal_standard.molecular_weight
-            )
+        entries = []
 
-        return analyte_concs
+        for peak, injection_time in zip(
+            internal_standard.peaks, internal_standard.injection_times
+        ):
+            standard_area = peak.area
+
+            for analyte in analytes:
+                analyte_peak = analyte.get_peak_by_injection_time(injection_time)
+                if not analyte_peak:
+                    continue
+
+                # print(
+                #     analyte.name,
+                #     analyte_area,
+                #     standard_area,
+                #     analyte.standard.factor,
+                #     internal_standard.molecular_weight,
+                # )
+                analyte_conc = (
+                    analyte_peak.area
+                    / standard_area
+                    / analyte.standard.factor
+                    * internal_standard.molecular_weight
+                )
+                analyte.concentrations.append(analyte_conc)
+
+                entries.append(
+                    {
+                        "analyte": analyte.name,
+                        "injection_time": injection_time,
+                        "concentration": analyte_conc,
+                    }
+                )
+                # print(
+                #     f"Concentration of {analyte.name} at {injection_time} is {analyte_conc:.2f}"
+                # )
+
+        df = pd.DataFrame(entries)
+        df = df.pivot_table(
+            index="injection_time",
+            columns="analyte",
+            values="concentration",
+            aggfunc="first",
+        )
+        df.reset_index(inplace=True)
+        df.columns.name = None
+
+        # df.drop("analyte", axis=1, inplace=True)
+
+        df["injection_time"] = pd.to_datetime(df["injection_time"])
+
+        df["relative_time"] = (
+            df["injection_time"] - df["injection_time"].iloc[0]
+        ).dt.total_seconds()
+
+        return df
 
     @staticmethod
     def _sample_colorscale(size: int, plotly_scale: str) -> List[str]:
@@ -467,3 +517,89 @@ class ChromHandler(sdRDM.DataModel):
             for measurement in self.measurements
         ]
         return relative_times
+
+    def visualize_concentrations(self, analytes: List[Analyte] = None):
+
+        if analytes is None:
+            analytes = [
+                analyte
+                for analyte in self.analytes
+                if analyte.role == Role.ANALYTE.value
+            ]
+
+        fig = go.Figure()
+
+        for analyte in analytes:
+            fig.add_trace(
+                go.Scatter(
+                    x=analyte.injection_times,
+                    y=analyte.concentrations,
+                    # mode is lines and markers
+                    mode="lines+markers",
+                    name=analyte.name,
+                    hovertemplate=(
+                        "<br>Time: %{x}<br>Concentration:"
+                        " %{y:.2f} mmol/l<extra></extra>"
+                    ),
+                )
+            )
+
+        fig.update_xaxes(title_text="Time")
+
+        fig.update_yaxes(title_text="Concentration / mmol l<sup>-1<sup>")
+
+        return fig
+
+    def concentration_to_df(self, analytes: List[Analyte] = None):
+        if analytes is None:
+            analytes = [
+                analyte
+                for analyte in self.analytes
+                if analyte.role == Role.ANALYTE.value
+            ]
+
+        data = []
+        for analyte in analytes:
+            for injection_time, concentration in zip(
+                analyte.injection_times, analyte.concentrations
+            ):
+                data.append(
+                    {
+                        "analyte": analyte.name,
+                        "injection_time": injection_time,
+                        "concentration": concentration,
+                    }
+                )
+
+        # Create DataFrame
+        df = pd.DataFrame(data)
+
+        df["injection_time"] = pd.to_datetime(df["injection_time"])
+
+        # Pivot the DataFrame
+        df = df.pivot_table(
+            index="injection_time",
+            columns="analyte",
+            values="concentration",
+            aggfunc="first",
+        )
+
+        earliest_time = df.index.min()
+
+        df["relative_time"] = (
+            pd.Series(df.index)
+            .apply(lambda x: (x - earliest_time).total_seconds())
+            .values
+        )
+
+        df.set_index("relative_time", inplace=True)
+        df.columns.name = None
+        df.rename_axis("relative time [s]", inplace=True)
+        df.columns = [col + f" [mmol/l]" for col in df.columns]
+
+        # Your pivoted DataFrame now has a 'relative_time' column
+        return df
+
+    def concentrations_to_csv(self, path: str, analytes: List[Analyte] = None):
+        df = self.concentration_to_df(analytes)
+        df.to_csv(path)
