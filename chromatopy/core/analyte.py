@@ -9,6 +9,7 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
+from datetime import datetime as Datetime
 from .standard import Standard
 from .peak import Peak
 from .role import Role
@@ -63,6 +64,13 @@ class Analyte(sdRDM.DataModel):
         json_schema_extra=dict(multiple=True),
     )
 
+    injection_times: List[Datetime] = element(
+        description="Injection times of the molecule measured peaks",
+        default_factory=ListPlus,
+        tag="injection_times",
+        json_schema_extra=dict(multiple=True),
+    )
+
     concentrations: List[float] = element(
         description="Concentration of the molecule",
         default_factory=ListPlus,
@@ -82,12 +90,6 @@ class Analyte(sdRDM.DataModel):
         default=None,
         tag="role",
         json_schema_extra=dict(),
-    )
-    _repo: Optional[str] = PrivateAttr(
-        default="https://github.com/FAIRChemistry/chromatopy"
-    )
-    _commit: Optional[str] = PrivateAttr(
-        default="10cacc0f6eea0feefa9a3bc7a4b4e90ee75bd03f"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

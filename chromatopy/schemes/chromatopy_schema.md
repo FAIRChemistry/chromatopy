@@ -28,6 +28,7 @@ classDiagram
         +float molecular_weight
         +float retention_time
         +Peak[0..*] peaks
+        +datetime[0..*] injection_times
         +float[0..*] concentrations
         +Standard standard
         +Role role

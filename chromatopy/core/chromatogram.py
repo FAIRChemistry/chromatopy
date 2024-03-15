@@ -13,8 +13,8 @@ from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 from hplc.quant import Chromatogram as hplcChromatogram
-from .signaltype import SignalType
 from .peak import Peak
+from .signaltype import SignalType
 
 
 @forge_signature
@@ -77,12 +77,6 @@ class Chromatogram(sdRDM.DataModel):
         default=None,
         tag="type",
         json_schema_extra=dict(),
-    )
-    _repo: Optional[str] = PrivateAttr(
-        default="https://github.com/FAIRChemistry/chromatopy"
-    )
-    _commit: Optional[str] = PrivateAttr(
-        default="10cacc0f6eea0feefa9a3bc7a4b4e90ee75bd03f"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 

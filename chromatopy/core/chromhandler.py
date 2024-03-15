@@ -1,5 +1,6 @@
 import sdRDM
 
+import numpy as np
 import warnings
 import pandas as pd
 import plotly.graph_objects as go
@@ -14,13 +15,13 @@ from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
 from datetime import datetime as Datetime
-from .signaltype import SignalType
-from .analyte import Analyte
 from .standard import Standard
-from .peak import Peak
-from .measurement import Measurement
-from .role import Role
 from .chromatogram import Chromatogram
+from .analyte import Analyte
+from .peak import Peak
+from .role import Role
+from .measurement import Measurement
+from .signaltype import SignalType
 from ..readers.abstractreader import AbstractReader
 
 
@@ -48,12 +49,6 @@ class ChromHandler(sdRDM.DataModel):
         tag="measurements",
         json_schema_extra=dict(multiple=True),
     )
-    _repo: Optional[str] = PrivateAttr(
-        default="https://github.com/FAIRChemistry/chromatopy"
-    )
-    _commit: Optional[str] = PrivateAttr(
-        default="10cacc0f6eea0feefa9a3bc7a4b4e90ee75bd03f"
-    )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
     @model_validator(mode="after")
@@ -74,6 +69,7 @@ class ChromHandler(sdRDM.DataModel):
         molecular_weight: Optional[float] = None,
         retention_time: Optional[float] = None,
         peaks: List[Peak] = ListPlus(),
+        injection_times: List[Datetime] = ListPlus(),
         concentrations: List[float] = ListPlus(),
         standard: Optional[Standard] = None,
         role: Optional[Role] = None,
@@ -89,6 +85,7 @@ class ChromHandler(sdRDM.DataModel):
             molecular_weight (): Molar weight of the molecule in g/mol. Defaults to None
             retention_time (): Approximated retention time of the molecule. Defaults to None
             peaks (): All peaks of the dataset, which are within the same retention time interval related to the molecule. Defaults to ListPlus()
+            injection_times (): Injection times of the molecule measured peaks. Defaults to ListPlus()
             concentrations (): Concentration of the molecule. Defaults to ListPlus()
             standard (): Standard, describing the signal-to-concentration relationship. Defaults to None
             role (): Role of the molecule in the experiment. Defaults to None
@@ -99,6 +96,7 @@ class ChromHandler(sdRDM.DataModel):
             "molecular_weight": molecular_weight,
             "retention_time": retention_time,
             "peaks": peaks,
+            "injection_times": injection_times,
             "concentrations": concentrations,
             "standard": standard,
             "role": role,
@@ -145,6 +143,7 @@ class ChromHandler(sdRDM.DataModel):
         molecular_weight: float = None,
         inchi: str = None,
         tolerance: float = 0.1,
+        calibration_factor: float = None,
     ) -> Analyte:
         """
         This method adds an object of type 'Analyte' to the 'analytes' attribute.
@@ -159,6 +158,7 @@ class ChromHandler(sdRDM.DataModel):
             inchi (str, optional): InCHI code of the molecule.
                 Defaults to None.
             tolerance (float, optional): Tolerance for the retention time. Defaults to 0.1.
+            calibration_factor (float, optional): Calibration factor in with respect to internal standard.
 
         Returns:
             Analyte: The added Analyte object.
@@ -173,7 +173,9 @@ class ChromHandler(sdRDM.DataModel):
             inchi=inchi,
             tolerance=tolerance,
             detector=detector,
+            calibration_factor=calibration_factor,
         )
+
         self.analytes.append(analyte)
 
         return analyte
@@ -213,11 +215,9 @@ class ChromHandler(sdRDM.DataModel):
         role: Role,
         detector: SignalType,
         molecular_weight: float = None,
-        concentrations: float = None,
-        signals: float = None,
-        concentration_unit: str = None,
         inchi: str = None,
         tolerance: float = 0.1,
+        calibration_factor: float = None,
     ):
 
         times, peaks = self._get_peaks_by_retention_time(
@@ -233,16 +233,10 @@ class ChromHandler(sdRDM.DataModel):
             role=role,
         )
 
-        if concentrations is not None and signals is not None:
-            analyte.standard = Standard()
-            molecule = self._add_standard_to_molecule(
-                molecule=molecule,
-                concentrations=concentrations,
-                signals=signals,
-                concentration_unit=concentration_unit,
-            )
+        if calibration_factor is not None:
+            analyte.standard = Standard(factor=calibration_factor)
 
-        return molecule
+        return analyte
 
     def _get_peaks_in_retention_interval(
         self,
@@ -407,8 +401,6 @@ class ChromHandler(sdRDM.DataModel):
         self,
         name: str,
         retention_time: float,
-        concentrations: List[float],
-        signals: List[float],
         molecular_weight: float,
         detector: SignalType,
         inchi: str = None,
@@ -418,14 +410,14 @@ class ChromHandler(sdRDM.DataModel):
         internal_standard = self._set_analyte(
             name=name,
             retention_time=retention_time,
-            concentrations=concentrations,
-            signals=signals,
             role=Role.STANDARD,
             molecular_weight=molecular_weight,
             inchi=inchi,
             tolerance=tolerance,
             detector=detector,
         )
+
+        self.analytes.append(internal_standard)
 
         return internal_standard
 
@@ -434,23 +426,31 @@ class ChromHandler(sdRDM.DataModel):
         analytes: List[Analyte] = None,
         internal_standard: Analyte = None,
     ):
+        if not internal_standard:
+            internal_standard = [
+                analyte
+                for analyte in self.analytes
+                if analyte.role == Role.STANDARD.value
+            ][0]
+            standard_areas = np.array([peak.area for peak in internal_standard.peaks])
 
-        if analytes is None:
-            analytes = self.analytes.values()
-        if isinstance(analytes, Analyte):
-            analytes = [analytes]
+        if not analytes:
+            analytes = [
+                analyte
+                for analyte in self.analytes
+                if analyte.role == Role.ANALYTE.value
+            ]
 
-        # if one internal standard is defined, it is used for all analytes
-        if internal_standard is None and len(self.internal_standards.keys()) == 1:
-            internal_standard = next(iter(self.internal_standards.values()))
-
-        if internal_standard.role is not Role.INTERNAL_STANDARD.value:
-            raise ValueError(
-                f"Internal standard {internal_standard.name} is not an internal standard"
+        for analyte in analytes:
+            analyte_areas = np.array([peak.area for peak in analyte.peaks])
+            analyte_concs = (
+                analyte_areas
+                / standard_areas
+                / analyte.standard.factor
+                * internal_standard.molecular_weight
             )
 
-        for analyte in self.analytes.values():
-            analyte.calculate_concentrations(internal_standard=internal_standard)
+        return analyte_concs
 
     @staticmethod
     def _sample_colorscale(size: int, plotly_scale: str) -> List[str]:

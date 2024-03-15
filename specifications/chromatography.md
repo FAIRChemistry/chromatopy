@@ -31,6 +31,10 @@
     - Type: Peak
     - Multiple: True
     - Description: All peaks of the dataset, which are within the same retention time interval related to the molecule
+- injection_times
+    - Type: datetime
+    - Multiple: True
+    - Description: Injection times of the molecule measured peaks
 - concentrations
     - Type: float
     - Multiple: True

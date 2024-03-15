@@ -9,10 +9,10 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
+from .inlet import Inlet
 from .column import Column
 from .valve import Valve
 from .oven import Oven
-from .inlet import Inlet
 from .detector import Detector
 
 
@@ -81,12 +81,6 @@ class Method(sdRDM.DataModel):
         default_factory=ListPlus,
         tag="valves",
         json_schema_extra=dict(multiple=True),
-    )
-    _repo: Optional[str] = PrivateAttr(
-        default="https://github.com/FAIRChemistry/chromatopy"
-    )
-    _commit: Optional[str] = PrivateAttr(
-        default="10cacc0f6eea0feefa9a3bc7a4b4e90ee75bd03f"
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
