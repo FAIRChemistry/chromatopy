@@ -2,6 +2,7 @@ import unittest
 
 import pytest
 
+from chromatopy.core.measurement import Measurement
 from chromatopy.readers.shimadzu import ShimadzuReader
 
 DIR_PATH = "data/shimadzu/"
@@ -16,7 +17,7 @@ class TestShimadzuReader(unittest.TestCase):
 
         result = reader.read()
 
-        assert isinstance(result[0], dict)
+        assert isinstance(result[0], Measurement)
 
     # raises FileNotFoundError when path does not exist
     def test_file_not_found_error(self):
@@ -26,16 +27,6 @@ class TestShimadzuReader(unittest.TestCase):
         # Act & Assert
         with pytest.raises(FileNotFoundError):
             ShimadzuReader(path)
-
-    def test_get_content(self):
-        # Arrange
-        reader = ShimadzuReader(FILE_PATH)
-
-        # Act
-        result = reader._get_content(FILE_PATH)
-
-        # Assert
-        assert isinstance(result, str)
 
     def test_map_measurement(self):
         # Arrange
