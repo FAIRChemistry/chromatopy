@@ -1,5 +1,7 @@
 import unittest
+
 import pytest
+
 from chromatopy.readers.shimadzu import ShimadzuReader
 
 DIR_PATH = "data/shimadzu/"

@@ -1,20 +1,20 @@
-from .chromhandler import ChromHandler
 from .analyte import Analyte
-from .measurement import Measurement
 from .chromatogram import Chromatogram
-from .peak import Peak
-from .standard import Standard
-from .method import Method
-from .oven import Oven
-from .ramp import Ramp
-from .inlet import Inlet
+from .chromhandler import ChromHandler
 from .column import Column
 from .detector import Detector
-from .tcddetector import TCDDetector
 from .fiddetector import FIDDetector
-from .valve import Valve
-from .signaltype import SignalType
+from .inlet import Inlet
+from .measurement import Measurement
+from .method import Method
+from .oven import Oven
+from .peak import Peak
+from .ramp import Ramp
 from .role import Role
+from .signaltype import SignalType
+from .standard import Standard
+from .tcddetector import TCDDetector
+from .valve import Valve
 
 __doc__ = ""
 __all__ = [

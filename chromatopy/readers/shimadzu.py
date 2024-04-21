@@ -1,9 +1,10 @@
-from typing import Optional
 import os
-import re
 import pathlib
+import re
 from datetime import datetime
 from io import StringIO
+from typing import Optional
+
 import pandas as pd
 
 from chromatopy.core.signaltype import SignalType

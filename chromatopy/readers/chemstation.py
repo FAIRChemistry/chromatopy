@@ -1,6 +1,6 @@
-from pathlib import Path
-from datetime import datetime
 import re
+from datetime import datetime
+from pathlib import Path
 
 from chromatopy.readers.abstractreader import AbstractReader
 
@@ -40,7 +40,7 @@ class ChemstationReader(AbstractReader):
             raise UnicodeError()
 
     def parse_measurement(self, file: str):
-        from chromatopy.core import Measurement, Peak, Chromatogram, SignalType
+        from chromatopy.core import Chromatogram, Measurement, Peak, SignalType
 
         INJ_VOLUME = re.compile(r"(\d+\s+(µ?[a-zA-Z]?l))")
         TIMESTAMP = re.compile(

@@ -1,12 +1,14 @@
 
 from typing import Dict, Optional
-from pydantic import PrivateAttr, model_validator
 from uuid import uuid4
-from pydantic_xml import attr, element
+
 from lxml.etree import _Element
+from pydantic import PrivateAttr, model_validator
+from pydantic_xml import attr, element
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.tools.utils import elem2dict
+
 from .detector import Detector
 
 

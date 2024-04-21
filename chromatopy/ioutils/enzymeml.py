@@ -1,10 +1,10 @@
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from chromatopy.core import ChromHandler
-    from chromatopy.core import Molecule
+    from chromatopy.core import ChromHandler, Molecule
 
 from typing import List
+
 from sdRDM import DataModel
 
 # Specify EnzymeML version

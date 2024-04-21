@@ -1,28 +1,29 @@
-import numpy as np
-import sdRDM
-
 import warnings
-import pandas as pd
-import plotly.graph_objects as go
-import plotly.express as px
+from datetime import datetime as Datetime
 from typing import Dict, List, Optional, Tuple
-from pydantic import PrivateAttr, model_validator
 from uuid import uuid4
-from pydantic_xml import attr, element
+
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import sdRDM
 from lxml.etree import _Element
+from pydantic import PrivateAttr, model_validator
+from pydantic_xml import attr, element
+from sdRDM.base.datatypes import Unit
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
-from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
-from datetime import datetime as Datetime
-from .signaltype import SignalType
-from .analyte import Analyte
-from .standard import Standard
-from .peak import Peak
-from .measurement import Measurement
-from .role import Role
-from .chromatogram import Chromatogram
+from calipytion 
+
 from ..readers.abstractreader import AbstractReader
+from .analyte import Analyte
+from .chromatogram import Chromatogram
+from .measurement import Measurement
+from .peak import Peak
+from .role import Role
+from .signaltype import SignalType
+from .standard import Standard
 
 
 @forge_signature
@@ -217,12 +218,11 @@ class ChromHandler(sdRDM.DataModel):
         retention_time: float,
         role: Role,
         detector: SignalType,
+        tolerance: float,
         molecular_weight: float = None,
         inchi: str = None,
-        tolerance: float = 0.1,
         calibration_factor: float = None,
     ):
-
         times, peaks = self._get_peaks_by_retention_time(
             retention_time=retention_time, tolerance=tolerance, detector=detector
         )
@@ -280,7 +280,6 @@ class ChromHandler(sdRDM.DataModel):
         sorted_measurements = sorted(self.measurements, key=lambda x: x.timestamp)
 
         for measurement in sorted_measurements:
-
             time = measurement.timestamp
 
             chromatogram = measurement.get_detector(detector)
@@ -338,13 +337,11 @@ class ChromHandler(sdRDM.DataModel):
         return instance
 
     def visualize_chromatograms(self, color_scale: str = "Turbo"):
-
         fig = go.Figure()
 
         colors = self._sample_colorscale(len(self.measurements), color_scale)
         for color, measurement in zip(colors, self.measurements):
             for chromatogram in measurement.chromatograms:
-
                 fig.add_trace(
                     go.Scatter(
                         x=chromatogram.retention_times,
@@ -367,7 +364,6 @@ class ChromHandler(sdRDM.DataModel):
         return fig
 
     def visualize_peaks(self, detector: SignalType = None, color_scale: str = "Turbo"):
-
         detector = self._handel_detector(detector)
 
         df = pd.DataFrame(self._get_peak_records())
@@ -410,7 +406,6 @@ class ChromHandler(sdRDM.DataModel):
         inchi: str = None,
         tolerance: float = 0.1,
     ) -> Analyte:
-
         internal_standard = self._set_analyte(
             name=name,
             retention_time=retention_time,
@@ -519,7 +514,6 @@ class ChromHandler(sdRDM.DataModel):
         return relative_times
 
     def visualize_concentrations(self, analytes: List[Analyte] = None):
-
         if analytes is None:
             analytes = [
                 analyte
@@ -549,6 +543,10 @@ class ChromHandler(sdRDM.DataModel):
         fig.update_yaxes(title_text="Concentration / mmol l<sup>-1<sup>")
 
         return fig
+
+    def calibrate(peaks: List[Peak], concentrations: List[float]):
+        
+
 
     def concentration_to_df(self, analytes: List[Analyte] = None):
         if analytes is None:
@@ -595,7 +593,7 @@ class ChromHandler(sdRDM.DataModel):
         df.set_index("relative_time", inplace=True)
         df.columns.name = None
         df.rename_axis("relative time [s]", inplace=True)
-        df.columns = [col + f" [mmol/l]" for col in df.columns]
+        df.columns = [col + " [mmol/l]" for col in df.columns]
 
         # Your pivoted DataFrame now has a 'relative_time' column
         return df
