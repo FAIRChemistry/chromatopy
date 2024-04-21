@@ -14,7 +14,6 @@ from sdRDM.base.datatypes import Unit
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.tools.utils import elem2dict
-from calipytion 
 
 from ..readers.abstractreader import AbstractReader
 from .analyte import Analyte
@@ -544,9 +543,8 @@ class ChromHandler(sdRDM.DataModel):
 
         return fig
 
-    def calibrate(peaks: List[Peak], concentrations: List[float]):
-        
-
+    def create_calibration(peaks: List[Peak], concentrations: List[float]):
+        assert all
 
     def concentration_to_df(self, analytes: List[Analyte] = None):
         if analytes is None:
