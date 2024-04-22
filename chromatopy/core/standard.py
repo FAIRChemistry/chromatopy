@@ -21,10 +21,31 @@ class Standard(sdRDM.DataModel):
         xml="@id",
     )
 
+    analyte_id: Optional[str] = element(
+        description="ID of the analyte",
+        default=None,
+        tag="analyte_id",
+        json_schema_extra=dict(),
+    )
+
     factor: Optional[float] = element(
         description="Factor to convert the signal to concentration",
         default=None,
         tag="factor",
+        json_schema_extra=dict(),
+    )
+
+    intercept: Optional[float] = element(
+        description="Intercept of the standard curve",
+        default=None,
+        tag="intercept",
+        json_schema_extra=dict(),
+    )
+
+    r_squared: Optional[float] = element(
+        description="R squared value of the standard curve",
+        default=None,
+        tag="r_squared",
         json_schema_extra=dict(),
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)

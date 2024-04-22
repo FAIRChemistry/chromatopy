@@ -22,6 +22,13 @@ class Peak(sdRDM.DataModel):
         xml="@id",
     )
 
+    analyte_id: Optional[str] = element(
+        description="ID of the analyte",
+        default=None,
+        tag="analyte_id",
+        json_schema_extra=dict(),
+    )
+
     retention_time: Optional[float] = element(
         description="Retention time of the peak",
         default=None,

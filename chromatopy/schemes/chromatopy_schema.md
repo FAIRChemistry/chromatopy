@@ -52,6 +52,7 @@ classDiagram
     }
     
     class Peak {
+        +str analyte_id
         +float retention_time
         +Unit retention_time_unit
         +string type
@@ -69,7 +70,10 @@ classDiagram
     }
     
     class Standard {
+        +str analyte_id
         +float factor
+        +float intercept
+        +float r_squared
     }
     
     class Method {

@@ -16,6 +16,7 @@ from sdRDM.base.utils import forge_signature
 from sdRDM.tools.utils import elem2dict
 
 from ..readers.abstractreader import AbstractReader
+from ..tools.calibration import Calibrator
 from .analyte import Analyte
 from .chromatogram import Chromatogram
 from .measurement import Measurement
@@ -49,12 +50,6 @@ class ChromHandler(sdRDM.DataModel):
         tag="measurements",
         json_schema_extra=dict(multiple=True),
     )
-    _repo: Optional[str] = PrivateAttr(
-        default="https://github.com/FAIRChemistry/chromatopy"
-    )
-    _commit: Optional[str] = PrivateAttr(
-        default="10cacc0f6eea0feefa9a3bc7a4b4e90ee75bd03f"
-    )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
     @model_validator(mode="after")
@@ -75,6 +70,7 @@ class ChromHandler(sdRDM.DataModel):
         molecular_weight: Optional[float] = None,
         retention_time: Optional[float] = None,
         peaks: List[Peak] = ListPlus(),
+        injection_times: List[Datetime] = ListPlus(),
         concentrations: List[float] = ListPlus(),
         standard: Optional[Standard] = None,
         role: Optional[Role] = None,
@@ -90,6 +86,7 @@ class ChromHandler(sdRDM.DataModel):
             molecular_weight (): Molar weight of the molecule in g/mol. Defaults to None
             retention_time (): Approximated retention time of the molecule. Defaults to None
             peaks (): All peaks of the dataset, which are within the same retention time interval related to the molecule. Defaults to ListPlus()
+            injection_times (): Injection times of the molecule measured peaks. Defaults to ListPlus()
             concentrations (): Concentration of the molecule. Defaults to ListPlus()
             standard (): Standard, describing the signal-to-concentration relationship. Defaults to None
             role (): Role of the molecule in the experiment. Defaults to None
@@ -100,6 +97,7 @@ class ChromHandler(sdRDM.DataModel):
             "molecular_weight": molecular_weight,
             "retention_time": retention_time,
             "peaks": peaks,
+            "injection_times": injection_times,
             "concentrations": concentrations,
             "standard": standard,
             "role": role,
@@ -465,13 +463,11 @@ class ChromHandler(sdRDM.DataModel):
                 )
                 analyte.concentrations.append(analyte_conc)
 
-                entries.append(
-                    {
-                        "analyte": analyte.name,
-                        "injection_time": injection_time,
-                        "concentration": analyte_conc,
-                    }
-                )
+                entries.append({
+                    "analyte": analyte.name,
+                    "injection_time": injection_time,
+                    "concentration": analyte_conc,
+                })
                 # print(
                 #     f"Concentration of {analyte.name} at {injection_time} is {analyte_conc:.2f}"
                 # )
@@ -543,8 +539,20 @@ class ChromHandler(sdRDM.DataModel):
 
         return fig
 
-    def create_calibration(peaks: List[Peak], concentrations: List[float]):
-        assert all
+    def get_calibrator(analyte: Analyte, concentrations: List[float]) -> Calibrator:
+        # TODO: Add species_id to data model
+
+        signals = [peak.area for peak in analyte.peaks]
+        assert len(signals) == len(concentrations), (
+            f"Number of signals {len(signals)} and concentrations {concentrations} must"
+            " be equal"
+        )
+
+        calibration = Calibrator(
+            signals=signals, concentrations=concentrations, species_id=analyte.name
+        ).calibrate()
+
+        return calibration
 
     def concentration_to_df(self, analytes: List[Analyte] = None):
         if analytes is None:
@@ -559,13 +567,11 @@ class ChromHandler(sdRDM.DataModel):
             for injection_time, concentration in zip(
                 analyte.injection_times, analyte.concentrations
             ):
-                data.append(
-                    {
-                        "analyte": analyte.name,
-                        "injection_time": injection_time,
-                        "concentration": concentration,
-                    }
-                )
+                data.append({
+                    "analyte": analyte.name,
+                    "injection_time": injection_time,
+                    "concentration": concentration,
+                })
 
         # Create DataFrame
         df = pd.DataFrame(data)

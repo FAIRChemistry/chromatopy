@@ -5,364 +5,377 @@
 ### ChromHandler
 
 - analytes
-    - Type: Analyte
-    - Description: Molecule that can be assigned to a peak. 
-    - Multiple: True
+  - Type: Analyte
+  - Description: Molecule that can be assigned to a peak.
+  - Multiple: True
 - measurements
-    - Type: Measurement
-    - Description: Measured signals
-    - Multiple: True
+  - Type: Measurement
+  - Description: Measured signals
+  - Multiple: True
 
 ### Analyte
 
 - name
-    - Type: string
-    - Description: Name of the analyte
+  - Type: string
+  - Description: Name of the analyte
 - inchi
-    - Type: string
-    - Description: InCHI code of the molecule
+  - Type: string
+  - Description: InCHI code of the molecule
 - molecular_weight
-    - Type: float
-    - Description: Molar weight of the molecule in g/mol
+  - Type: float
+  - Description: Molar weight of the molecule in g/mol
 - retention_time
-    - Type: float
-    - Description: Approximated retention time of the molecule
+  - Type: float
+  - Description: Approximated retention time of the molecule
 - peaks
-    - Type: Peak
-    - Multiple: True
-    - Description: All peaks of the dataset, which are within the same retention time interval related to the molecule
+  - Type: Peak
+  - Multiple: True
+  - Description: All peaks of the dataset, which are within the same retention time interval related to the molecule
 - injection_times
-    - Type: datetime
-    - Multiple: True
-    - Description: Injection times of the molecule measured peaks
+  - Type: datetime
+  - Multiple: True
+  - Description: Injection times of the molecule measured peaks
 - concentrations
-    - Type: float
-    - Multiple: True
-    - Description: Concentration of the molecule
+  - Type: float
+  - Multiple: True
+  - Description: Concentration of the molecule
 - standard
-    - Type: Standard
-    - Description: Standard, describing the signal-to-concentration relationship
+  - Type: Standard
+  - Description: Standard, describing the signal-to-concentration relationship
 - role
-    - Type: Role
-    - Description: Role of the molecule in the experiment
+  - Type: Role
+  - Description: Role of the molecule in the experiment
 
 ## Objects describing measurements
 
 ### Measurement
 
 - chromatograms
-    - Type: Chromatogram
-    - Description: Measured signal
-    - Multiple: True
+  - Type: Chromatogram
+  - Description: Measured signal
+  - Multiple: True
 - timestamp
-    - Type: datetime
-    - Description: Timestamp of sample injection into the column
+  - Type: datetime
+  - Description: Timestamp of sample injection into the column
 - injection_volume
-    - Type: float
-    - Description: Injection volume
+  - Type: float
+  - Description: Injection volume
 - injection_volume_unit
-    - Type: Unit
-    - Description: Unit of injection volume
+  - Type: Unit
+  - Description: Unit of injection volume
 
 ### Chromatogram
 
 - peaks
-    - Type: Peak
-    - Description: Peaks in the signal
-    - Multiple: True
+  - Type: Peak
+  - Description: Peaks in the signal
+  - Multiple: True
 - retention_times
-    - Type: float
-    - Description: Retention times of the signal
-    - Multiple: True
+  - Type: float
+  - Description: Retention times of the signal
+  - Multiple: True
 - time_unit
-    - Type: Unit
-    - Description: Unit of retention time
+  - Type: Unit
+  - Description: Unit of retention time
 - signals
-    - Type: float
-    - Description: Signal values
-    - Multiple: True
+  - Type: float
+  - Description: Signal values
+  - Multiple: True
 - processed_signal
-    - Type: float
-    - Description: Processed signal values after baseline correction and deconvolution
-    - Multiple: True
+  - Type: float
+  - Description: Processed signal values after baseline correction and deconvolution
+  - Multiple: True
 - wavelength
-    - Type: float
-    - Description: Wavelength of the signal in nm
+  - Type: float
+  - Description: Wavelength of the signal in nm
 - type
-    - Type: SignalType
-    - Description: Type of signal 
+  - Type: SignalType
+  - Description: Type of signal
 
 ### Peak
 
+- analyte_id
+  - Type: str
+  - Description: ID of the analyte
 - retention_time
-    - Type: float
-    - Description: Retention time of the peak
+  - Type: float
+  - Description: Retention time of the peak
 - retention_time_unit
-    - Type: Unit
-    - Description: Unit of retention time
+  - Type: Unit
+  - Description: Unit of retention time
 - type
-    - Type: string
-    - Description: Type of peak (baseline-baseline / baseline-valley / ...)
+  - Type: string
+  - Description: Type of peak (baseline-baseline / baseline-valley / ...)
 - peak_start
-    - Type: float
-    - Description: Start retention time of the peak
+  - Type: float
+  - Description: Start retention time of the peak
 - peak_end
-    - Type: float
-    - Description: End retention time of the peak
+  - Type: float
+  - Description: End retention time of the peak
 - width
-    - Type: float
-    - Description: Width of the peak
+  - Type: float
+  - Description: Width of the peak
 - width_unit
-    - Type: Unit
-    - Description: Unit of width
+  - Type: Unit
+  - Description: Unit of width
 - area
-    - Type: float
-    - Description: Area of the peak
+  - Type: float
+  - Description: Area of the peak
 - area_unit
-    - Type: Unit
-    - Description: Unit of area
+  - Type: Unit
+  - Description: Unit of area
 - height
-    - Type: float
-    - Description: Height of the peak
+  - Type: float
+  - Description: Height of the peak
 - height_unit
-    - Type: Unit
-    - Description: Unit of height
+  - Type: Unit
+  - Description: Unit of height
 - percent_area
-    - Type: float
-    - Description: Percent area of the peak
+  - Type: float
+  - Description: Percent area of the peak
 - tailing_factor
-    - Type: float
-    - Description: Tailing factor of the peak
+  - Type: float
+  - Description: Tailing factor of the peak
 - separation_factor
-    - Type: float
-    - Description: Separation factor of the peak
+  - Type: float
+  - Description: Separation factor of the peak
 
 ### Standard
 
+- analyte_id
+  - Type: str
+  - Description: ID of the analyte
 - factor
-    - Type: float
-    - Description: Factor to convert the signal to concentration
+  - Type: float
+  - Description: Factor to convert the signal to concentration
+- intercept
+  - Type: float
+  - Description: Intercept of the standard curve
+- r_squared
+  - Type: float
+  - Description: R squared value of the standard curve
 
 ## Objects describing the method
 
 ### Method
 
 - injection_time
-    - Type: float
-    - Description: Injection time
+  - Type: float
+  - Description: Injection time
 - injection_date
-    - Type: string
-    - Description: Injection date
+  - Type: string
+  - Description: Injection date
 - injection_volume
-    - Type: float
-    - Description: Injection volume
+  - Type: float
+  - Description: Injection volume
 - injection_volume_unit
-    - Type: Unit
-    - Description: Unit of injection volume
+  - Type: Unit
+  - Description: Unit of injection volume
 - location
-    - Type: string
-    - Description: Location of sample vial
+  - Type: string
+  - Description: Location of sample vial
 - oven
-    - Type: Oven
-    - Description: Settings of the oven
+  - Type: Oven
+  - Description: Settings of the oven
 - columns
-    - Type: Column
-    - Description: Parameters of the columns
-    - Multiple: True
+  - Type: Column
+  - Description: Parameters of the columns
+  - Multiple: True
 - valves
-    - Type: Valve
-    - Description: Settings of the valves
-    - Multiple: True
+  - Type: Valve
+  - Description: Settings of the valves
+  - Multiple: True
 
 ### Oven
+
 Describes the settings of the oven.
 
 - init_temp
-    - Type: float
-    - Description: Initial temperature of the oven 
+  - Type: float
+  - Description: Initial temperature of the oven
 - max_temp
-    - Type: float
-    - Description: Maximum temperature of the oven
+  - Type: float
+  - Description: Maximum temperature of the oven
 - equilibrate_time
-    - Type: float
-    - Description: Time to equilibrate the oven
+  - Type: float
+  - Description: Time to equilibrate the oven
 - ramps
-    - Type: Ramp
-    - Description: Thermal protocols of the oven
-    - Multiple: True
+  - Type: Ramp
+  - Description: Thermal protocols of the oven
+  - Multiple: True
 - post_temp
-    - Type: float
-    - Description: Temperature after protocol
+  - Type: float
+  - Description: Temperature after protocol
 - post_time
-    - Type: float
-    - Description: Time after protocol
+  - Type: float
+  - Description: Time after protocol
 - run_time
-    - Type: float
-    - Description: Duration of the run
+  - Type: float
+  - Description: Duration of the run
 
 ### Ramp
 
 Describes properties of a temperature ramp.
 
 - temp_rate
-    - Type: float
-    - Description: Rate of temperature change during the ramp
+  - Type: float
+  - Description: Rate of temperature change during the ramp
 - final_temp
-    - Type: float
-    - Description: Final temperature of the ramp
+  - Type: float
+  - Description: Final temperature of the ramp
 - hold_time
-    - Type: float
-    - Description: Duration to hold the final temperature before starting the next ramp
+  - Type: float
+  - Description: Duration to hold the final temperature before starting the next ramp
 - time_unit
-    - Type: Unit
-    - Description: Unit of time
+  - Type: Unit
+  - Description: Unit of time
 
 ### Inlet
 
 - mode
-    - Type: string
-    - Description: Mode of the inlet (Split / Splitless)
+  - Type: string
+  - Description: Mode of the inlet (Split / Splitless)
 - init_temp
-    - Type: float
-    - Description: Initial temperature
+  - Type: float
+  - Description: Initial temperature
 - pressure
-    - Type: float
-    - Description: Inlet pressure
+  - Type: float
+  - Description: Inlet pressure
 - pressure_unit
-    - Type: Unit
-    - Description: Unit of pressure
+  - Type: Unit
+  - Description: Unit of pressure
 - split_ratio
-    - Type: string
-    - Description: Split ratio
-    - regex: (d+)(:)(d+)
+  - Type: string
+  - Description: Split ratio
+  - regex: (d+)(:)(d+)
 - split_flow
-    - Type: float
-    - Description: Split flow
+  - Type: float
+  - Description: Split flow
 - total_flow
-    - Type: float
-    - Description: Total flow
+  - Type: float
+  - Description: Total flow
 - flow_unit
-    - Type: Unit
-    - Description: Unit of flow
+  - Type: Unit
+  - Description: Unit of flow
 - gas_saver
-    - Type: boolean
-    - Description: Gas saver mode
+  - Type: boolean
+  - Description: Gas saver mode
 - gas_type
-    - Type: string
-    - Description: Type of gas
+  - Type: string
+  - Description: Type of gas
 
 ### Column
 
 Describes properties of a column and its connections to the inlet and detector.
 
 - name
-    - Type: string
-    - Description: Name of the column
+  - Type: string
+  - Description: Name of the column
 - type
-    - Type: string
-    - Description: Type of column
+  - Type: string
+  - Description: Type of column
 - max_temp
-    - Type: float
-    - Description: Maximum temperature of the column
+  - Type: float
+  - Description: Maximum temperature of the column
 - length
-    - Type: float
-    - Description: Length of the column
+  - Type: float
+  - Description: Length of the column
 - diameter
-    - Type: float
-    - Description: Diameter of the column
+  - Type: float
+  - Description: Diameter of the column
 - film_thickness
-    - Type: float
-    - Description: Film thickness of the column
+  - Type: float
+  - Description: Film thickness of the column
 - flow_mode
-    - Type: string
-    - Description: Flow mode of the column
+  - Type: string
+  - Description: Flow mode of the column
 - flow_rate
-    - Type: float
-    - Description: Flow rate of the column
+  - Type: float
+  - Description: Flow rate of the column
 - flow_unit
-    - Type: Unit
-    - Description: Unit of flow rate
+  - Type: Unit
+  - Description: Unit of flow rate
 - inlet
-    - Type: Inlet
-    - Description: Inlet of the column
+  - Type: Inlet
+  - Description: Inlet of the column
 - detector
-    - Type: Detector
-    - Description: Outlet of the column, connected to the detector
+  - Type: Detector
+  - Description: Outlet of the column, connected to the detector
 - outlet_pressure
-    - Type: float
-    - Description: Outlet pressure of the column
+  - Type: float
+  - Description: Outlet pressure of the column
 
 ### Detector
 
 Base class for detectors.
 
 - type
-    - Type: string
-    - Description: Type of detector
+  - Type: string
+  - Description: Type of detector
 - flow_mode
-    - Type: string
-    - Description: Airflow mode
+  - Type: string
+  - Description: Airflow mode
 - makeup_flow
-    - Type: float
-    - Description: Makeup flow
+  - Type: float
+  - Description: Makeup flow
 - makeup_gas
-    - Type: string
-    - Description: Makeup gas
+  - Type: string
+  - Description: Makeup gas
 - flow_unit
-    - Type: Unit
-    - Description: Unit of flow
+  - Type: Unit
+  - Description: Unit of flow
 - reference_flow
-    - Type: float
-    - Description: Reference flow
+  - Type: float
+  - Description: Reference flow
 
 ### TCDDetector [_Detector_]
 
 Describes properties of a thermal conductivity detector.
 
 - hydrogen_flow
-    - Type: float
-    - Description: Hydrogen flow
+  - Type: float
+  - Description: Hydrogen flow
 - air_flow
-    - Type: float
-    - Description: Airflow
+  - Type: float
+  - Description: Airflow
 - flame
-    - Type: boolean
-    - Description: Flame on/off
+  - Type: boolean
+  - Description: Flame on/off
 - electrometer
-    - Type: boolean
-    - Description: Electrometer on/off
+  - Type: boolean
+  - Description: Electrometer on/off
 - lit_offset
-    - Type: float
-    - Description: Lit offset
+  - Type: float
+  - Description: Lit offset
 
 ### FIDDetector [_Detector_]
 
 Describes properties of a flame ionization detector.
 
 - reference_flow
-    - Type: float
-    - Description: Reference flow
+  - Type: float
+  - Description: Reference flow
 - filament
-    - Type: boolean
-    - Description: Filament on/off
+  - Type: boolean
+  - Description: Filament on/off
 - negative_polarity
-    - Type: boolean
-    - Description: Negative polarity on/off
+  - Type: boolean
+  - Description: Negative polarity on/off
 
 ### Valve
 
 - name
-    - Type: string
-    - Description: Name of the valve
+  - Type: string
+  - Description: Name of the valve
 - loop_volume
-    - Type: float
-    - Description: Loop volume of the valve
+  - Type: float
+  - Description: Loop volume of the valve
 - load_time
-    - Type: float
-    - Description: Load time
+  - Type: float
+  - Description: Load time
 - inject_time
-    - Type: float
-    - Description: Inject time 
+  - Type: float
+  - Description: Inject time
 
 ## Enumerations
 

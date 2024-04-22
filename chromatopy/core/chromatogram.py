@@ -94,6 +94,7 @@ class Chromatogram(sdRDM.DataModel):
 
     def add_to_peaks(
         self,
+        analyte_id: Optional[str] = None,
         retention_time: Optional[float] = None,
         retention_time_unit: Optional[Unit] = None,
         type: Optional[str] = None,
@@ -115,6 +116,7 @@ class Chromatogram(sdRDM.DataModel):
 
         Args:
             id (str): Unique identifier of the 'Peak' object. Defaults to 'None'.
+            analyte_id (): ID of the analyte. Defaults to None
             retention_time (): Retention time of the peak. Defaults to None
             retention_time_unit (): Unit of retention time. Defaults to None
             type (): Type of peak (baseline-baseline / baseline-valley / ...). Defaults to None
@@ -131,6 +133,7 @@ class Chromatogram(sdRDM.DataModel):
             separation_factor (): Separation factor of the peak. Defaults to None
         """
         params = {
+            "analyte_id": analyte_id,
             "retention_time": retention_time,
             "retention_time_unit": retention_time_unit,
             "type": type,
