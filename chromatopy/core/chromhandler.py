@@ -463,11 +463,13 @@ class ChromHandler(sdRDM.DataModel):
                 )
                 analyte.concentrations.append(analyte_conc)
 
-                entries.append({
-                    "analyte": analyte.name,
-                    "injection_time": injection_time,
-                    "concentration": analyte_conc,
-                })
+                entries.append(
+                    {
+                        "analyte": analyte.name,
+                        "injection_time": injection_time,
+                        "concentration": analyte_conc,
+                    }
+                )
                 # print(
                 #     f"Concentration of {analyte.name} at {injection_time} is {analyte_conc:.2f}"
                 # )
@@ -567,11 +569,13 @@ class ChromHandler(sdRDM.DataModel):
             for injection_time, concentration in zip(
                 analyte.injection_times, analyte.concentrations
             ):
-                data.append({
-                    "analyte": analyte.name,
-                    "injection_time": injection_time,
-                    "concentration": concentration,
-                })
+                data.append(
+                    {
+                        "analyte": analyte.name,
+                        "injection_time": injection_time,
+                        "concentration": concentration,
+                    }
+                )
 
         # Create DataFrame
         df = pd.DataFrame(data)
