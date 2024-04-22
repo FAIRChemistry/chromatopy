@@ -100,6 +100,9 @@
 - retention_time
   - Type: float
   - Description: Retention time of the peak
+- timestamp
+  - Type: datetime
+  - Description: Timestamp of the peak
 - retention_time_unit
   - Type: Unit
   - Description: Unit of retention time

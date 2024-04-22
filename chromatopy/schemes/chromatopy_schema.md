@@ -54,6 +54,7 @@ classDiagram
     class Peak {
         +str analyte_id
         +float retention_time
+        +datetime timestamp
         +Unit retention_time_unit
         +string type
         +float peak_start

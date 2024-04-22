@@ -1,3 +1,4 @@
+from datetime import datetime as Datetime
 from typing import Dict, Optional
 from uuid import uuid4
 
@@ -33,6 +34,13 @@ class Peak(sdRDM.DataModel):
         description="Retention time of the peak",
         default=None,
         tag="retention_time",
+        json_schema_extra=dict(),
+    )
+
+    timestamp: Optional[Datetime] = element(
+        description="Timestamp of the peak",
+        default=None,
+        tag="timestamp",
         json_schema_extra=dict(),
     )
 

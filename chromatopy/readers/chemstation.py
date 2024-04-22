@@ -6,7 +6,6 @@ from chromatopy.readers.abstractreader import AbstractReader
 
 
 class ChemstationReader(AbstractReader):
-
     def _paths(self):
         if self._is_directory:
             return [p for p in Path(self.path).rglob("Report.TXT")]
@@ -25,7 +24,6 @@ class ChemstationReader(AbstractReader):
         return measurements
 
     def read_file(self, path: str) -> str:
-
         try:
             with open(path, encoding="utf-16") as f:
                 return f.readlines()
@@ -40,7 +38,7 @@ class ChemstationReader(AbstractReader):
             raise UnicodeError()
 
     def parse_measurement(self, file: str):
-        from chromatopy.core import Chromatogram, Measurement, Peak, SignalType
+        from chromatopy.core import Chromatogram, Measurement, SignalType
 
         INJ_VOLUME = re.compile(r"(\d+\s+(µ?[a-zA-Z]?l))")
         TIMESTAMP = re.compile(
@@ -72,11 +70,9 @@ class ChemstationReader(AbstractReader):
 
         # Parse peak data for each signal type
         for signal_slice in signal_slices:
-
             signal = Chromatogram()
 
             for line in file[signal_slice]:
-
                 if line.startswith("Signal"):
                     signal_type = line.split(":")[1].split()[0]
                     signal_type = re.findall("[A-Za-z]+", signal_type)[0]
@@ -97,7 +93,6 @@ class ChemstationReader(AbstractReader):
         return measurement
 
     def _get_peak(self, line: str) -> dict:
-
         attr_slice_dict = {
             "id": (slice(0, 4), str),
             "retention_time": (slice(5, 12), float),
@@ -115,7 +110,6 @@ class ChemstationReader(AbstractReader):
         return peak
 
     def _get_peak_units(self, line: str) -> dict:
-
         unit_slice_dict = {
             "retention_time_unit": slice(5, 12),
             "width_unit": slice(18, 25),
@@ -130,7 +124,6 @@ class ChemstationReader(AbstractReader):
         return units
 
     def parse_method(self, file: str):
-
         SECTION_START = re.compile(r"^(?![\d\s])[\dA-Z\s]+$")
 
         section_slices = []

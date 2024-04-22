@@ -41,7 +41,11 @@ class ShimadzuReader(AbstractReader):
 
         measurement_dict = self._map_measurement(sections)
 
+        timestamp = measurement_dict["timestamp"]
+
         peak_dict = self.extract_peaks(sections)
+        print(peak_dict["retention_time"])
+        peak_dict["timestamp"] = timestamp + peak_dict["retention_time"]
         chromatogram_dict = self.extract_signal(sections)
         chromatogram_dict["peaks"] = peak_dict
         measurement_dict["chromatograms"] = [chromatogram_dict]

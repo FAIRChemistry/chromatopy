@@ -1,11 +1,7 @@
-import os
-from datetime import datetime
-
 from chromatopy.readers.abstractreader import AbstractReader
 
 
 class CSVReader(AbstractReader):
-
     def read(self):
         raise NotImplementedError
 
