@@ -37,24 +37,17 @@ class Chromatogram(sdRDM.DataModel):
         json_schema_extra=dict(multiple=True),
     )
 
-    retention_times: List[float] = element(
-        description="Retention times of the signal",
-        default_factory=ListPlus,
-        tag="retention_times",
-        json_schema_extra=dict(multiple=True),
-    )
-
-    time_unit: Optional[Unit] = element(
-        description="Unit of retention time",
-        default=None,
-        tag="time_unit",
-        json_schema_extra=dict(),
-    )
-
     signals: List[float] = element(
         description="Signal values",
         default_factory=ListPlus,
         tag="signals",
+        json_schema_extra=dict(multiple=True),
+    )
+
+    times: List[float] = element(
+        description="Time values of the signal",
+        default_factory=ListPlus,
+        tag="times",
         json_schema_extra=dict(multiple=True),
     )
 

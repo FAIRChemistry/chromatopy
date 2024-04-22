@@ -60,6 +60,9 @@
 - injection_volume
   - Type: float
   - Description: Injection volume
+- dilution_factor
+  - Type: float
+  - Description: Dilution factor
 - injection_volume_unit
   - Type: Unit
   - Description: Unit of injection volume
@@ -70,16 +73,13 @@
   - Type: Peak
   - Description: Peaks in the signal
   - Multiple: True
-- retention_times
-  - Type: float
-  - Description: Retention times of the signal
-  - Multiple: True
-- time_unit
-  - Type: Unit
-  - Description: Unit of retention time
 - signals
   - Type: float
   - Description: Signal values
+  - Multiple: True
+- times
+  - Type: float
+  - Description: Time values of the signal
   - Multiple: True
 - processed_signal
   - Type: float

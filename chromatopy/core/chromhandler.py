@@ -15,7 +15,6 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.tools.utils import elem2dict
 
-from ..readers.abstractreader import AbstractReader
 from ..tools.calibration import Calibrator
 from .analyte import Analyte
 from .chromatogram import Chromatogram
@@ -112,6 +111,7 @@ class ChromHandler(sdRDM.DataModel):
         chromatograms: List[Chromatogram] = ListPlus(),
         timestamp: Optional[Datetime] = None,
         injection_volume: Optional[float] = None,
+        dilution_factor: Optional[float] = None,
         injection_volume_unit: Optional[Unit] = None,
         id: Optional[str] = None,
     ) -> Measurement:
@@ -123,12 +123,14 @@ class ChromHandler(sdRDM.DataModel):
             chromatograms (): Measured signal. Defaults to ListPlus()
             timestamp (): Timestamp of sample injection into the column. Defaults to None
             injection_volume (): Injection volume. Defaults to None
+            dilution_factor (): Dilution factor. Defaults to None
             injection_volume_unit (): Unit of injection volume. Defaults to None
         """
         params = {
             "chromatograms": chromatograms,
             "timestamp": timestamp,
             "injection_volume": injection_volume,
+            "dilution_factor": dilution_factor,
             "injection_volume_unit": injection_volume_unit,
         }
         if id is not None:
@@ -306,32 +308,6 @@ class ChromHandler(sdRDM.DataModel):
 
         assert len(times) == len(peaks)
         return times, peaks
-
-    @classmethod
-    def read(cls, path: str, reader: AbstractReader):
-        """
-        Reads data from a file or directory using the specified reader.
-
-        Args:
-            path (str): The path to the file or directory.
-            reader (AbstractReader): The reader object used to read the data.
-
-        Returns:
-            ChromHandler: An instance of the ChromHandler class initialized with the read data.
-
-        Raises:
-            FileNotFoundError: If the specified path does not exist.
-            NotADirectoryError: If the specified path is not a directory when it should be.
-            FileNotFoundError: If the specified path is not a file when it should be.
-
-        """
-
-        measurements = reader(path).read()
-        instance = cls(measurements=measurements)
-
-        # sort measurements by timestamp
-        instance.measurements = sorted(instance.measurements, key=lambda x: x.timestamp)
-        return instance
 
     def visualize_chromatograms(self, color_scale: str = "Turbo"):
         fig = go.Figure()

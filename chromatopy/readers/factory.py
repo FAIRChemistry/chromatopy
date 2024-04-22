@@ -19,7 +19,7 @@ class ChromReaderFactory:
         if ChromReaderFactory.get_file_signature(path) == "shimadzu":
             from .shimadzu import ShimadzuReader
 
-            return ShimadzuReader()
+            return ShimadzuReader(path)
         else:
             raise ValueError(f"Unsupported file format: {path}")
 

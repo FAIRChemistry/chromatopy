@@ -38,14 +38,14 @@ classDiagram
         +Chromatogram[0..*] chromatograms
         +datetime timestamp
         +float injection_volume
+        +float dilution_factor
         +Unit injection_volume_unit
     }
     
     class Chromatogram {
         +Peak[0..*] peaks
-        +float[0..*] retention_times
-        +Unit time_unit
         +float[0..*] signals
+        +float[0..*] times
         +float[0..*] processed_signal
         +float wavelength
         +SignalType type

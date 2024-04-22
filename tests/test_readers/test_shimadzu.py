@@ -31,11 +31,11 @@ class TestShimadzuReader(unittest.TestCase):
     def test_map_measurement(self):
         # Arrange
         reader = ShimadzuReader(FILE_PATH)
-        content = reader._get_content(FILE_PATH)
-        sections = reader._parse_sections(content)
+        content = reader.open_file(FILE_PATH)
+        sections = reader.create_sections(content)
 
         # Act
-        result = reader._map_measurement(sections)
+        result = reader.get_measurement_conditions(sections)
 
         # Assert
         assert isinstance(result, dict)
