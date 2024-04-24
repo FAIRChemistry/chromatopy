@@ -2,12 +2,11 @@ import pathlib
 import re
 from datetime import datetime
 from io import StringIO
-from typing import Dict, List, Optional
+from typing import Dict, List
 
 import pandas as pd
 
-from chromatopy.core import Measurement, SignalType
-from chromatopy.core.peak import Peak
+from chromatopy.core import Measurement, Peak, SignalType
 from chromatopy.readers.abstractreader import AbstractReader
 
 
@@ -16,7 +15,8 @@ class ShimadzuReader(AbstractReader):
 
     def __init__(self, path: str):
         super().__init__(path)
-        self._detectors: List[str] = []
+        self._detector_id: str = None
+        self._channel_ids: List[str] = None
 
     def read(self) -> Measurement:
         """Reads the chromatographic data from the specified file.
@@ -45,23 +45,31 @@ class ShimadzuReader(AbstractReader):
             injection_volume_unit="µL",
         )
 
-        for detector in self._detectors:
-            for key, section in sections.items():
-                if detector not in key:
+        for channel_id in self._channel_ids:
+            for section_key, section in sections.items():
+                if channel_id not in section_key:
                     continue
 
+                section = section.strip()
+
                 # Extract peak table
-                if "Peak Table" in key:
+                if "Peak Table" in section_key:
                     peak_list = self.add_peaks(section)
                     if not peak_list:
                         continue
 
                     peaks = [Peak(**peak) for peak in peak_list]
+                    # add timestamp from measurement to peaks
+                    for peak in peaks:
+                        peak.timestamp = timestamp
 
                 # Extract measurement data
-                if "LC Chromatogram" in key:
-                    chromatogram_meta = self.get_section_dict(section, nrows=7)
-                    chromatogram_df = self.parse_table(section, skiprows=7)
+                if "Chromatogram" in section_key:
+                    meta_section, section = re.split(r"(?=R\.Time)", section)
+
+                    chromatogram_meta = self.get_section_dict(meta_section)
+
+                    chromatogram_df = self.parse_chromatogram(section)
 
                     measurement.add_to_chromatograms(
                         wavelength=int(chromatogram_meta["Wavelength(nm)"]),
@@ -72,6 +80,24 @@ class ShimadzuReader(AbstractReader):
                     )
 
         return measurement
+
+    def parse_chromatogram(self, table_string: str) -> pd.DataFrame:
+        """Parse the data in a section as a table."""
+
+        lines = table_string.split("\n")
+        header = lines[0]
+        data = lines[1:]
+
+        if not header.count(",") == data[0].count(","):
+            data = "\n".join(data)
+            pattern = r"(\b\d+),(\d+\b)"
+            data = re.sub(pattern, r"\1.\2", data)
+        else:
+            data = "\n".join(data)
+
+        table = pd.read_csv(StringIO(header + "\n" + data), sep=",", header=0)
+
+        return table
 
     def open_file(self, path: str) -> str:
         return pathlib.Path(path).read_text(encoding="ISO-8859-1")
@@ -92,29 +118,41 @@ class ShimadzuReader(AbstractReader):
     def get_section_dict(self, section: str, nrows: int = None) -> dict:
         """Parse the metadata in a section as keys-values."""
 
-        meta_table = (
-            pd.read_table(
-                StringIO(section),
-                nrows=nrows,
-                header=None,
-                sep=",",
+        try:
+            meta_table = (
+                pd.read_table(
+                    StringIO(section),
+                    nrows=nrows,
+                    header=None,
+                    sep=",",
+                )
+                .set_index(0)[1]
+                .to_dict()
             )
-            .set_index(0)[1]
-            .to_dict()
-        )
 
-        return meta_table
+            return meta_table
 
-    def parse_table(self, section: str, skiprows: int = 1) -> Optional[pd.DataFrame]:
-        """Parse the data in a section as a table."""
+        except pd.errors.ParserError:
+            pattern = r"(\b\d+),(\d+\b)"
+            section = re.sub(pattern, r"\1.\2", section)
 
-        first_line = section.split("\n")[1]
-        num_peaks = int(first_line.split(",")[1])
+            meta_table = (
+                pd.read_table(
+                    StringIO(section),
+                    nrows=nrows,
+                    header=None,
+                    sep=",",
+                )
+                .set_index(0)[1]
+                .to_dict()
+            )
 
-        if num_peaks < 1:
-            return None
+            return meta_table
 
-        return pd.read_table(StringIO(section), header=1, skiprows=skiprows, sep=",")
+    def preprocess_decimal_delimiters(self, data_str):
+        pattern = r"(\d),(\d{3}\b)"
+
+        return re.sub(pattern, r"\1.\2", data_str)
 
     def _map_peak_table(self, table: pd.DataFrame) -> dict:
         try:
@@ -133,16 +171,51 @@ class ShimadzuReader(AbstractReader):
                 },
                 axis=1,
             ).tolist()
-        except KeyError:
+        except KeyError as e:
+            raise e
             return []
 
     def add_peaks(self, section: str) -> List[dict]:
-        table = self.parse_table(section, skiprows=1)
+        try:
+            meta, section = re.split(r"(?=Peak#)", section)
+        except ValueError:
+            return []  # No peaks in the section
+
+        data_lines = section.split("\n")
+        header = data_lines[0]
+        data = data_lines[1:]
+        seperators_header = header.count(",")
+        seperators_data = data[0].count(",")
+        if seperators_header != seperators_data:
+            data = "\n".join(data)
+            data = self.preprocess_decimal_delimiters(data)
+        else:
+            data = "\n".join(data)
+
+        section = header + "\n" + data
+        table = pd.read_csv(StringIO(section), sep=",", header=0)
         peaks = self._map_peak_table(table)
 
         return peaks
 
     def _get_available_detectors(self, sections: Dict[str, str]) -> None:
-        for key in sections.keys():
-            if "LC Chromatogram" in key:
-                self._detectors.append(key.split("-")[0].split("(")[1])
+        detector_info = self.get_section_dict(sections.get("Configuration"))
+        detector_id = detector_info.get("Detector ID")
+        n_channels = int(detector_info.get("# of Channels"))
+        channel_ids = [f"Ch{i}" for i in range(1, n_channels + 1)]
+
+        self._detector_id = detector_id
+        self._channel_ids = channel_ids
+
+
+if __name__ == "__main__":
+    path_new = "/Users/max/Documents/GitHub/shimadzu-example/data/sah/sah konst soph 1.78 mM 5-5.txt"
+
+    path_old = (
+        "/Users/max/Documents/GitHub/shimadzu-example/data/calibration/bazdarac 0.7.txt"
+    )
+    reader_old = ShimadzuReader(path_new).read()
+    print(reader_old)
+
+    reader_new = ShimadzuReader(path_old).read()
+    print(reader_new)
