@@ -39,6 +39,7 @@ class ShimadzuReader(AbstractReader):
         injection_volume = sample_dict.get("Injection Volume")
 
         measurement = Measurement(
+            id=str(self.path),
             timestamp=timestamp,
             injection_volume=injection_volume,
             dilution_factor=dilution_factor,

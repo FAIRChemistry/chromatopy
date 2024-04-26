@@ -45,6 +45,10 @@
 - role
   - Type: Role
   - Description: Role of the molecule in the experiment
+- reaction_times
+  - Type: float
+  - Multiple: True
+  - Description: Reaction times of the molecule measured peaks
 
 ## Objects describing measurements
 
@@ -66,6 +70,9 @@
 - injection_volume_unit
   - Type: Unit
   - Description: Unit of injection volume
+- reaction_time
+  - Type: float
+  - Description: Reaction time
 
 ### Chromatogram
 

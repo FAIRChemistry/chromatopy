@@ -73,6 +73,7 @@ class ChromHandler(sdRDM.DataModel):
         concentrations: List[float] = ListPlus(),
         standard: Optional[Standard] = None,
         role: Optional[Role] = None,
+        reaction_times: List[float] = ListPlus(),
         id: Optional[str] = None,
     ) -> Analyte:
         """
@@ -89,6 +90,7 @@ class ChromHandler(sdRDM.DataModel):
             concentrations (): Concentration of the molecule. Defaults to ListPlus()
             standard (): Standard, describing the signal-to-concentration relationship. Defaults to None
             role (): Role of the molecule in the experiment. Defaults to None
+            reaction_times (): Reaction times of the molecule measured peaks. Defaults to ListPlus()
         """
         params = {
             "name": name,
@@ -100,6 +102,7 @@ class ChromHandler(sdRDM.DataModel):
             "concentrations": concentrations,
             "standard": standard,
             "role": role,
+            "reaction_times": reaction_times,
         }
         if id is not None:
             params["id"] = id
@@ -113,6 +116,7 @@ class ChromHandler(sdRDM.DataModel):
         injection_volume: Optional[float] = None,
         dilution_factor: Optional[float] = None,
         injection_volume_unit: Optional[Unit] = None,
+        reaction_time: Optional[float] = None,
         id: Optional[str] = None,
     ) -> Measurement:
         """
@@ -125,6 +129,7 @@ class ChromHandler(sdRDM.DataModel):
             injection_volume (): Injection volume. Defaults to None
             dilution_factor (): Dilution factor. Defaults to None
             injection_volume_unit (): Unit of injection volume. Defaults to None
+            reaction_time (): Reaction time. Defaults to None
         """
         params = {
             "chromatograms": chromatograms,
@@ -132,6 +137,7 @@ class ChromHandler(sdRDM.DataModel):
             "injection_volume": injection_volume,
             "dilution_factor": dilution_factor,
             "injection_volume_unit": injection_volume_unit,
+            "reaction_time": reaction_time,
         }
         if id is not None:
             params["id"] = id

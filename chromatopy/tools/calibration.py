@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 from scipy.stats import linregress
@@ -9,13 +9,13 @@ LOGGER = logging.getLogger(__name__)
 
 class Calibrator(BaseModel):
     species_id: str = Field()
-    concentrations: List[float] = Field()
+    concentrations: Optional[List[float]] = Field(default=[])
     conc_unit: str = Field()
-    signals: List[float] = Field()
+    signals: Optional[List[float]] = Field(default=[])
+    slope: Optional[float] = Field(default=None)
 
     # Private attributes
-    slope: float = Field(default=None, private=True)
-    intercept: float = Field(default=None, private=True)
+    intercept: float = Field(default=0, private=True)
     r_value: float = Field(default=None, private=True)
     p_value: float = Field(default=None, private=True)
     std_err: float = Field(default=None, private=True)
@@ -40,10 +40,11 @@ class Calibrator(BaseModel):
         Returns:
             float: Concentration of the species.
         """
-        if signal > max(self.signals):
-            LOGGER.warning(
-                f"Signal {signal} is above the maximum calibration point {max(self.signals)}"
-            )
+        if self.signals:
+            if self.signals > max(self.signals):
+                LOGGER.warning(
+                    f"Signal {signal} is above the maximum calibration point {max(self.signals)}"
+                )
 
         return float((signal - self.intercept) / self.slope)
 

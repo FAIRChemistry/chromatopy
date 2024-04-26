@@ -61,6 +61,13 @@ class Measurement(sdRDM.DataModel):
         tag="injection_volume_unit",
         json_schema_extra=dict(),
     )
+
+    reaction_time: Optional[float] = element(
+        description="Reaction time",
+        default=None,
+        tag="reaction_time",
+        json_schema_extra=dict(),
+    )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
     @model_validator(mode="after")

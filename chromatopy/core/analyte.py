@@ -92,6 +92,13 @@ class Analyte(sdRDM.DataModel):
         tag="role",
         json_schema_extra=dict(),
     )
+
+    reaction_times: List[float] = element(
+        description="Reaction times of the molecule measured peaks",
+        default_factory=ListPlus,
+        tag="reaction_times",
+        json_schema_extra=dict(multiple=True),
+    )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
     @model_validator(mode="after")

@@ -32,6 +32,7 @@ classDiagram
         +float[0..*] concentrations
         +Standard standard
         +Role role
+        +float[0..*] reaction_times
     }
     
     class Measurement {
@@ -40,6 +41,7 @@ classDiagram
         +float injection_volume
         +float dilution_factor
         +Unit injection_volume_unit
+        +float reaction_time
     }
     
     class Chromatogram {
