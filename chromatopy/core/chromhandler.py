@@ -65,7 +65,7 @@ class ChromHandler(sdRDM.DataModel):
     def add_to_analytes(
         self,
         name: Optional[str] = None,
-        inchi: Optional[str] = None,
+        chebi: Optional[str] = None,
         molecular_weight: Optional[float] = None,
         retention_time: Optional[float] = None,
         peaks: List[Peak] = ListPlus(),
@@ -82,7 +82,7 @@ class ChromHandler(sdRDM.DataModel):
         Args:
             id (str): Unique identifier of the 'Analyte' object. Defaults to 'None'.
             name (): Name of the analyte. Defaults to None
-            inchi (): InCHI code of the molecule. Defaults to None
+            chebi (): Chebi identifier of the molecule. Defaults to None
             molecular_weight (): Molar weight of the molecule in g/mol. Defaults to None
             retention_time (): Approximated retention time of the molecule. Defaults to None
             peaks (): All peaks of the dataset, which are within the same retention time interval related to the molecule. Defaults to ListPlus()
@@ -94,7 +94,7 @@ class ChromHandler(sdRDM.DataModel):
         """
         params = {
             "name": name,
-            "inchi": inchi,
+            "chebi": chebi,
             "molecular_weight": molecular_weight,
             "retention_time": retention_time,
             "peaks": peaks,
@@ -113,10 +113,11 @@ class ChromHandler(sdRDM.DataModel):
         self,
         chromatograms: List[Chromatogram] = ListPlus(),
         timestamp: Optional[Datetime] = None,
+        reaction_time: Optional[float] = None,
+        time_unit: Optional[Unit] = None,
         injection_volume: Optional[float] = None,
         dilution_factor: Optional[float] = None,
         injection_volume_unit: Optional[Unit] = None,
-        reaction_time: Optional[float] = None,
         id: Optional[str] = None,
     ) -> Measurement:
         """
@@ -126,6 +127,8 @@ class ChromHandler(sdRDM.DataModel):
             id (str): Unique identifier of the 'Measurement' object. Defaults to 'None'.
             chromatograms (): Measured signal. Defaults to ListPlus()
             timestamp (): Timestamp of sample injection into the column. Defaults to None
+            reaction_time (): Reaction time. Defaults to None
+            time_unit (): Unit of time. Defaults to None
             injection_volume (): Injection volume. Defaults to None
             dilution_factor (): Dilution factor. Defaults to None
             injection_volume_unit (): Unit of injection volume. Defaults to None
@@ -134,6 +137,8 @@ class ChromHandler(sdRDM.DataModel):
         params = {
             "chromatograms": chromatograms,
             "timestamp": timestamp,
+            "reaction_time": reaction_time,
+            "time_unit": time_unit,
             "injection_volume": injection_volume,
             "dilution_factor": dilution_factor,
             "injection_volume_unit": injection_volume_unit,
@@ -282,9 +287,9 @@ class ChromHandler(sdRDM.DataModel):
 
         times = []
         peaks = []
-        sorted_measurements = sorted(self.measurements, key=lambda x: x.timestamp)
 
-        for measurement in sorted_measurements:
+        for measurement in self.measurements:
+            print(measurement.id)
             time = measurement.timestamp
 
             chromatogram = measurement.get_detector(detector)
@@ -445,11 +450,13 @@ class ChromHandler(sdRDM.DataModel):
                 )
                 analyte.concentrations.append(analyte_conc)
 
-                entries.append({
-                    "analyte": analyte.name,
-                    "injection_time": injection_time,
-                    "concentration": analyte_conc,
-                })
+                entries.append(
+                    {
+                        "analyte": analyte.name,
+                        "injection_time": injection_time,
+                        "concentration": analyte_conc,
+                    }
+                )
                 # print(
                 #     f"Concentration of {analyte.name} at {injection_time} is {analyte_conc:.2f}"
                 # )
@@ -549,11 +556,13 @@ class ChromHandler(sdRDM.DataModel):
             for injection_time, concentration in zip(
                 analyte.injection_times, analyte.concentrations
             ):
-                data.append({
-                    "analyte": analyte.name,
-                    "injection_time": injection_time,
-                    "concentration": concentration,
-                })
+                data.append(
+                    {
+                        "analyte": analyte.name,
+                        "injection_time": injection_time,
+                        "concentration": concentration,
+                    }
+                )
 
         # Create DataFrame
         df = pd.DataFrame(data)

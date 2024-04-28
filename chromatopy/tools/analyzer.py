@@ -4,20 +4,24 @@ from typing import List
 from pydantic import BaseModel, Field
 
 from chromatopy.core import (
-    Analyte,
     Chromatogram,
     Measurement,
     Peak,
-    Role,
     SignalType,
-    Standard,
 )
 from chromatopy.readers import ChromReader
+from chromatopy.tools.calibration import Calibrator
+from chromatopy.tools.species import Species
 
 
 class ChromAnalyzer(BaseModel):
-    analytes: List[Analyte] = Field(
-        description="List of analytes to be analyzed",
+    calibrators: List[Calibrator] = Field(
+        description="List of calibrators to be used for calibration",
+        default_factory=list,
+    )
+
+    species: List[Species] = Field(
+        description="List of species present in the measurements",
         default_factory=list,
     )
 
@@ -32,48 +36,76 @@ class ChromAnalyzer(BaseModel):
             measurements=ChromReader.read(path),
         )
 
-    def add_analyte(
-        self,
-        name: str,
-        retention_time: float,
-        detector: SignalType = None,
-        molecular_weight: float = None,
-        inchi: str = None,
-        tolerance: float = 0.1,
-        calibration_factor: float = None,
-    ) -> Analyte:
-        """
-        This method adds an object of type 'Analyte' to the 'analytes' attribute.
+    def add_reaction_time(self, reaction_times: List[float], unit: str):
+        """Add reation times to the measurements.
 
         Args:
-            name (str): Name of the analyte.
-            retention_time (float): Approximated retention time of the molecule.
-            detector (SignalType, optional): The type of detector used.
-                Defaults to None.
-            molecular_weight (float, optional): Molar weight of the molecule in g/mol.
-                Defaults to None.
-            inchi (str, optional): InCHI code of the molecule.
-                Defaults to None.
-            tolerance (float, optional): Tolerance for the retention time. Defaults to 0.1.
-            calibration_factor (float, optional): Calibration factor in with respect to internal standard.
-
-        Returns:
-            Analyte: The added Analyte object.
+            reaction_times (List[float]): List of reaction times corresponding to the measurements.
         """
-        detector = self._handel_detector(detector)
-
-        analyte = self._set_analyte(
-            name=name,
-            retention_time=retention_time,
-            role=Role.ANALYTE,
-            molecular_weight=molecular_weight,
-            inchi=inchi,
-            tolerance=tolerance,
-            detector=detector,
-            calibration_factor=calibration_factor,
+        assert len(reaction_times) == len(self.measurements), (
+            f"Length of reaction time {len(reaction_times)} does not match"
+            f" length of measurements {len(self.measurements)}."
         )
 
-        self.analytes.append(analyte)
+        for measurement, reaction_time in zip(self.measurements, reaction_times):
+            measurement.reaction_time = reaction_time
+            measurement.time_unit = unit
+
+    def reaction_time_from_injection_time(self):
+        """Calculate reaction times from the injection time between measurements."""
+        timestamps = [measurement.timestamp for measurement in self.measurements]
+        reaction_times = [
+            (timestamp - timestamps[0]).total_seconds() for timestamp in timestamps
+        ]
+
+        self.add_reaction_time(reaction_times)
+
+    def add_species(
+        self,
+        name: str,
+        chebi: int = None,
+        retention_time: float = None,
+        reaction_times: List[float] = [],
+        init_conc: float = None,
+        conc_unit: str = None,
+        time_unit: str = None,
+        detector: SignalType = None,
+        tolerance: float = 0.1,
+        uniprot_id: str = None,
+        sequence: str = None,
+        molecular_weight: float = None,
+    ) -> Species:
+        detector = self._handel_detector(detector)
+
+        if retention_time:
+            peaks = self._get_peaks_by_retention_time(
+                retention_time=retention_time, tolerance=tolerance, detector=detector
+            )
+            print(
+                f"🏔️ Assigned {len(peaks)} peaks to {name} at {retention_time} ± {tolerance} min."
+            )
+
+        if reaction_times:
+            assert len(reaction_times) == len(peaks), (
+                f"Length of reaction time {len(reaction_times)} does not match"
+                f" length of peaks {len(peaks)}."
+            )
+
+        analyte = Species(
+            name=name,
+            chebi=chebi,
+            retention_time=retention_time,
+            init_conc=init_conc,
+            conc_unit=conc_unit,
+            uniprot_id=uniprot_id,
+            reaction_times=reaction_times,
+            reacton_time_unit=time_unit,
+            molecular_weight=molecular_weight,
+            sequence=sequence,
+            peaks=peaks,
+        )
+
+        self.species.append(analyte)
 
         return analyte
 
@@ -111,36 +143,6 @@ class ChromAnalyzer(BaseModel):
             "Data from multiple detectors found. Please specify detector."
             f" {list(set(detectors))}"
         )
-
-    def _set_analyte(
-        self,
-        name: str,
-        retention_time: float,
-        role: Role,
-        detector: SignalType,
-        tolerance: float,
-        molecular_weight: float = None,
-        inchi: str = None,
-        calibration_factor: float = None,
-    ):
-        peaks = self._get_peaks_by_retention_time(
-            retention_time=retention_time, tolerance=tolerance, detector=detector
-        )
-
-        analyte = Analyte(
-            name=name,
-            inchi=inchi,
-            retention_time=retention_time,
-            molecular_weight=molecular_weight,
-            peaks=peaks,
-            timestamp=[measurement.timestamp for measurement in self.measurements],
-            role=role,
-        )
-
-        if calibration_factor is not None:
-            analyte.standard = Standard(factor=calibration_factor)
-
-        return analyte
 
     def _get_peaks_by_retention_time(
         self,

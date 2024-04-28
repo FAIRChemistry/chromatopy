@@ -24,7 +24,7 @@ classDiagram
     
     class Analyte {
         +string name
-        +string inchi
+        +string chebi
         +float molecular_weight
         +float retention_time
         +Peak[0..*] peaks
@@ -38,6 +38,8 @@ classDiagram
     class Measurement {
         +Chromatogram[0..*] chromatograms
         +datetime timestamp
+        +float reaction_time
+        +Unit time_unit
         +float injection_volume
         +float dilution_factor
         +Unit injection_volume_unit

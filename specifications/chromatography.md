@@ -2,56 +2,6 @@
 
 ## Objects
 
-### ChromHandler
-
-- analytes
-  - Type: Analyte
-  - Description: Molecule that can be assigned to a peak.
-  - Multiple: True
-- measurements
-  - Type: Measurement
-  - Description: Measured signals
-  - Multiple: True
-
-### Analyte
-
-- name
-  - Type: string
-  - Description: Name of the analyte
-- inchi
-  - Type: string
-  - Description: InCHI code of the molecule
-- molecular_weight
-  - Type: float
-  - Description: Molar weight of the molecule in g/mol
-- retention_time
-  - Type: float
-  - Description: Approximated retention time of the molecule
-- peaks
-  - Type: Peak
-  - Multiple: True
-  - Description: All peaks of the dataset, which are within the same retention time interval related to the molecule
-- injection_times
-  - Type: datetime
-  - Multiple: True
-  - Description: Injection times of the molecule measured peaks
-- concentrations
-  - Type: float
-  - Multiple: True
-  - Description: Concentration of the molecule
-- standard
-  - Type: Standard
-  - Description: Standard, describing the signal-to-concentration relationship
-- role
-  - Type: Role
-  - Description: Role of the molecule in the experiment
-- reaction_times
-  - Type: float
-  - Multiple: True
-  - Description: Reaction times of the molecule measured peaks
-
-## Objects describing measurements
-
 ### Measurement
 
 - chromatograms
@@ -61,6 +11,12 @@
 - timestamp
   - Type: datetime
   - Description: Timestamp of sample injection into the column
+- reaction_time
+  - Type: float
+  - Description: Reaction time
+- time_unit
+  - Type: Unit
+  - Description: Unit of time
 - injection_volume
   - Type: float
   - Description: Injection volume

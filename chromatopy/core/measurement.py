@@ -41,6 +41,20 @@ class Measurement(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
 
+    reaction_time: Optional[float] = element(
+        description="Reaction time",
+        default=None,
+        tag="reaction_time",
+        json_schema_extra=dict(),
+    )
+
+    time_unit: Optional[Unit] = element(
+        description="Unit of time",
+        default=None,
+        tag="time_unit",
+        json_schema_extra=dict(),
+    )
+
     injection_volume: Optional[float] = element(
         description="Injection volume",
         default=None,
