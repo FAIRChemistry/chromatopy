@@ -8,7 +8,7 @@ from ..core import Measurement
 
 class ChromReader:
     @staticmethod
-    def read(path: str) -> List[Measurement]:
+    def read(posix_path: str) -> List[Measurement]:
         """Reads the chromatographic data from the specified file or directory.
 
         Args:
@@ -20,14 +20,14 @@ class ChromReader:
         Returns:
             List[Measurement]: A list of Measurement objects representing the chromatographic data.
         """
-        path = Path(path)
+        posix_path = Path(posix_path)
 
-        if path.is_dir():
-            return ChromReader.read_directory(path)
-        elif path.is_file():
-            return [ChromReader.read_file(path)]
+        if posix_path.is_dir():
+            return ChromReader.read_directory(posix_path)
+        elif posix_path.is_file():
+            return [ChromReader.read_file(posix_path)]
         else:
-            raise FileNotFoundError(f"Could not find file or directory: {path}")
+            raise FileNotFoundError(f"Could not find file or directory: {posix_path}")
 
     @staticmethod
     def read_file(file_path: str) -> Measurement:
@@ -42,7 +42,7 @@ class ChromReader:
         return ChromReaderFactory.create_reader(file_path).read()
 
     @staticmethod
-    def read_directory(dir_path: str) -> List[Measurement]:
+    def read_directory(dir_path: Path) -> List[Measurement]:
         """Reads the chromatographic data from the specified directory.
 
         Args:
@@ -51,7 +51,13 @@ class ChromReader:
         Returns:
             List[Measurement]: A list of Measurement objects representing the chromatographic data.
         """
-        return [
-            ChromReaderFactory.create_reader(file_path).read()
-            for file_path in sorted(Path(dir_path).iterdir())
-        ]
+        if dir_path.is_file():
+            return [
+                ChromReaderFactory.create_reader(file_path).read()
+                for file_path in sorted(dir_path).iterdir()
+            ]
+        elif dir_path.is_dir():
+            return [
+                ChromReaderFactory.create_reader(file_path).read()
+                for file_path in sorted(dir_path.iterdir())
+            ]

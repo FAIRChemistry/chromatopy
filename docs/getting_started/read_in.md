@@ -1,1 +1,5 @@
-Here is an example on how to read in data from a directory containing multiple chromatograms.
+Chromatopy can read data from Agilent and Shimadzu chromatographic systems. 
+
+```py
+import this
+```

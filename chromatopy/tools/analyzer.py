@@ -1,6 +1,8 @@
 import warnings
-from typing import List
+from typing import List, Tuple
 
+import pandas as pd
+import plotly.graph_objects as go
 from pydantic import BaseModel, Field
 
 from chromatopy.core import (
@@ -84,6 +86,8 @@ class ChromAnalyzer(BaseModel):
             print(
                 f"🏔️ Assigned {len(peaks)} peaks to {name} at {retention_time} ± {tolerance} min."
             )
+        else:
+            peaks = []
 
         if reaction_times:
             assert len(reaction_times) == len(peaks), (
@@ -99,7 +103,7 @@ class ChromAnalyzer(BaseModel):
             conc_unit=conc_unit,
             uniprot_id=uniprot_id,
             reaction_times=reaction_times,
-            reacton_time_unit=time_unit,
+            time_unit=time_unit,
             molecular_weight=molecular_weight,
             sequence=sequence,
             peaks=peaks,
@@ -194,6 +198,71 @@ class ChromAnalyzer(BaseModel):
 
         return peaks
 
+    def plot_measurements(self):
+        # Create a 2D plot using Plotly
+        fig = go.Figure()
+
+        for meas in self.measurements:
+            chromatogram = meas.chromatograms[
+                0
+            ]  # Assuming each measurement has at least one chromatogram
+            x = chromatogram.times
+            z = chromatogram.signals
+
+            # Adding each chromatogram as a 2D line plot to the figure
+            fig.add_trace(
+                go.Scatter(
+                    x=x,
+                    y=z,
+                    mode="lines",  # Line plot
+                    name=f"{meas.id.split("/")[-1]}",
+                )
+            )
+
+            # Update plot layout
+        fig.update_layout(
+            title="Chromatogram Plot",
+            xaxis_title="Time (min)",
+            yaxis_title=f"Absorbance {chromatogram.wavelength} nm",
+            margin=dict(l=0, r=0, b=0, t=30),  # Adjust margins to fit layout
+            plot_bgcolor="white",  # Set background to white for better visibility
+        )
+
+        # Show the plot
+        fig.show()
+
+    def _get_reaction_times(self) -> List[float]:
+        for species in self.species:
+            if species.reaction_times:
+                return species.reaction_times, species.time_unit
+            else:
+                raise AttributeError("No information on reaction time found.")
+
+    def _get_data_conditions(self) -> Tuple[dict, dict]:
+        data = {}
+        conditions = {}
+
+        for species in self.species:
+            if not species.concentrations:
+                continue
+            label = f"{species.name},{species.conc_unit._unit.to_string()}"
+            data[label] = species.concentrations
+            conditions[label] = species.init_conc
+
+        return data, conditions
+
+    def _create_df(self) -> pd.DataFrame:
+        self._apply_calibrators()
+
+        times, time_unit = self._get_reaction_times()
+
+        data, _ = self._get_data_conditions()
+
+        time_label = f"time,{time_unit._unit.to_string()}"
+        data[time_label] = times
+
+        return pd.DataFrame.from_dict(data).set_index(time_label)
+
     def _get_peaks_in_retention_interval(
         self,
         chromatogram: Chromatogram,
@@ -205,3 +274,69 @@ class ChromAnalyzer(BaseModel):
             for peak in chromatogram.peaks
             if lower_retention_time < peak.retention_time < upper_retention_time
         ]
+
+    def _apply_calibrators(self):
+        if not self.calibrators:
+            raise ValueError("No calibrators provided. Define calibrators first.")
+
+        if not self.species:
+            raise ValueError("No species provided. Define species first.")
+
+        for calibrator in self.calibrators:
+            calib_species = self.get_species(calibrator.name)
+            if not calib_species.peaks:
+                continue
+
+            calib_species.concentrations = calibrator.calculate(species=calib_species)
+
+    def get_species(self, id: str | int) -> Species:
+        try:
+            return next(species for species in self.species if species.chebi == id)
+        except StopIteration:
+            try:
+                return next(species for species in self.species if species.name == id)
+            except StopIteration:
+                try:
+                    return next(
+                        species for species in self.species if species.uniprot_id == id
+                    )
+                except StopIteration:
+                    raise ValueError(f"Species with id {id} not found.")
+
+    def to_csv(self, path: str):
+        self._create_df().to_csv(path)
+
+    def plot_concentrations(self):
+        df = self._create_df()
+
+        fig = go.Figure()
+
+        for species in self.species:
+            if not species.concentrations:
+                continue
+
+            time_unit = species.time_unit._unit.to_string()
+            conc_unit = species.conc_unit._unit.to_string()
+            fig.add_trace(
+                go.Scatter(
+                    x=species.reaction_times,
+                    y=species.concentrations,
+                    mode="markers",
+                    name=f"{species.name} (initial concentration: {species.init_conc} {conc_unit}",
+                )
+            )
+
+        fig.update_layout(
+            xaxis_title=f"time ({time_unit})",
+            yaxis_title=f"concentration ({conc_unit})",
+            margin=dict(l=0, r=0, b=0, t=30),
+            plot_bgcolor="white",
+        )
+
+        fig.show()
+
+
+if __name__ == "__main__":
+    path = "/Users/max/Documents/training_course/memeth/raw_result_folders_dotD_format"
+
+    analyzer = ChromAnalyzer.read_data(path)

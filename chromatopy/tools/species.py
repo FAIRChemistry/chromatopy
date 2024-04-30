@@ -59,6 +59,12 @@ class Species(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
 
+    time_unit: Optional[Unit] = element(
+        description="Unit of the concentration",
+        tag="time_unit",
+        json_schema_extra=dict(),
+    )
+
     uniprot_id: Optional[str] = element(
         description="UniProt ID of the molecule",
         default=None,

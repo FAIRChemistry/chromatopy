@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "chromatopy"
-version = "0.1.5"
+version = "0.1.6"
 description = "Tool for processing chromatography data"
 authors = ["haeussma <83341109+haeussma@users.noreply.github.com>"]
 license = "MIT"

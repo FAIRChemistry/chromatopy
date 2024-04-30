@@ -96,7 +96,7 @@ class Calibrator(BaseModel):
             float: Concentration of the species.
         """
         if self.signals:
-            if self.signals > max(self.signals):
+            if signal > max(self.signals):
                 LOGGER.warning(
                     f"Signal {signal} is above the maximum calibration point {max(self.signals)}"
                 )

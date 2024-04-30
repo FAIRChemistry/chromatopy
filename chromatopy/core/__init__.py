@@ -1,4 +1,3 @@
-from ..tools.species import Species
 from .chromatogram import Chromatogram
 from .column import Column
 from .detector import Detector
