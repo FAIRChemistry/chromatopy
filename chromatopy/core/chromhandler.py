@@ -14,9 +14,8 @@ from sdRDM.base.datatypes import Unit
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.tools.utils import elem2dict
-from calipytion 
 
-from ..readers.abstractreader import AbstractReader
+from ..tools.calibration import Calibrator
 from .analyte import Analyte
 from .chromatogram import Chromatogram
 from .measurement import Measurement
@@ -50,12 +49,6 @@ class ChromHandler(sdRDM.DataModel):
         tag="measurements",
         json_schema_extra=dict(multiple=True),
     )
-    _repo: Optional[str] = PrivateAttr(
-        default="https://github.com/FAIRChemistry/chromatopy"
-    )
-    _commit: Optional[str] = PrivateAttr(
-        default="10cacc0f6eea0feefa9a3bc7a4b4e90ee75bd03f"
-    )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
     @model_validator(mode="after")
@@ -72,13 +65,15 @@ class ChromHandler(sdRDM.DataModel):
     def add_to_analytes(
         self,
         name: Optional[str] = None,
-        inchi: Optional[str] = None,
+        chebi: Optional[str] = None,
         molecular_weight: Optional[float] = None,
         retention_time: Optional[float] = None,
         peaks: List[Peak] = ListPlus(),
+        injection_times: List[Datetime] = ListPlus(),
         concentrations: List[float] = ListPlus(),
         standard: Optional[Standard] = None,
         role: Optional[Role] = None,
+        reaction_times: List[float] = ListPlus(),
         id: Optional[str] = None,
     ) -> Analyte:
         """
@@ -87,23 +82,27 @@ class ChromHandler(sdRDM.DataModel):
         Args:
             id (str): Unique identifier of the 'Analyte' object. Defaults to 'None'.
             name (): Name of the analyte. Defaults to None
-            inchi (): InCHI code of the molecule. Defaults to None
+            chebi (): Chebi identifier of the molecule. Defaults to None
             molecular_weight (): Molar weight of the molecule in g/mol. Defaults to None
             retention_time (): Approximated retention time of the molecule. Defaults to None
             peaks (): All peaks of the dataset, which are within the same retention time interval related to the molecule. Defaults to ListPlus()
+            injection_times (): Injection times of the molecule measured peaks. Defaults to ListPlus()
             concentrations (): Concentration of the molecule. Defaults to ListPlus()
             standard (): Standard, describing the signal-to-concentration relationship. Defaults to None
             role (): Role of the molecule in the experiment. Defaults to None
+            reaction_times (): Reaction times of the molecule measured peaks. Defaults to ListPlus()
         """
         params = {
             "name": name,
-            "inchi": inchi,
+            "chebi": chebi,
             "molecular_weight": molecular_weight,
             "retention_time": retention_time,
             "peaks": peaks,
+            "injection_times": injection_times,
             "concentrations": concentrations,
             "standard": standard,
             "role": role,
+            "reaction_times": reaction_times,
         }
         if id is not None:
             params["id"] = id
@@ -114,7 +113,10 @@ class ChromHandler(sdRDM.DataModel):
         self,
         chromatograms: List[Chromatogram] = ListPlus(),
         timestamp: Optional[Datetime] = None,
+        reaction_time: Optional[float] = None,
+        time_unit: Optional[Unit] = None,
         injection_volume: Optional[float] = None,
+        dilution_factor: Optional[float] = None,
         injection_volume_unit: Optional[Unit] = None,
         id: Optional[str] = None,
     ) -> Measurement:
@@ -125,14 +127,22 @@ class ChromHandler(sdRDM.DataModel):
             id (str): Unique identifier of the 'Measurement' object. Defaults to 'None'.
             chromatograms (): Measured signal. Defaults to ListPlus()
             timestamp (): Timestamp of sample injection into the column. Defaults to None
+            reaction_time (): Reaction time. Defaults to None
+            time_unit (): Unit of time. Defaults to None
             injection_volume (): Injection volume. Defaults to None
+            dilution_factor (): Dilution factor. Defaults to None
             injection_volume_unit (): Unit of injection volume. Defaults to None
+            reaction_time (): Reaction time. Defaults to None
         """
         params = {
             "chromatograms": chromatograms,
             "timestamp": timestamp,
+            "reaction_time": reaction_time,
+            "time_unit": time_unit,
             "injection_volume": injection_volume,
+            "dilution_factor": dilution_factor,
             "injection_volume_unit": injection_volume_unit,
+            "reaction_time": reaction_time,
         }
         if id is not None:
             params["id"] = id
@@ -277,9 +287,9 @@ class ChromHandler(sdRDM.DataModel):
 
         times = []
         peaks = []
-        sorted_measurements = sorted(self.measurements, key=lambda x: x.timestamp)
 
-        for measurement in sorted_measurements:
+        for measurement in self.measurements:
+            print(measurement.id)
             time = measurement.timestamp
 
             chromatogram = measurement.get_detector(detector)
@@ -309,32 +319,6 @@ class ChromHandler(sdRDM.DataModel):
 
         assert len(times) == len(peaks)
         return times, peaks
-
-    @classmethod
-    def read(cls, path: str, reader: AbstractReader):
-        """
-        Reads data from a file or directory using the specified reader.
-
-        Args:
-            path (str): The path to the file or directory.
-            reader (AbstractReader): The reader object used to read the data.
-
-        Returns:
-            ChromHandler: An instance of the ChromHandler class initialized with the read data.
-
-        Raises:
-            FileNotFoundError: If the specified path does not exist.
-            NotADirectoryError: If the specified path is not a directory when it should be.
-            FileNotFoundError: If the specified path is not a file when it should be.
-
-        """
-
-        measurements = reader(path).read()
-        instance = cls(measurements=measurements)
-
-        # sort measurements by timestamp
-        instance.measurements = sorted(instance.measurements, key=lambda x: x.timestamp)
-        return instance
 
     def visualize_chromatograms(self, color_scale: str = "Turbo"):
         fig = go.Figure()
@@ -544,9 +528,20 @@ class ChromHandler(sdRDM.DataModel):
 
         return fig
 
-    def calibrate(peaks: List[Peak], concentrations: List[float]):
-        
+    def get_calibrator(analyte: Analyte, concentrations: List[float]) -> Calibrator:
+        # TODO: Add species_id to data model
 
+        signals = [peak.area for peak in analyte.peaks]
+        assert len(signals) == len(concentrations), (
+            f"Number of signals {len(signals)} and concentrations {concentrations} must"
+            " be equal"
+        )
+
+        calibration = Calibrator(
+            signals=signals, concentrations=concentrations, species_id=analyte.name
+        ).calibrate()
+
+        return calibration
 
     def concentration_to_df(self, analytes: List[Analyte] = None):
         if analytes is None:

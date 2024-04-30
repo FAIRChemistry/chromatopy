@@ -24,7 +24,7 @@ classDiagram
     
     class Analyte {
         +string name
-        +string inchi
+        +string chebi
         +float molecular_weight
         +float retention_time
         +Peak[0..*] peaks
@@ -32,27 +32,33 @@ classDiagram
         +float[0..*] concentrations
         +Standard standard
         +Role role
+        +float[0..*] reaction_times
     }
     
     class Measurement {
         +Chromatogram[0..*] chromatograms
         +datetime timestamp
+        +float reaction_time
+        +Unit time_unit
         +float injection_volume
+        +float dilution_factor
         +Unit injection_volume_unit
+        +float reaction_time
     }
     
     class Chromatogram {
         +Peak[0..*] peaks
-        +float[0..*] retention_times
-        +Unit time_unit
         +float[0..*] signals
+        +float[0..*] times
         +float[0..*] processed_signal
         +float wavelength
         +SignalType type
     }
     
     class Peak {
+        +str analyte_id
         +float retention_time
+        +datetime timestamp
         +Unit retention_time_unit
         +string type
         +float peak_start
@@ -69,7 +75,10 @@ classDiagram
     }
     
     class Standard {
+        +str analyte_id
         +float factor
+        +float intercept
+        +float r_squared
     }
     
     class Method {

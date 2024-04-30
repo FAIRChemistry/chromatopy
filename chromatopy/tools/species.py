@@ -11,13 +11,12 @@ from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
 from sdRDM.tools.utils import elem2dict
 
-from .peak import Peak
-from .role import Role
-from .standard import Standard
+from ..core.peak import Peak
+from ..core.role import Role
 
 
 @forge_signature
-class Analyte(sdRDM.DataModel):
+class Species(sdRDM.DataModel):
     """"""
 
     id: Optional[str] = attr(
@@ -34,10 +33,10 @@ class Analyte(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
 
-    inchi: Optional[str] = element(
-        description="InCHI code of the molecule",
+    chebi: Optional[int] = element(
+        description="Chebi identifier of the molecule",
         default=None,
-        tag="inchi",
+        tag="chebi",
         json_schema_extra=dict(),
     )
 
@@ -48,8 +47,33 @@ class Analyte(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
 
+    init_conc: Optional[float] = element(
+        description="Initial concentration of the molecule",
+        tag="init_conc",
+        json_schema_extra=dict(),
+    )
+
+    conc_unit: Optional[Unit] = element(
+        description="Unit of the concentration",
+        tag="conc_unit",
+        json_schema_extra=dict(),
+    )
+
+    time_unit: Optional[Unit] = element(
+        description="Unit of the concentration",
+        tag="time_unit",
+        json_schema_extra=dict(),
+    )
+
+    uniprot_id: Optional[str] = element(
+        description="UniProt ID of the molecule",
+        default=None,
+        tag="uniprot_id",
+        json_schema_extra=dict(),
+    )
+
     retention_time: Optional[float] = element(
-        description="Approximated retention time of the molecule",
+        description="Characteristic retention time of the species.",
         default=None,
         tag="retention_time",
         json_schema_extra=dict(),
@@ -65,13 +89,6 @@ class Analyte(sdRDM.DataModel):
         json_schema_extra=dict(multiple=True),
     )
 
-    injection_times: List[Datetime] = element(
-        description="Injection times of the molecule measured peaks",
-        default_factory=ListPlus,
-        tag="injection_times",
-        json_schema_extra=dict(multiple=True),
-    )
-
     concentrations: List[float] = element(
         description="Concentration of the molecule",
         default_factory=ListPlus,
@@ -79,18 +96,18 @@ class Analyte(sdRDM.DataModel):
         json_schema_extra=dict(multiple=True),
     )
 
-    standard: Optional[Standard] = element(
-        description="Standard, describing the signal-to-concentration relationship",
-        default_factory=Standard,
-        tag="standard",
-        json_schema_extra=dict(),
-    )
-
     role: Optional[Role] = element(
         description="Role of the molecule in the experiment",
         default=None,
         tag="role",
         json_schema_extra=dict(),
+    )
+
+    reaction_times: List[float] = element(
+        description="Reaction times of the molecule measured peaks",
+        default_factory=[],
+        tag="reaction_times",
+        json_schema_extra=dict(multiple=True),
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -107,7 +124,9 @@ class Analyte(sdRDM.DataModel):
 
     def add_to_peaks(
         self,
+        analyte_id: Optional[str] = None,
         retention_time: Optional[float] = None,
+        timestamp: Optional[Datetime] = None,
         retention_time_unit: Optional[Unit] = None,
         type: Optional[str] = None,
         peak_start: Optional[float] = None,
@@ -128,7 +147,9 @@ class Analyte(sdRDM.DataModel):
 
         Args:
             id (str): Unique identifier of the 'Peak' object. Defaults to 'None'.
+            analyte_id (): ID of the analyte. Defaults to None
             retention_time (): Retention time of the peak. Defaults to None
+            timestamp (): Timestamp of the peak. Defaults to None
             retention_time_unit (): Unit of retention time. Defaults to None
             type (): Type of peak (baseline-baseline / baseline-valley / ...). Defaults to None
             peak_start (): Start retention time of the peak. Defaults to None
@@ -144,7 +165,9 @@ class Analyte(sdRDM.DataModel):
             separation_factor (): Separation factor of the peak. Defaults to None
         """
         params = {
+            "analyte_id": analyte_id,
             "retention_time": retention_time,
+            "timestamp": timestamp,
             "retention_time_unit": retention_time_unit,
             "type": type,
             "peak_start": peak_start,

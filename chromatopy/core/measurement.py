@@ -41,6 +41,20 @@ class Measurement(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
 
+    reaction_time: Optional[float] = element(
+        description="Reaction time",
+        default=None,
+        tag="reaction_time",
+        json_schema_extra=dict(),
+    )
+
+    time_unit: Optional[Unit] = element(
+        description="Unit of time",
+        default=None,
+        tag="time_unit",
+        json_schema_extra=dict(),
+    )
+
     injection_volume: Optional[float] = element(
         description="Injection volume",
         default=None,
@@ -48,10 +62,24 @@ class Measurement(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
 
+    dilution_factor: Optional[float] = element(
+        description="Dilution factor",
+        default=None,
+        tag="dilution_factor",
+        json_schema_extra=dict(),
+    )
+
     injection_volume_unit: Optional[Unit] = element(
         description="Unit of injection volume",
         default=None,
         tag="injection_volume_unit",
+        json_schema_extra=dict(),
+    )
+
+    reaction_time: Optional[float] = element(
+        description="Reaction time",
+        default=None,
+        tag="reaction_time",
         json_schema_extra=dict(),
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
@@ -70,9 +98,8 @@ class Measurement(sdRDM.DataModel):
     def add_to_chromatograms(
         self,
         peaks: List[Peak] = ListPlus(),
-        retention_times: List[float] = ListPlus(),
-        time_unit: Optional[Unit] = None,
         signals: List[float] = ListPlus(),
+        times: List[float] = ListPlus(),
         processed_signal: List[float] = ListPlus(),
         wavelength: Optional[float] = None,
         type: Optional[SignalType] = None,
@@ -84,18 +111,16 @@ class Measurement(sdRDM.DataModel):
         Args:
             id (str): Unique identifier of the 'Chromatogram' object. Defaults to 'None'.
             peaks (): Peaks in the signal. Defaults to ListPlus()
-            retention_times (): Retention times of the signal. Defaults to ListPlus()
-            time_unit (): Unit of retention time. Defaults to None
             signals (): Signal values. Defaults to ListPlus()
+            times (): Time values of the signal. Defaults to ListPlus()
             processed_signal (): Processed signal values after baseline correction and deconvolution. Defaults to ListPlus()
             wavelength (): Wavelength of the signal in nm. Defaults to None
             type (): Type of signal. Defaults to None
         """
         params = {
             "peaks": peaks,
-            "retention_times": retention_times,
-            "time_unit": time_unit,
             "signals": signals,
+            "times": times,
             "processed_signal": processed_signal,
             "wavelength": wavelength,
             "type": type,

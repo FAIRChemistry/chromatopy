@@ -1,3 +1,4 @@
+from datetime import datetime as Datetime
 from typing import Dict, List, Optional
 from uuid import uuid4
 
@@ -36,24 +37,17 @@ class Chromatogram(sdRDM.DataModel):
         json_schema_extra=dict(multiple=True),
     )
 
-    retention_times: List[float] = element(
-        description="Retention times of the signal",
-        default_factory=ListPlus,
-        tag="retention_times",
-        json_schema_extra=dict(multiple=True),
-    )
-
-    time_unit: Optional[Unit] = element(
-        description="Unit of retention time",
-        default=None,
-        tag="time_unit",
-        json_schema_extra=dict(),
-    )
-
     signals: List[float] = element(
         description="Signal values",
         default_factory=ListPlus,
         tag="signals",
+        json_schema_extra=dict(multiple=True),
+    )
+
+    times: List[float] = element(
+        description="Time values of the signal",
+        default_factory=ListPlus,
+        tag="times",
         json_schema_extra=dict(multiple=True),
     )
 
@@ -94,7 +88,9 @@ class Chromatogram(sdRDM.DataModel):
 
     def add_to_peaks(
         self,
+        analyte_id: Optional[str] = None,
         retention_time: Optional[float] = None,
+        timestamp: Optional[Datetime] = None,
         retention_time_unit: Optional[Unit] = None,
         type: Optional[str] = None,
         peak_start: Optional[float] = None,
@@ -115,7 +111,9 @@ class Chromatogram(sdRDM.DataModel):
 
         Args:
             id (str): Unique identifier of the 'Peak' object. Defaults to 'None'.
+            analyte_id (): ID of the analyte. Defaults to None
             retention_time (): Retention time of the peak. Defaults to None
+            timestamp (): Timestamp of the peak. Defaults to None
             retention_time_unit (): Unit of retention time. Defaults to None
             type (): Type of peak (baseline-baseline / baseline-valley / ...). Defaults to None
             peak_start (): Start retention time of the peak. Defaults to None
@@ -131,7 +129,9 @@ class Chromatogram(sdRDM.DataModel):
             separation_factor (): Separation factor of the peak. Defaults to None
         """
         params = {
+            "analyte_id": analyte_id,
             "retention_time": retention_time,
+            "timestamp": timestamp,
             "retention_time_unit": retention_time_unit,
             "type": type,
             "peak_start": peak_start,

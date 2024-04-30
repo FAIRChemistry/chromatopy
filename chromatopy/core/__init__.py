@@ -1,6 +1,4 @@
-from .analyte import Analyte
 from .chromatogram import Chromatogram
-from .chromhandler import ChromHandler
 from .column import Column
 from .detector import Detector
 from .fiddetector import FIDDetector
@@ -35,4 +33,5 @@ __all__ = [
     "Valve",
     "SignalType",
     "Role",
+    "Species",
 ]
