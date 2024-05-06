@@ -1,10 +1,10 @@
 # Welcome to the Documentation on `chromatopy`
 
-## Python tool to replace data management and processing of chromatograpfic data
+## Python tool to replace data management and processing of chromatographic data
 
 
-**Read in data from output files**
+**Read data from output files of analytical devices**
 
 **Batch processing of time-course data**
 
-**Create and calibration curves for concentration calculation**
+**Create calibration curves for concentration calculation**
