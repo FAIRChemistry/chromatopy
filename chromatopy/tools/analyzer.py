@@ -215,7 +215,7 @@ class ChromAnalyzer(BaseModel):
                     x=x,
                     y=z,
                     mode="lines",  # Line plot
-                    name=f"{meas.id.split("/")[-1]}",
+                    name=f"{meas.id.split('/')[-1]}",
                 )
             )
 
