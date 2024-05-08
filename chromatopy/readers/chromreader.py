@@ -52,12 +52,11 @@ class ChromReader:
             List[Measurement]: A list of Measurement objects representing the chromatographic data.
         """
         if dir_path.is_file():
-            return [
-                ChromReaderFactory.create_reader(file_path).read()
-                for file_path in sorted(dir_path).iterdir()
-            ]
+            print(dir_path)
+            return [ChromReaderFactory.create_reader(dir_path).read()]
         elif dir_path.is_dir():
             return [
                 ChromReaderFactory.create_reader(file_path).read()
                 for file_path in sorted(dir_path.iterdir())
+                if file_path.suffix == ".txt"
             ]
