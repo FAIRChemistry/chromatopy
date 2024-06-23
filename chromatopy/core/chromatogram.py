@@ -1,22 +1,21 @@
-from datetime import datetime as Datetime
-from typing import Dict, List, Optional
-from uuid import uuid4
+import sdRDM
 
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-import sdRDM
-from hplc.quant import Chromatogram as hplcChromatogram
-from lxml.etree import _Element
+from typing import Dict, List, Optional
 from pydantic import PrivateAttr, model_validator
+from uuid import uuid4
 from pydantic_xml import attr, element
-from sdRDM.base.datatypes import Unit
+from lxml.etree import _Element
 from sdRDM.base.listplus import ListPlus
 from sdRDM.base.utils import forge_signature
+from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
-
-from .peak import Peak
+from datetime import datetime as Datetime
+from hplc.quant import Chromatogram as hplcChromatogram
 from .signaltype import SignalType
+from .peak import Peak
 
 
 @forge_signature

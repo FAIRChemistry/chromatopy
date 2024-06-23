@@ -33,6 +33,39 @@ class ChromAnalyzer(BaseModel):
     )
 
     @classmethod
+    def read_csv(
+        cls,
+        path: str,
+        wavelength: float,
+        detector: str,
+        **kwargs,
+    ):
+        detectors = [det.value for det in SignalType]
+        assert detector in detectors, (
+            f"Detector '{detector}' not found. Available detectors are" f" {detectors}."
+        )
+
+        df = pd.read_csv(path, **kwargs)
+        col_names = df.columns
+
+        if not len(col_names) == 2:
+            raise ValueError(
+                f"Expected two columns in the csv file, found {len(col_names)}.",
+                "The first column should contain the time values and the second column"
+                " should contain the signal values.",
+            )
+
+        measurement = Measurement(id=path)
+        measurement.add_to_chromatograms(
+            times=df[col_names[0]].values.tolist(),
+            signals=df[col_names[1]].values.tolist(),
+            wavelength=wavelength,
+            type=detector,
+        )
+
+        return cls(measurements=[measurement])
+
+    @classmethod
     def read_data(cls, path: str):
         return cls(
             measurements=ChromReader.read(path),

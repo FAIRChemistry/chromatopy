@@ -2,11 +2,6 @@
 classDiagram
     Detector <-- TCDDetector
     Detector <-- FIDDetector
-    ChromHandler *-- Analyte
-    ChromHandler *-- Measurement
-    Analyte *-- Role
-    Analyte *-- Peak
-    Analyte *-- Standard
     Measurement *-- Chromatogram
     Chromatogram *-- SignalType
     Chromatogram *-- Peak
@@ -16,24 +11,6 @@ classDiagram
     Oven *-- Ramp
     Column *-- Inlet
     Column *-- Detector
-    
-    class ChromHandler {
-        +Analyte[0..*] analytes
-        +Measurement[0..*] measurements
-    }
-    
-    class Analyte {
-        +string name
-        +string chebi
-        +float molecular_weight
-        +float retention_time
-        +Peak[0..*] peaks
-        +datetime[0..*] injection_times
-        +float[0..*] concentrations
-        +Standard standard
-        +Role role
-        +float[0..*] reaction_times
-    }
     
     class Measurement {
         +Chromatogram[0..*] chromatograms

@@ -1,3 +1,5 @@
+import pandas as pd
+
 from .abstractreader import AbstractReader
 
 
@@ -20,6 +22,11 @@ class ChromReaderFactory:
             from .shimadzu import ShimadzuReader
 
             return ShimadzuReader(path)
+
+        elif ChromReaderFactory.get_file_signature(path) == "csv":
+            from .csvreader import CSVReader
+
+            return CSVReader(path)
         else:
             raise ValueError(f"Unsupported file format: {path}")
 
@@ -36,9 +43,18 @@ class ChromReaderFactory:
         """
         signatures = {"shimadzu": "[Header]"}
 
-        with open(path, "r") as file:
-            lines = [file.readline() for _ in range(5)]
+        try:
+            with open(path, "r") as file:
+                lines = [file.readline() for _ in range(5)]
 
-            for key, signature in signatures.items():
-                if any(signature in line for line in lines):
-                    return key
+                for key, signature in signatures.items():
+                    if any(signature in line for line in lines):
+                        return key
+        except UnicodeDecodeError:
+            pass
+
+        try:
+            df = pd.read_csv(path)
+            return "csv"
+        except pd.errors.ParserError:
+            return "unsupported"
