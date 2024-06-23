@@ -27,6 +27,7 @@ classDiagram
         +Peak[0..*] peaks
         +float[0..*] signals
         +float[0..*] times
+        +Unit time_unit
         +float[0..*] processed_signal
         +float wavelength
         +SignalType type

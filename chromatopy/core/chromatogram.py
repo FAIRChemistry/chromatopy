@@ -58,8 +58,11 @@ class Chromatogram(
         ),
     )
 
-    time_unit: str = element(
+    time_unit: Optional[Unit] = element(
         description="Unit of time",
+        default=None,
+        tag="time_unit",
+        json_schema_extra=dict(),
     )
 
     processed_signal: List[float] = element(
@@ -91,7 +94,7 @@ class Chromatogram(
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="d0c89908f326629945cd8757e21f7b34ebf81c59"
+        default="bc10c2adaa50a977b0a99da28b4bf3671887f5e6"
     )
 
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
@@ -238,12 +241,10 @@ class Chromatogram(
         """
         Returns the chromatogram as a pandas DataFrame with the columns 'time' and 'signal'
         """
-        return pd.DataFrame(
-            {
-                "time": self.times,
-                "signal": self.signals,
-            }
-        )
+        return pd.DataFrame({
+            "time": self.times,
+            "signal": self.signals,
+        })
 
     def visualize(self) -> go.Figure:
         """

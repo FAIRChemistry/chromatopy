@@ -90,7 +90,7 @@ class Measurement(
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="d0c89908f326629945cd8757e21f7b34ebf81c59"
+        default="bc10c2adaa50a977b0a99da28b4bf3671887f5e6"
     )
 
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
@@ -112,6 +112,7 @@ class Measurement(
         peaks: List[Peak] = ListPlus(),
         signals: List[float] = ListPlus(),
         times: List[float] = ListPlus(),
+        time_unit: Optional[Unit] = None,
         processed_signal: List[float] = ListPlus(),
         wavelength: Optional[float] = None,
         type: Optional[SignalType] = None,
@@ -126,6 +127,7 @@ class Measurement(
             peaks (): Peaks in the signal. Defaults to ListPlus()
             signals (): Signal values. Defaults to ListPlus()
             times (): Time values of the signal. Defaults to ListPlus()
+            time_unit (): Unit of time. Defaults to None
             processed_signal (): Processed signal values after baseline correction and deconvolution. Defaults to ListPlus()
             wavelength (): Wavelength of the signal in nm. Defaults to None
             type (): Type of signal. Defaults to None
@@ -135,6 +137,7 @@ class Measurement(
             "peaks": peaks,
             "signals": signals,
             "times": times,
+            "time_unit": time_unit,
             "processed_signal": processed_signal,
             "wavelength": wavelength,
             "type": type,

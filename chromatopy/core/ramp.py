@@ -57,7 +57,7 @@ class Ramp(
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="d0c89908f326629945cd8757e21f7b34ebf81c59"
+        default="bc10c2adaa50a977b0a99da28b4bf3671887f5e6"
     )
 
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
