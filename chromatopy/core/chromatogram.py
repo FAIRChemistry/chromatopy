@@ -58,6 +58,10 @@ class Chromatogram(
         ),
     )
 
+    time_unit: str = element(
+        description="Unit of time",
+    )
+
     processed_signal: List[float] = element(
         description=(
             "Processed signal values after baseline correction and deconvolution"
@@ -234,10 +238,12 @@ class Chromatogram(
         """
         Returns the chromatogram as a pandas DataFrame with the columns 'time' and 'signal'
         """
-        return pd.DataFrame({
-            "time": self.retention_times,
-            "signal": self.signals,
-        })
+        return pd.DataFrame(
+            {
+                "time": self.times,
+                "signal": self.signals,
+            }
+        )
 
     def visualize(self) -> go.Figure:
         """
@@ -252,7 +258,7 @@ class Chromatogram(
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
-                x=self.retention_times,
+                x=self.times,
                 y=self.signals,
                 name="Signal",
             )
@@ -269,7 +275,7 @@ class Chromatogram(
         if self.processed_signal:
             fig.add_trace(
                 go.Scatter(
-                    x=self.retention_times,
+                    x=self.times,
                     y=self.processed_signal,
                     mode="lines",
                     line=dict(dash="dot", width=1),

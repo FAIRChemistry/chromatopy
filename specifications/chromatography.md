@@ -44,6 +44,9 @@
   - Type: float
   - Description: Time values of the signal
   - Multiple: True
+- time_unit
+  - Type: Unit
+  - Description: Unit of time
 - processed_signal
   - Type: float
   - Description: Processed signal values after baseline correction and deconvolution
