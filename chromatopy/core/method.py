@@ -89,6 +89,13 @@ class Method(
         ),
     )
 
+    _repo: Optional[str] = PrivateAttr(
+        default="https://github.com/FAIRChemistry/chromatopy"
+    )
+    _commit: Optional[str] = PrivateAttr(
+        default="d0c89908f326629945cd8757e21f7b34ebf81c59"
+    )
+
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
     @model_validator(mode="after")
