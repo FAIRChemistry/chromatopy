@@ -1,9 +1,7 @@
 name: Generate API
 
-on:
-  push:
-    tags:
-      - v1.**
+on: push
+
 
 jobs:
   generate-api:

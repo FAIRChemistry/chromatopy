@@ -1,53 +1,61 @@
-import sdRDM
+from datetime import datetime as Datetime
+from typing import Dict, List, Optional
+from uuid import uuid4
 
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-from typing import Dict, List, Optional
-from pydantic import PrivateAttr, model_validator
-from uuid import uuid4
-from pydantic_xml import attr, element
-from lxml.etree import _Element
-from sdRDM.base.listplus import ListPlus
-from sdRDM.base.utils import forge_signature
-from sdRDM.base.datatypes import Unit
-from sdRDM.tools.utils import elem2dict
-from datetime import datetime as Datetime
+import sdRDM
 from hplc.quant import Chromatogram as hplcChromatogram
-from .signaltype import SignalType
+from lxml.etree import _Element
+from pydantic import PrivateAttr, model_validator
+from pydantic_xml import attr, element
+from sdRDM.base.datatypes import Unit
+from sdRDM.base.listplus import ListPlus
+from sdRDM.tools.utils import elem2dict
+
 from .peak import Peak
+from .signaltype import SignalType
 
 
-@forge_signature
-class Chromatogram(sdRDM.DataModel):
+class Chromatogram(
+    sdRDM.DataModel,
+    search_mode="unordered",
+):
     """"""
 
     id: Optional[str] = attr(
         name="id",
+        alias="@id",
         description="Unique identifier of the given object.",
         default_factory=lambda: str(uuid4()),
-        xml="@id",
     )
 
     peaks: List[Peak] = element(
         description="Peaks in the signal",
         default_factory=ListPlus,
         tag="peaks",
-        json_schema_extra=dict(multiple=True),
+        json_schema_extra=dict(
+            multiple=True,
+        ),
     )
 
     signals: List[float] = element(
         description="Signal values",
         default_factory=ListPlus,
         tag="signals",
-        json_schema_extra=dict(multiple=True),
+        json_schema_extra=dict(
+            multiple=True,
+        ),
     )
 
     times: List[float] = element(
         description="Time values of the signal",
         default_factory=ListPlus,
         tag="times",
-        json_schema_extra=dict(multiple=True),
+        json_schema_extra=dict(
+            multiple=True,
+        ),
     )
 
     processed_signal: List[float] = element(
@@ -56,7 +64,9 @@ class Chromatogram(sdRDM.DataModel):
         ),
         default_factory=ListPlus,
         tag="processed_signal",
-        json_schema_extra=dict(multiple=True),
+        json_schema_extra=dict(
+            multiple=True,
+        ),
     )
 
     wavelength: Optional[float] = element(
@@ -72,17 +82,19 @@ class Chromatogram(sdRDM.DataModel):
         tag="type",
         json_schema_extra=dict(),
     )
+
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
     @model_validator(mode="after")
     def _parse_raw_xml_data(self):
         for attr, value in self:
             if isinstance(value, (ListPlus, list)) and all(
-                (isinstance(i, _Element) for i in value)
+                isinstance(i, _Element) for i in value
             ):
                 self._raw_xml_data[attr] = [elem2dict(i) for i in value]
             elif isinstance(value, _Element):
                 self._raw_xml_data[attr] = elem2dict(value)
+
         return self
 
     def add_to_peaks(
@@ -104,6 +116,7 @@ class Chromatogram(sdRDM.DataModel):
         tailing_factor: Optional[float] = None,
         separation_factor: Optional[float] = None,
         id: Optional[str] = None,
+        **kwargs,
     ) -> Peak:
         """
         This method adds an object of type 'Peak' to attribute peaks
@@ -127,6 +140,7 @@ class Chromatogram(sdRDM.DataModel):
             tailing_factor (): Tailing factor of the peak. Defaults to None
             separation_factor (): Separation factor of the peak. Defaults to None
         """
+
         params = {
             "analyte_id": analyte_id,
             "retention_time": retention_time,
@@ -145,9 +159,14 @@ class Chromatogram(sdRDM.DataModel):
             "tailing_factor": tailing_factor,
             "separation_factor": separation_factor,
         }
+
         if id is not None:
             params["id"] = id
-        self.peaks.append(Peak(**params))
+
+        obj = Peak(**params)
+
+        self.peaks.append(obj)
+
         return self.peaks[-1]
 
     @classmethod

@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class SignalType(Enum):
+
     UV = "uv/visible absorbance detector"
     FLD = "fluorescence detector"
     FID = "flame ionization detector"

@@ -1,26 +1,28 @@
-import sdRDM
-
 from typing import Dict, List, Optional
-from pydantic import PrivateAttr, model_validator
 from uuid import uuid4
-from pydantic_xml import attr, element
+
+import sdRDM
 from lxml.etree import _Element
-from sdRDM.base.listplus import ListPlus
-from sdRDM.base.utils import forge_signature
+from pydantic import PrivateAttr, model_validator
+from pydantic_xml import attr, element
 from sdRDM.base.datatypes import Unit
+from sdRDM.base.listplus import ListPlus
 from sdRDM.tools.utils import elem2dict
+
 from .ramp import Ramp
 
 
-@forge_signature
-class Oven(sdRDM.DataModel):
+class Oven(
+    sdRDM.DataModel,
+    search_mode="unordered",
+):
     """Describes the settings of the oven."""
 
     id: Optional[str] = attr(
         name="id",
+        alias="@id",
         description="Unique identifier of the given object.",
         default_factory=lambda: str(uuid4()),
-        xml="@id",
     )
 
     init_temp: Optional[float] = element(
@@ -48,7 +50,9 @@ class Oven(sdRDM.DataModel):
         description="Thermal protocols of the oven",
         default_factory=ListPlus,
         tag="ramps",
-        json_schema_extra=dict(multiple=True),
+        json_schema_extra=dict(
+            multiple=True,
+        ),
     )
 
     post_temp: Optional[float] = element(
@@ -71,17 +75,19 @@ class Oven(sdRDM.DataModel):
         tag="run_time",
         json_schema_extra=dict(),
     )
+
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
     @model_validator(mode="after")
     def _parse_raw_xml_data(self):
         for attr, value in self:
             if isinstance(value, (ListPlus, list)) and all(
-                (isinstance(i, _Element) for i in value)
+                isinstance(i, _Element) for i in value
             ):
                 self._raw_xml_data[attr] = [elem2dict(i) for i in value]
             elif isinstance(value, _Element):
                 self._raw_xml_data[attr] = elem2dict(value)
+
         return self
 
     def add_to_ramps(
@@ -91,6 +97,7 @@ class Oven(sdRDM.DataModel):
         hold_time: Optional[float] = None,
         time_unit: Optional[Unit] = None,
         id: Optional[str] = None,
+        **kwargs,
     ) -> Ramp:
         """
         This method adds an object of type 'Ramp' to attribute ramps
@@ -102,13 +109,19 @@ class Oven(sdRDM.DataModel):
             hold_time (): Duration to hold the final temperature before starting the next ramp. Defaults to None
             time_unit (): Unit of time. Defaults to None
         """
+
         params = {
             "temp_rate": temp_rate,
             "final_temp": final_temp,
             "hold_time": hold_time,
             "time_unit": time_unit,
         }
+
         if id is not None:
             params["id"] = id
-        self.ramps.append(Ramp(**params))
+
+        obj = Ramp(**params)
+
+        self.ramps.append(obj)
+
         return self.ramps[-1]

@@ -1,30 +1,32 @@
-import sdRDM
-
 from typing import Dict, List, Optional
-from pydantic import PrivateAttr, model_validator
 from uuid import uuid4
-from pydantic_xml import attr, element
+
+import sdRDM
 from lxml.etree import _Element
-from sdRDM.base.listplus import ListPlus
-from sdRDM.base.utils import forge_signature
+from pydantic import PrivateAttr, model_validator
+from pydantic_xml import attr, element
 from sdRDM.base.datatypes import Unit
+from sdRDM.base.listplus import ListPlus
 from sdRDM.tools.utils import elem2dict
+
 from .column import Column
-from .valve import Valve
-from .inlet import Inlet
 from .detector import Detector
+from .inlet import Inlet
 from .oven import Oven
+from .valve import Valve
 
 
-@forge_signature
-class Method(sdRDM.DataModel):
+class Method(
+    sdRDM.DataModel,
+    search_mode="unordered",
+):
     """"""
 
     id: Optional[str] = attr(
         name="id",
+        alias="@id",
         description="Unique identifier of the given object.",
         default_factory=lambda: str(uuid4()),
-        xml="@id",
     )
 
     injection_time: Optional[float] = element(
@@ -73,26 +75,32 @@ class Method(sdRDM.DataModel):
         description="Parameters of the columns",
         default_factory=ListPlus,
         tag="columns",
-        json_schema_extra=dict(multiple=True),
+        json_schema_extra=dict(
+            multiple=True,
+        ),
     )
 
     valves: List[Valve] = element(
         description="Settings of the valves",
         default_factory=ListPlus,
         tag="valves",
-        json_schema_extra=dict(multiple=True),
+        json_schema_extra=dict(
+            multiple=True,
+        ),
     )
+
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
     @model_validator(mode="after")
     def _parse_raw_xml_data(self):
         for attr, value in self:
             if isinstance(value, (ListPlus, list)) and all(
-                (isinstance(i, _Element) for i in value)
+                isinstance(i, _Element) for i in value
             ):
                 self._raw_xml_data[attr] = [elem2dict(i) for i in value]
             elif isinstance(value, _Element):
                 self._raw_xml_data[attr] = elem2dict(value)
+
         return self
 
     def add_to_columns(
@@ -110,6 +118,7 @@ class Method(sdRDM.DataModel):
         detector: Optional[Detector] = None,
         outlet_pressure: Optional[float] = None,
         id: Optional[str] = None,
+        **kwargs,
     ) -> Column:
         """
         This method adds an object of type 'Column' to attribute columns
@@ -129,6 +138,7 @@ class Method(sdRDM.DataModel):
             detector (): Outlet of the column, connected to the detector. Defaults to None
             outlet_pressure (): Outlet pressure of the column. Defaults to None
         """
+
         params = {
             "name": name,
             "type": type,
@@ -143,9 +153,14 @@ class Method(sdRDM.DataModel):
             "detector": detector,
             "outlet_pressure": outlet_pressure,
         }
+
         if id is not None:
             params["id"] = id
-        self.columns.append(Column(**params))
+
+        obj = Column(**params)
+
+        self.columns.append(obj)
+
         return self.columns[-1]
 
     def add_to_valves(
@@ -155,6 +170,7 @@ class Method(sdRDM.DataModel):
         load_time: Optional[float] = None,
         inject_time: Optional[float] = None,
         id: Optional[str] = None,
+        **kwargs,
     ) -> Valve:
         """
         This method adds an object of type 'Valve' to attribute valves
@@ -166,13 +182,19 @@ class Method(sdRDM.DataModel):
             load_time (): Load time. Defaults to None
             inject_time (): Inject time. Defaults to None
         """
+
         params = {
             "name": name,
             "loop_volume": loop_volume,
             "load_time": load_time,
             "inject_time": inject_time,
         }
+
         if id is not None:
             params["id"] = id
-        self.valves.append(Valve(**params))
+
+        obj = Valve(**params)
+
+        self.valves.append(obj)
+
         return self.valves[-1]
