@@ -90,7 +90,7 @@ class Measurement(
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="bc10c2adaa50a977b0a99da28b4bf3671887f5e6"
+        default="21512b2b28d96e71c8f8ba12a7ec1a1aff154ab2"
     )
 
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
