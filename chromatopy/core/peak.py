@@ -140,7 +140,7 @@ class Peak(
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="21512b2b28d96e71c8f8ba12a7ec1a1aff154ab2"
+        default="cb7d2e23d18c3d77b4e850361b00fad126983103"
     )
 
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
