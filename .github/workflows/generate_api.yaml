@@ -1,6 +1,6 @@
 name: Generate API
 
-on: push
+on: pull_request
 
 
 jobs:
