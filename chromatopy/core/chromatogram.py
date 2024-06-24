@@ -1,105 +1,178 @@
-from __future__ import annotations
-
-from datetime import datetime as Datetime
-from typing import TYPE_CHECKING, Dict, List, Optional
-from uuid import uuid4
-
+import sdRDM
+import validators
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
-import sdRDM
-from hplc.quant import Chromatogram as hplcChromatogram
+from typing import Optional, Union, List, Dict, Set, TYPE_CHECKING
+from uuid import uuid4
+from pydantic import PrivateAttr, Field, field_validator, model_validator
+from pydantic_xml import attr, element, wrapped
 from lxml.etree import _Element
-from pydantic import PrivateAttr, model_validator
-from pydantic_xml import attr, element
-from rich import print
-from sdRDM.base.datatypes import Unit
 from sdRDM.base.listplus import ListPlus
+from sdRDM.base.utils import forge_signature
+from sdRDM.base.datatypes import Unit
 from sdRDM.tools.utils import elem2dict
-
-from .peak import Peak
+from datetime import datetime as Datetime
 from .signaltype import SignalType
+from .peak import Peak
+from __future__ import annotations
+from hplc.quant import Chromatogram as hplcChromatogram
+from rich import print
+from chromatopy.tools.species import Species
 
 if TYPE_CHECKING:
-    from chromatopy.tools.species import Species
 
 
-class Chromatogram(
-    sdRDM.DataModel,
-    search_mode="unordered",
-):
+class Chromatogram(sdRDM.DataModel,
+                
+                search_mode="unordered",
+                ):
+
+
     """"""
 
+    
     id: Optional[str] = attr(
-        name="id",
-        alias="@id",
-        description="Unique identifier of the given object.",
-        default_factory=lambda: str(uuid4()),
+            name="id",
+            alias="@id",
+            description="Unique identifier of the given object.",
+            default_factory=lambda: str(uuid4()),
     )
+    
 
+    
     peaks: List[Peak] = element(
-        description="Peaks in the signal",
-        default_factory=ListPlus,
-        tag="peaks",
-        json_schema_extra=dict(
-            multiple=True,
-        ),
+    
+    description="Peaks in the signal",
+    
+    default_factory=ListPlus,
+    tag="peaks",
+    json_schema_extra=dict(
+        
+        
+        
+        
+        
+        
+        multiple=True,
+        
+        
+    ),
     )
 
+    
     signals: List[float] = element(
-        description="Signal values",
-        default_factory=ListPlus,
-        tag="signals",
-        json_schema_extra=dict(
-            multiple=True,
-        ),
+    
+    description="Signal values",
+    
+    default_factory=ListPlus,
+    tag="signals",
+    json_schema_extra=dict(
+        
+        
+        
+        
+        
+        
+        multiple=True,
+        
+        
+    ),
     )
 
+    
     times: List[float] = element(
-        description="Time values of the signal",
-        default_factory=ListPlus,
-        tag="times",
-        json_schema_extra=dict(
-            multiple=True,
-        ),
+    
+    description="Time values of the signal",
+    
+    default_factory=ListPlus,
+    tag="times",
+    json_schema_extra=dict(
+        
+        
+        
+        
+        
+        
+        multiple=True,
+        
+        
+    ),
     )
 
+    
     time_unit: Optional[Unit] = element(
-        description="Unit of time",
-        default=None,
-        tag="time_unit",
-        json_schema_extra=dict(),
+    
+    description="Unit of time",
+    default=None,
+    
+    tag="time_unit",
+    json_schema_extra=dict(
+        
+        
+        
+        
+        
+    ),
     )
 
+    
     processed_signal: List[float] = element(
-        description="Processed signal values after baseline correction and deconvolution",
-        default_factory=ListPlus,
-        tag="processed_signal",
-        json_schema_extra=dict(
-            multiple=True,
-        ),
+    
+    description="Processed signal values after baseline correction and deconvolution",
+    
+    default_factory=ListPlus,
+    tag="processed_signal",
+    json_schema_extra=dict(
+        
+        
+        
+        
+        
+        
+        multiple=True,
+        
+        
+    ),
     )
 
+    
     wavelength: Optional[float] = element(
-        description="Wavelength of the signal in nm",
-        default=None,
-        tag="wavelength",
-        json_schema_extra=dict(),
+    
+    description="Wavelength of the signal in nm",
+    default=None,
+    
+    tag="wavelength",
+    json_schema_extra=dict(
+        
+        
+        
+        
+        
+    ),
     )
 
+    
     type: Optional[SignalType] = element(
-        description="Type of signal",
-        default=None,
-        tag="type",
-        json_schema_extra=dict(),
+    
+    description="Type of signal",
+    default=None,
+    
+    tag="type",
+    json_schema_extra=dict(
+        
+        
+        
+        
+        
+    ),
     )
 
-    _repo: Optional[str] = PrivateAttr(
-        default="https://github.com/FAIRChemistry/chromatopy"
-    )
-    _commit: Optional[str] = PrivateAttr(
-        default="cb7d2e23d18c3d77b4e850361b00fad126983103"
-    )
+    
+
+    _repo: Optional[str] = PrivateAttr(default="https://github.com/FAIRChemistry/chromatopy")
+    _commit: Optional[str] = PrivateAttr(default="7f6ad248fce5c9df91bc6e91c0d0b2126d8dcee8")
+    
 
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
 
@@ -114,25 +187,24 @@ class Chromatogram(
                 self._raw_xml_data[attr] = elem2dict(value)
 
         return self
-
     def add_to_peaks(
         self,
-        analyte_id: Optional[str] = None,
-        retention_time: Optional[float] = None,
-        timestamp: Optional[Datetime] = None,
-        retention_time_unit: Optional[Unit] = None,
-        type: Optional[str] = None,
-        peak_start: Optional[float] = None,
-        peak_end: Optional[float] = None,
-        width: Optional[float] = None,
-        width_unit: Optional[Unit] = None,
-        area: Optional[float] = None,
-        area_unit: Optional[Unit] = None,
-        height: Optional[float] = None,
-        height_unit: Optional[Unit] = None,
-        percent_area: Optional[float] = None,
-        tailing_factor: Optional[float] = None,
-        separation_factor: Optional[float] = None,
+        analyte_id: Optional[str] = None ,
+        retention_time: Optional[float] = None ,
+        timestamp: Optional[Datetime] = None ,
+        retention_time_unit: Optional[Unit] = None ,
+        type: Optional[str] = None ,
+        peak_start: Optional[float] = None ,
+        peak_end: Optional[float] = None ,
+        width: Optional[float] = None ,
+        width_unit: Optional[Unit] = None ,
+        area: Optional[float] = None ,
+        area_unit: Optional[Unit] = None ,
+        height: Optional[float] = None ,
+        height_unit: Optional[Unit] = None ,
+        percent_area: Optional[float] = None ,
+        tailing_factor: Optional[float] = None ,
+        separation_factor: Optional[float] = None ,
         id: Optional[str] = None,
         **kwargs,
     ) -> Peak:
@@ -186,6 +258,7 @@ class Chromatogram(
         self.peaks.append(obj)
 
         return self.peaks[-1]
+
 
     @classmethod
     def from_csv(cls, path: str, time_unit: Unit) -> "Chromatogram":

@@ -54,7 +54,7 @@ class Standard(
         default="https://github.com/FAIRChemistry/chromatopy"
     )
     _commit: Optional[str] = PrivateAttr(
-        default="cb7d2e23d18c3d77b4e850361b00fad126983103"
+        default="7f6ad248fce5c9df91bc6e91c0d0b2126d8dcee8"
     )
 
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
