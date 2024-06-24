@@ -50,18 +50,21 @@ class Species(sdRDM.DataModel):
     init_conc: Optional[float] = element(
         description="Initial concentration of the molecule",
         tag="init_conc",
+        default=None,
         json_schema_extra=dict(),
     )
 
     conc_unit: Optional[Unit] = element(
         description="Unit of the concentration",
         tag="conc_unit",
+        default=None,
         json_schema_extra=dict(),
     )
 
     time_unit: Optional[Unit] = element(
         description="Unit of the concentration",
         tag="time_unit",
+        default="min",
         json_schema_extra=dict(),
     )
 
@@ -103,13 +106,20 @@ class Species(sdRDM.DataModel):
         json_schema_extra=dict(),
     )
 
-    reaction_times: List[float] = element(
+    reaction_times: Optional[List[float]] = element(
         description="Reaction times of the molecule measured peaks",
         default_factory=[],
         tag="reaction_times",
         json_schema_extra=dict(multiple=True),
     )
     _raw_xml_data: Dict = PrivateAttr(default_factory=dict)
+
+    _repo: Optional[str] = PrivateAttr(
+        default="https://github.com/FAIRChemistry/chromatopy"
+    )
+    _commit: Optional[str] = PrivateAttr(
+        default="bc10c2adaa50a977b0a99da28b4bf3671887f5e6"
+    )
 
     @model_validator(mode="after")
     def _parse_raw_xml_data(self):

@@ -10,9 +10,12 @@ from hplc.quant import Chromatogram as hplcChromatogram
 from lxml.etree import _Element
 from pydantic import PrivateAttr, model_validator
 from pydantic_xml import attr, element
+from rich import print
 from sdRDM.base.datatypes import Unit
 from sdRDM.base.listplus import ListPlus
 from sdRDM.tools.utils import elem2dict
+
+from chromatopy.tools.species import Species
 
 from .peak import Peak
 from .signaltype import SignalType
@@ -203,7 +206,9 @@ class Chromatogram(
 
     def fit(
         self,
+        molecules: Optional[List[Species]] = [],
         visualize: bool = False,
+        tolerance: float = 0.1,
         **hplc_py_kwargs,
     ) -> hplcChromatogram:
         """
@@ -216,14 +221,39 @@ class Chromatogram(
         Returns:
             hplcChromatogram: The fitted chromatogram.
         """
+        if not isinstance(molecules, list):
+            molecules = [molecules]
         fitter = hplcChromatogram(file=self.to_dataframe())
         fitter.fit_peaks(**hplc_py_kwargs)
         if visualize:
             fitter.show()
-        self.peaks = self._map_hplcpy_peaks(fitter.peaks)
+        # self.peaks = self._map_hplcpy_peaks(fitter.peaks)
         self.processed_signal = np.sum(fitter.unmixed_chromatograms, axis=1)
 
-        return fitter
+        for record in fitter.peaks.to_dict(orient="records"):
+            for species in molecules:
+                tol_interval = (
+                    species.retention_time - tolerance,
+                    species.retention_time + tolerance,
+                )
+
+                if (
+                    record["retention_time"] > tol_interval[0]
+                    and record["retention_time"] < tol_interval[1]
+                ):
+                    peak = species.add_to_peaks(
+                        retention_time=species.retention_time,
+                        analyte_id=species.id,
+                        area=record["area"],
+                        height=record["amplitude"],
+                    )
+                    self.peaks.append(peak)
+                else:
+                    continue
+
+                print(
+                    f"Assigned peak at [bold]{record['retention_time']} min[/bold] to [green]{species.name}[/green]"
+                )
 
     def _map_hplcpy_peaks(self, fitter_peaks: pd.DataFrame) -> List[Peak]:
         peaks = fitter_peaks.to_dict(orient="records")
@@ -241,10 +271,12 @@ class Chromatogram(
         """
         Returns the chromatogram as a pandas DataFrame with the columns 'time' and 'signal'
         """
-        return pd.DataFrame({
-            "time": self.times,
-            "signal": self.signals,
-        })
+        return pd.DataFrame(
+            {
+                "time": self.times,
+                "signal": self.signals,
+            }
+        )
 
     def visualize(self) -> go.Figure:
         """
@@ -271,6 +303,7 @@ class Chromatogram(
                     x=peak.retention_time,
                     line_dash="dash",
                     line_color="gray",
+                    annotation_text=peak.retention_time,
                 )
 
         if self.processed_signal:
@@ -284,9 +317,14 @@ class Chromatogram(
                 )
             )
 
+        if self.wavelength:
+            wave_string = f"({self.wavelength} nm)"
+        else:
+            wave_string = ""
+
         fig.update_layout(
             xaxis_title=f"Retention time / {self.time_unit.name}",
-            yaxis_title="Signal",
+            yaxis_title=f"Signal {wave_string}",
             height=600,
         )
 

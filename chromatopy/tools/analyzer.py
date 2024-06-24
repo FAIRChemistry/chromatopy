@@ -17,6 +17,10 @@ from chromatopy.tools.species import Species
 
 
 class ChromAnalyzer(BaseModel):
+    id: str = Field(
+        description="Unique identifier of the given object",
+    )
+
     calibrators: List[Calibrator] = Field(
         description="List of calibrators to be used for calibration",
         default_factory=list,
@@ -35,9 +39,11 @@ class ChromAnalyzer(BaseModel):
     @classmethod
     def read_csv(
         cls,
+        experiment_id: str,
         path: str,
         wavelength: float,
         detector: str,
+        time_unit: str = "min",
         **kwargs,
     ):
         detectors = [det.value for det in SignalType]
@@ -60,10 +66,11 @@ class ChromAnalyzer(BaseModel):
             times=df[col_names[0]].values.tolist(),
             signals=df[col_names[1]].values.tolist(),
             wavelength=wavelength,
+            time_unit=time_unit,
             type=detector,
         )
 
-        return cls(measurements=[measurement])
+        return cls(id=experiment_id, measurements=[measurement])
 
     @classmethod
     def read_data(cls, path: str):
