@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 from datetime import datetime as Datetime
-from typing import Dict, List, Optional
+from typing import TYPE_CHECKING, Dict, List, Optional
 from uuid import uuid4
 
 import numpy as np
@@ -15,7 +17,8 @@ from sdRDM.base.datatypes import Unit
 from sdRDM.base.listplus import ListPlus
 from sdRDM.tools.utils import elem2dict
 
-from chromatopy.tools.species import Species
+if TYPE_CHECKING:
+    from chromatopy.tools.species import Species
 
 from .peak import Peak
 from .signaltype import SignalType
@@ -272,10 +275,12 @@ class Chromatogram(
         """
         Returns the chromatogram as a pandas DataFrame with the columns 'time' and 'signal'
         """
-        return pd.DataFrame({
-            "time": self.times,
-            "signal": self.signals,
-        })
+        return pd.DataFrame(
+            {
+                "time": self.times,
+                "signal": self.signals,
+            }
+        )
 
     def visualize(self) -> go.Figure:
         """
