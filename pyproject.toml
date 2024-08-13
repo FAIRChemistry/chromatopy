@@ -10,10 +10,13 @@ packages = [{include = "chromatopy"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-sdRDM = { git = "https://github.com/JR-1991/software-driven-rdm.git"}
+calipytion = { git = "https://github.com/FAIRChemistry/CaliPytion.git", branch = "dev" }
+pyenzyme = { git = "https://github.com/EnzymeML/PyEnzyme.git", branch = "v2-migration" }
 plotly = "^5.19.0"
 rainbow-api = "^1.0.6"
 hplc-py = "0.2.5"
+joblib = "^1.4.2"
+rich = "^13.7.1"
 
 [tool.poetry.group.dev.dependencies]
 mkdocs-material = "^9.5.12"

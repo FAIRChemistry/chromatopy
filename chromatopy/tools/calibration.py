@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field, field_validator
 from scipy.stats import linregress
 from sdRDM.base.datatypes import Unit
 
-from chromatopy.tools.species import Species
+from chromatopy.tools.molecule import Species
 
 LOGGER = logging.getLogger(__name__)
 

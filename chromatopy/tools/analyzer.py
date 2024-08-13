@@ -1,19 +1,25 @@
+import glob
+import os
 import warnings
-from typing import List, Tuple
+from collections import defaultdict
+from typing import List, Literal, Tuple
 
 import pandas as pd
 import plotly.graph_objects as go
+from calipytion.model import Standard
+from calipytion.tools import Calibrator
 from pydantic import BaseModel, Field
 
-from chromatopy.core import (
+from chromatopy.model import (
     Chromatogram,
     Measurement,
     Peak,
     SignalType,
+    UnitDefinition,
 )
-from chromatopy.readers import ChromReader
-from chromatopy.tools.calibration import Calibrator
-from chromatopy.tools.species import Species
+from chromatopy.tools.fit_chromatogram import ChromFit
+from chromatopy.tools.molecule import Molecule
+from chromatopy.units import min
 
 
 class ChromAnalyzer(BaseModel):
@@ -21,12 +27,12 @@ class ChromAnalyzer(BaseModel):
         description="Unique identifier of the given object",
     )
 
-    calibrators: List[Calibrator] = Field(
+    standards: List[Standard] = Field(
         description="List of calibrators to be used for calibration",
         default_factory=list,
     )
 
-    species: List[Species] = Field(
+    molecules: List[Molecule] = Field(
         description="List of species present in the measurements",
         default_factory=list,
     )
@@ -43,7 +49,7 @@ class ChromAnalyzer(BaseModel):
         path: str,
         wavelength: float,
         detector: str,
-        time_unit: str = "min",
+        time_unit: str = min,
         **kwargs,
     ):
         detectors = [det.value for det in SignalType]
@@ -73,10 +79,78 @@ class ChromAnalyzer(BaseModel):
         return cls(id=experiment_id, measurements=[measurement])
 
     @classmethod
-    def read_data(cls, path: str):
-        return cls(
-            measurements=ChromReader.read(path),
+    def read_chromeleon(cls, dir_path: str):
+        from chromatopy.readers.chromeleon import read_chromeleon_file
+
+        txt_files = glob.glob(os.path.join(dir_path, "*.txt"))
+        txt_files.sort()
+
+        measurements = [read_chromeleon_file(file) for file in txt_files]
+
+        return cls(id=dir_path, measurements=measurements)
+
+    def find_peaks(self, **fitting_kwargs):
+        print(
+            f"🔍 Processing signal and integrating peaks for {len(self.measurements)} chromatograms."
         )
+        fitting_kwargs["verbose"] = False
+        for measurement in self.measurements:
+            fitter = ChromFit(
+                measurement.chromatograms[0].signals,
+                measurement.chromatograms[0].times,
+            )
+            fitter.fit(**fitting_kwargs)
+            measurement.chromatograms[0].peaks = fitter.peaks
+
+    def add_standard(
+        self,
+        molecule: Molecule,
+        ph: float,
+        temperature: float,
+        temperature_unit: UnitDefinition,
+        concentrations: list[float],
+        conc_unit: UnitDefinition,
+        model: Literal["linear", "quadratic", "cubic"] = "linear",
+        visualize: bool = False,
+    ):
+        from calipytion.model import UnitDefinition as CalUnitDefinition
+
+        assert (
+            len(molecule.peaks) == len(concentrations)
+        ), f"Number of peaks {len(molecule.peaks)} does not match number of concentrations {len(concentrations)}."
+
+        calibrator = Calibrator(
+            molecule_id=molecule.id,
+            molecule_name=molecule.name,
+            concentrations=concentrations,
+            conc_unit=CalUnitDefinition(**conc_unit.model_dump()),
+            signals=[peak.area for peak in molecule.peaks],
+        )
+        calibrator.models = []
+        calibrator.add_model(
+            name="linear",
+            signal_law=f"a*{molecule.id} + b",
+        )
+        calibrator.fit_models()
+
+        model_obj = calibrator.get_model(model)
+
+        if visualize:
+            calibrator.visualize()
+
+        standard = calibrator.create_standard(
+            model=model_obj,
+            ph=ph,
+            temperature=temperature,
+            temp_unit=CalUnitDefinition(**temperature_unit.model_dump()),
+            retention_time=molecule.retention_time,
+        )
+
+        self.standards.append(standard)
+
+        print(f"📏 Added standard {molecule.name}")
+
+        return standard
 
     def add_reaction_time(self, reaction_times: List[float], unit: str):
         """Add reation times to the measurements.
@@ -102,9 +176,11 @@ class ChromAnalyzer(BaseModel):
 
         self.add_reaction_time(reaction_times)
 
-    def add_species(
+    def add_molecule(
         self,
+        id: str,
         name: str,
+        ld_id: str = None,
         chebi: int = None,
         retention_time: float = None,
         reaction_times: List[float] = [],
@@ -112,11 +188,11 @@ class ChromAnalyzer(BaseModel):
         conc_unit: str = None,
         time_unit: str = None,
         detector: SignalType = None,
-        tolerance: float = 0.1,
+        tolerance: float = 0.2,
         uniprot_id: str = None,
         sequence: str = None,
         molecular_weight: float = None,
-    ) -> Species:
+    ) -> Molecule:
         detector = self._handel_detector(detector)
 
         if retention_time:
@@ -135,9 +211,11 @@ class ChromAnalyzer(BaseModel):
                 f" length of peaks {len(peaks)}."
             )
 
-        analyte = Species(
+        analyte = Molecule(
+            id=id,
             name=name,
             chebi=chebi,
+            ld_id=ld_id,
             retention_time=retention_time,
             init_conc=init_conc,
             conc_unit=conc_unit,
@@ -149,7 +227,7 @@ class ChromAnalyzer(BaseModel):
             peaks=peaks,
         )
 
-        self.species.append(analyte)
+        self.molecules.append(analyte)
 
         return analyte
 
@@ -192,7 +270,7 @@ class ChromAnalyzer(BaseModel):
         self,
         retention_time: float,
         detector: SignalType,
-        tolerance: float = 0.1,
+        tolerance: float = 0.2,
     ) -> List[Peak]:
         """
         Returns a list of peaks within a specified retention time interval.
@@ -212,7 +290,7 @@ class ChromAnalyzer(BaseModel):
         peaks = []
 
         for measurement in self.measurements:
-            chromatogram = measurement.get_detector(detector)
+            chromatogram = measurement.chromatograms[0]
 
             peaks_in_retention_interval = self._get_peaks_in_retention_interval(
                 chromatogram=chromatogram,
@@ -272,7 +350,7 @@ class ChromAnalyzer(BaseModel):
         fig.show()
 
     def _get_reaction_times(self) -> List[float]:
-        for species in self.species:
+        for species in self.molecules:
             if species.reaction_times:
                 return species.reaction_times, species.time_unit
             else:
@@ -282,7 +360,7 @@ class ChromAnalyzer(BaseModel):
         data = {}
         conditions = {}
 
-        for species in self.species:
+        for species in self.molecules:
             if not species.concentrations:
                 continue
             label = f"{species.name},{species.conc_unit._unit.to_string()}"
@@ -319,26 +397,30 @@ class ChromAnalyzer(BaseModel):
         if not self.calibrators:
             raise ValueError("No calibrators provided. Define calibrators first.")
 
-        if not self.species:
+        if not self.molecules:
             raise ValueError("No species provided. Define species first.")
 
         for calibrator in self.calibrators:
-            calib_species = self.get_species(calibrator.name)
+            calib_species = self.get_molecule(calibrator.name)
             if not calib_species.peaks:
                 continue
 
             calib_species.concentrations = calibrator.calculate(species=calib_species)
 
-    def get_species(self, id: str | int) -> Species:
+    def get_molecule(self, id: str | int) -> Molecule:
         try:
-            return next(species for species in self.species if species.chebi == id)
+            return next(molecule for molecule in self.molecules if molecule.chebi == id)
         except StopIteration:
             try:
-                return next(species for species in self.species if species.name == id)
+                return next(
+                    molecule for molecule in self.molecules if molecule.name == id
+                )
             except StopIteration:
                 try:
                     return next(
-                        species for species in self.species if species.uniprot_id == id
+                        molecule
+                        for molecule in self.molecules
+                        if molecule.uniprot_id == id
                     )
                 except StopIteration:
                     raise ValueError(f"Species with id {id} not found.")
@@ -346,12 +428,66 @@ class ChromAnalyzer(BaseModel):
     def to_csv(self, path: str):
         self._create_df().to_csv(path)
 
+    def visualize(self) -> go.Figure:
+        """
+        Plot the chromatogram.
+
+        This method creates a plot of the chromatogram using the plotly library.
+        It adds a scatter trace for the retention times and signals, and if there are peaks present, it adds vertical lines for each peak.
+
+        Returns:
+            go.Figure: The plotly figure object.
+        """
+        fig = go.Figure()
+        for meas in self.measurements:
+            chrom = meas.chromatograms[0]
+            fig.add_trace(
+                go.Scatter(
+                    x=chrom.times,
+                    y=chrom.signals,
+                    name=meas.id,
+                )
+            )
+
+            if chrom.peaks:
+                for peak in chrom.peaks:
+                    fig.add_vline(
+                        x=peak.retention_time,
+                        line_dash="dash",
+                        line_color="gray",
+                        annotation_text=peak.retention_time,
+                    )
+
+            if chrom.processed_signal:
+                fig.add_trace(
+                    go.Scatter(
+                        x=chrom.times,
+                        y=chrom.processed_signal,
+                        mode="lines",
+                        line=dict(dash="dot", width=1),
+                        name="Processed signal",
+                    )
+                )
+
+        if chrom.wavelength:
+            wave_string = f"({chrom.wavelength} nm)"
+        else:
+            wave_string = ""
+
+        fig.update_layout(
+            xaxis_title="Retention time / min",
+            yaxis_title=f"Signal {wave_string}",
+            height=600,
+        )
+
+        fig.show()
+
     def plot_concentrations(self):
         df = self._create_df()
 
         fig = go.Figure()
 
-        for species in self.species:
+        for species in self.molecules:
             if not species.concentrations:
                 continue
 
@@ -367,7 +503,7 @@ class ChromAnalyzer(BaseModel):
             )
 
         fig.update_layout(
-            xaxis_title=f"time ({time_unit})",
+            xaxis_title="time (min)",
             yaxis_title=f"concentration ({conc_unit})",
             margin=dict(l=0, r=0, b=0, t=30),
             plot_bgcolor="white",
@@ -375,8 +511,83 @@ class ChromAnalyzer(BaseModel):
 
         fig.show()
 
+    def apply_standards(self, tolerance: float = 1):
+        data = defaultdict(list)
+
+        for standard in self.standards:
+            lower_ret = standard.retention_time - tolerance
+            upper_ret = standard.retention_time + tolerance
+            calibrator = Calibrator.from_standard(standard)
+            model = calibrator.models[0]
+
+            for meas in self.measurements:
+                for chrom in meas.chromatograms:
+                    for peak in chrom.peaks:
+                        if lower_ret < peak.retention_time < upper_ret:
+                            data[standard.molecule_name].append(
+                                calibrator.calculate_concentrations(
+                                    model=model, signals=[peak.area]
+                                )[0]
+                            )
+
+        return data
+
 
 if __name__ == "__main__":
-    path = "/Users/max/Documents/training_course/memeth/raw_result_folders_dotD_format"
+    from devtools import pprint
 
-    analyzer = ChromAnalyzer.read_data(path)
+    from chromatopy.units import mM
+
+    dir_path = "/Users/max/Documents/jan-niklas/MjNK/guanosine_std"
+    file_path = (
+        "/Users/max/Documents/jan-niklas/MjNK/Standards/Adenosine Stadards_ 0.5 mM.txt"
+    )
+
+    data_path = "/Users/max/Documents/jan-niklas/MjNK"
+
+    data_ana = ChromAnalyzer.read_chromeleon(data_path)
+
+    ana = ChromAnalyzer.read_chromeleon(dir_path)
+    del ana.measurements[0]
+
+    ana.find_peaks()
+
+    ana.add_molecule(
+        ld_id="www.mol.com",
+        id="s0",
+        name="Guanosine",
+        retention_time=6.03,
+    )
+
+    print(ana.molecules)
+
+    # find and fit peaks
+
+    # scatterplot as multiplot for each measurement
+
+    # for meas in ana.measurements[1:]:
+    #     for chrom in meas.chromatograms:
+    #         chrom.fit()
+
+    # from matplotlib import pyplot as plt
+
+    # plt.plot(
+    #     ana.measurements[0].chromatograms[0].times,
+    #     ana.measurements[0].chromatograms[0].signals,
+    # )
+    # plt.plot(
+    #     ana.measurements[1].chromatograms[0].times,
+    #     ana.measurements[1].chromatograms[0].signals,
+    # )
+    # plt.plot(
+    #     ana.measurements[2].chromatograms[0].times,
+    #     ana.measurements[2].chromatograms[0].signals,
+    # )
+    # plt.show()
+
+    from chromatopy.units import C
+
+    stan = ana.add_standard(
+        ana.molecules[0], 7.4, 37, C, [0.5, 1, 1.5, 2, 2.5], mM, visualize=True
+    )
+    pprint(stan)

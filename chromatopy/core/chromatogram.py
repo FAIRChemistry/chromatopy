@@ -21,7 +21,7 @@ from .peak import Peak
 from .signaltype import SignalType
 
 if TYPE_CHECKING:
-    from chromatopy.tools.species import Species
+    from chromatopy.tools.molecule import Species
 
 
 class Chromatogram(
@@ -231,6 +231,8 @@ class Chromatogram(
         # self.peaks = self._map_hplcpy_peaks(fitter.peaks)
         self.processed_signal = np.sum(fitter.unmixed_chromatograms, axis=1)
 
+        print(fitter.peaks.to_dict(orient="records"))
+
         for record in fitter.peaks.to_dict(orient="records"):
             for species in molecules:
                 tol_interval = (
@@ -249,13 +251,17 @@ class Chromatogram(
                         height=record["amplitude"],
                     )
                     self.peaks.append(peak)
-                else:
-                    continue
 
-                print(
-                    f"Assigned peak at [bold]{record['retention_time']} min[/bold] to"
-                    f" [green]{species.name}[/green]"
-                )
+                    print(
+                        f"Assigned peak at [bold]{record['retention_time']} min[/bold] to"
+                        f" [green]{species.name}[/green]"
+                    )
+
+            self.add_to_peaks(
+                retention_time=record["retention_time"],
+                area=record["area"],
+                height=record["amplitude"],
+            )
 
     def _map_hplcpy_peaks(self, fitter_peaks: pd.DataFrame) -> List[Peak]:
         peaks = fitter_peaks.to_dict(orient="records")
@@ -278,7 +284,7 @@ class Chromatogram(
                 "time": self.times,
                 "signal": self.signals,
             }
-        )
+        ).dropna()
 
     def visualize(self) -> go.Figure:
         """
