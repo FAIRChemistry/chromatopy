@@ -1,4 +1,4 @@
-from chromatopy.model import UnitType
+from chromatopy.model import UnitType as ChromUnitType
 from chromatopy.tools.read_static import read_static_file
 
 from .units import BaseUnit, Prefix, UnitDefinition
@@ -12,45 +12,45 @@ ONTOMAPS = read_static_file("chromatopy.units", "ontomaps.toml")
 class Unit:
     @staticmethod
     def mol():
-        return BaseUnit(kind=UnitType.MOLE, exponent=1, scale=1)
+        return BaseUnit(kind=ChromUnitType.MOLE, exponent=1, scale=1)
 
     @staticmethod
     def litre():
-        return BaseUnit(kind=UnitType.LITRE, exponent=1, scale=1)
+        return BaseUnit(kind=ChromUnitType.LITRE, exponent=1, scale=1)
 
     @staticmethod
     def second():
-        return BaseUnit(kind=UnitType.SECOND, exponent=1, scale=1)
+        return BaseUnit(kind=ChromUnitType.SECOND, exponent=1, scale=1)
 
     @staticmethod
     def minute():
-        return BaseUnit(kind=UnitType.SECOND, exponent=1, scale=1, multiplier=60)
+        return BaseUnit(kind=ChromUnitType.SECOND, exponent=1, scale=1, multiplier=60)
 
     @staticmethod
     def hour():
         hour = 60 * 60
-        return BaseUnit(kind=UnitType.SECOND, exponent=1, scale=1, multiplier=hour)
+        return BaseUnit(kind=ChromUnitType.SECOND, exponent=1, scale=1, multiplier=hour)
 
     @staticmethod
     def day():
         day = 60**2 * 24
-        return BaseUnit(kind=UnitType.SECOND, exponent=1, scale=1, multiplier=day)
+        return BaseUnit(kind=ChromUnitType.SECOND, exponent=1, scale=1, multiplier=day)
 
     @staticmethod
     def gram():
-        return BaseUnit(kind=UnitType.GRAM, exponent=1, scale=1)
+        return BaseUnit(kind=ChromUnitType.GRAM, exponent=1, scale=1)
 
     @staticmethod
     def kelvin():
-        return BaseUnit(kind=UnitType.KELVIN, exponent=1, scale=1)
+        return BaseUnit(kind=ChromUnitType.KELVIN, exponent=1, scale=1)
 
     @staticmethod
     def celsius():
-        return BaseUnit(kind=UnitType.CELSIUS, exponent=1, scale=1)
+        return BaseUnit(kind=ChromUnitType.CELSIUS, exponent=1, scale=1)
 
     @staticmethod
     def dimensionless():
-        return BaseUnit(kind=UnitType.DIMENSIONLESS, exponent=1, scale=1)
+        return BaseUnit(kind=ChromUnitType.DIMENSIONLESS, exponent=1, scale=1)
 
 
 ###### Single Prefixes ######

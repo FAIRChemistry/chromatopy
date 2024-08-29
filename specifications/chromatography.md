@@ -11,67 +11,73 @@ prefix: "chromatopy"
 
 - __id__
   - Type: string
-  - Description: Unique identifier of the measurement
-- __sample_name__
+  - Description: Unique identifier of the measurement.
+- __reaction_time__
+  - Type: float
+  - Description: Reaction time when the sample was injected.
+- __time_unit__
+  - Type: UnitDefinition
+  - Description: Unit of time.
+- __chromatogram__
+  - Type: Chromatogram
+  - Description: Measured chromatogram and peaks.
+- temperature
+  - Type: float
+  - Description: Temperature of the measurement.
+- temperature_unit
+  - Type: UnitDefinition
+  - Description: Unit of temperature.
+- ph
+  - Type: float
+  - Description: pH of the measurement.
+- sample_name
   - Type: string
-  - Description: Name of the sample
-- chromatograms
-  - Type: Chromatogram[]
-  - Description: Measured signal
+  - Description: Name of the sample.
 - timestamp
   - Type: string
-  - Description: Timestamp of sample injection into the column
-- reaction_time
-  - Type: float
-  - Description: Reaction time when the sample was injected
+  - Description: Timestamp of sample injection into the column.
 - injection_volume
   - Type: float
-  - Description: Injection volume
+  - Description: Injection volume.
 - dilution_factor
   - Type: float
-  - Description: Dilution factor
+  - Description: Dilution factor.
 - injection_volume_unit
   - Type: UnitDefinition
-  - Description: Unit of injection volume
+  - Description: Unit of injection volume.
 
 ### Chromatogram
 
-- __type__
+- type
   - Type: SignalType
-  - Description: Type of signal
+  - Description: Type of signal.
 - peaks
   - Type: Peak[]
-  - Description: Peaks in the signal
+  - Description: Peaks in the signal.
 - signals
   - Type: float[]
-  - Description: Signal values
+  - Description: Signal values.
 - times
   - Type: float[]
-  - Description: Time values of the signal
-- time_unit
-  - Type: UnitDefinition
-  - Description: Unit of time
+  - Description: Time values of the signal in minutes.
 - processed_signal
   - Type: float[]
-  - Description: Processed signal values after baseline correction and deconvolution
+  - Description: Processed signal values after signal processing.
 - wavelength
   - Type: float
-  - Description: Wavelength of the signal in nm
+  - Description: Wavelength of the signal in nm.
 
 ### Peak
 
-- __analyte_id__
-  - Type: string
-  - Description: ID of the analyte
 - __retention_time__
   - Type: float
-  - Description: Retention time of the peak in minutes
+  - Description: Retention time of the peak in minutes.
 - __area__
   - Type: float
-  - Description: Area of the peak
-- timestamp
+  - Description: Area of the peak.
+- molecule_id
   - Type: string
-  - Description: Timestamp of the peak
+  - Description: Identifier of the molecule.
 - type
   - Type: string
   - Description: Type of peak (baseline-baseline / baseline-valley / ...)
@@ -80,24 +86,22 @@ prefix: "chromatopy"
   - Description: Start retention time of the peak
 - peak_end
   - Type: float
-  - Description: End retention time of the peak
+  - Description: End retention time of the peak.
 - width
   - Type: float
-  - Description: Width of the peak
+  - Description: Width of the peak.
 - height
   - Type: float
-  - Description: Height of the peak
+  - Description: Height of the peak.
 - percent_area
   - Type: float
-  - Description: Percent area of the peak
+  - Description: Percent area of the peak.
 - tailing_factor
   - Type: float
-  - Description: Tailing factor of the peak
+  - Description: Tailing factor of the peak.
 - separation_factor
   - Type: float
-  - Description: Separation factor of the peak
-
-## Enumerations
+  - Description: Separation factor of the peak.
 
 ### SignalType
 

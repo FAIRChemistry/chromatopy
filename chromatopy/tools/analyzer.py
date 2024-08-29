@@ -2,13 +2,16 @@ import glob
 import os
 import warnings
 from collections import defaultdict
-from typing import List, Literal, Tuple
 
 import pandas as pd
+import plotly.colors as pc
 import plotly.graph_objects as go
 from calipytion.model import Standard
 from calipytion.tools import Calibrator
+from calipytion.tools.utility import pubchem_request_molecule_name
+from loguru import logger
 from pydantic import BaseModel, Field
+from pyenzyme import EnzymeMLDocument, Protein
 
 from chromatopy.model import (
     Chromatogram,
@@ -19,28 +22,244 @@ from chromatopy.model import (
 )
 from chromatopy.tools.fit_chromatogram import ChromFit
 from chromatopy.tools.molecule import Molecule
-from chromatopy.units import min
+from chromatopy.units import C, min
 
 
 class ChromAnalyzer(BaseModel):
     id: str = Field(
-        description="Unique identifier of the given object",
+        description="Unique identifier of the given object.",
     )
 
-    standards: List[Standard] = Field(
-        description="List of calibrators to be used for calibration",
+    molecules: list[Molecule] = Field(
+        description="List of species present in the measurements.",
         default_factory=list,
     )
 
-    molecules: List[Molecule] = Field(
-        description="List of species present in the measurements",
+    proteins: list[Protein] = Field(
+        description="List of proteins present in the measurements.",
         default_factory=list,
     )
 
-    measurements: List[Measurement] = Field(
-        description="List of measurements to be analyzed",
+    measurements: list[Measurement] = Field(
+        description="List of measurements to be analyzed.",
         default_factory=list,
     )
+
+    internal_standard: Molecule | None = Field(
+        description="Internal standard molecule used for concentation calculation.",
+        default=None,
+    )
+
+    def add_molecule_from_standard(
+        self,
+        standard: Standard,
+        init_conc: float,
+        conc_unit: UnitDefinition,
+    ):
+        """Adds a molecule to the list of species based on a `Standard` object."""
+
+        molecule = Molecule.from_standard(standard, init_conc, conc_unit)
+
+        self.add_molecule(**molecule.model_dump())
+
+    def add_molecule(
+        self,
+        id: str,
+        pubchem_cid: int,
+        init_conc: float,
+        conc_unit: UnitDefinition,
+        retention_time: float,
+        retention_tolerance: float = 0.2,
+        name: str | None = None,
+    ):
+        """Adds a molecule to the list of species.
+
+        Args:
+            id (str): Internal identifier of the molecule such as `s0` or `asd45`.
+            pubchem_cid (int): PubChem CID of the molecule.
+            init_conc (float): Initial concentration of the molecule at reaction start.
+            conc_unit (UnitDefinition): Unit of the concentration.
+            retention_time (float): Retention time tolerance for peak annotation in minutes.
+            name (str | None, optional): Name of the molecule.
+                If not provided, the name is retrieved from the PubChem database. Defaults to None.
+        """
+
+        if name is None:
+            name = pubchem_request_molecule_name(pubchem_cid)
+
+        molecule = Molecule(
+            id=id,
+            pubchem_cid=pubchem_cid,
+            name=name,
+            init_conc=init_conc,
+            conc_unit=conc_unit,
+            retention_time=retention_time,
+        )
+
+        if not self._update_molecule(molecule):
+            self.molecules.append(molecule)
+
+        self._register_peaks(molecule, retention_tolerance)
+
+    def define_internal_standard(
+        self,
+        id: str,
+        pubchem_cid: int,
+        name: str,
+        init_conc: float,
+        conc_unit: UnitDefinition,
+        retention_time: float,
+        retention_tolerance: float = 0.2,
+    ):
+        self.internal_standard = Molecule(
+            id=id,
+            pubchem_cid=pubchem_cid,
+            name=name,
+            init_conc=init_conc,
+            conc_unit=conc_unit,
+            retention_time=retention_time,
+        )
+
+        self._register_peaks(self.internal_standard, retention_tolerance)
+
+    def _register_peaks(self, molecule: Molecule, ret_tolerance: float):
+        for meas in self.measurements:
+            for peak in meas.chromatogram.peaks:
+                if (
+                    peak.retention_time - ret_tolerance
+                    < molecule.retention_time
+                    < peak.retention_time + ret_tolerance
+                ):
+                    peak.molecule_id = molecule.id
+                    logger.debug(
+                        f"{molecule.id} assigned as molecule ID for peak at {peak.retention_time}."
+                    )
+
+    def add_protein(
+        self,
+        id: str,
+        name: str,
+        uniprot_id: str | None = None,
+        sequence: str | None = None,
+        ecnumber: str | None = None,
+        organism: str | None = None,
+        organism_tax_id: int | None = None,
+    ):
+        """Adds a protein to the list of proteins or updates an existing protein
+        based on the pubchem_cid of the molecule.
+
+        Args:
+            id (str): Internal identifier of the protein such as `p0` or `asd45`.
+            name (str): Name of the protein.
+            uniprot_id (str | None, optional): UniProt ID of the protein. Defaults to None.
+            sequence (str | None, optional): Amino acid sequence of the protein. Defaults to None.
+            ecnumber (str | None, optional): EC number of the protein. Defaults to None.
+            organism (str | None, optional): Name of the organism the protein belongs to. Defaults to None.
+            organism_tax_id (int | None, optional): NCBI Taxonomy ID of the organism. Defaults to None.
+        """
+        protein = Protein(
+            id=id,
+            name=name,
+            uniprot_id=uniprot_id,
+            sequence=sequence,
+            ecnumber=ecnumber,
+            organism=organism,
+            organism_tax_id=organism_tax_id,
+        )
+
+        if not self._update_protein(protein):
+            self.proteins.append(protein)
+
+    @classmethod
+    def read_agilent_csv(
+        cls,
+        id: str,
+        path: str,
+        reaction_times: list[float],
+        time_unit: UnitDefinition,
+        ph: float,
+        temperature: float,
+        temperature_unit: UnitDefinition = C,
+    ):
+        """Reads peak data from Agilent CSV files from a directory containing *.D directories.
+
+
+        Args:
+            path (str): _description_
+            reaction_times (list[float]): _description_
+            time_unit (UnitDefinition): _description_
+            ph (float): _description_
+            temperature (float): _description_
+            temperature_unit (UnitDefinition, optional): _description_. Defaults to C.
+
+        Returns:
+            _type_: _description_
+        """
+        from chromatopy.readers.agilent_csv import (
+            assamble_measurements_from_agilent_csv,
+        )
+
+        measurements = assamble_measurements_from_agilent_csv(
+            path=path,
+            reaction_times=reaction_times,
+            time_unit=time_unit,
+            ph=ph,
+            temperature=temperature,
+            temperature_unit=temperature_unit,
+        )
+
+        return cls(id=id, measurements=measurements)
+
+    def create_enzymeml(
+        self,
+        name: str,
+        calculate_concentration: bool = True,
+    ) -> EnzymeMLDocument:
+        """Creates an EnzymeML document from the data in the ChromAnalyzer.
+
+        Args:
+            name (str): Name of the EnzymeML document.
+            calculate_concentration (bool, optional): If True, the concentrations of the species
+                are calculated. Defaults to True.
+
+        Returns:
+            EnzymeMLDocument: _description_
+        """
+        from chromatopy.ioutils.enzymeml import create_enzymeml
+
+        return create_enzymeml(
+            name=name,
+            molecules=self.molecules,
+            proteins=self.proteins,
+            measurements=self.measurements,
+            calculate_concentration=calculate_concentration,
+            internal_standard=self.internal_standard,
+        )
+
+    def add_to_enzymeml(
+        self,
+        enzdoc: EnzymeMLDocument,
+        calculate_concentration: bool = True,
+    ) -> EnzymeMLDocument:
+        """Adds the data from the ChromAnalyzer to an existing EnzymeML document.
+
+        Args:
+            enzdoc (EnzymeMLDocument): The EnzymeML document to which the data should be added.
+            calculate_concentration (bool, optional): If True, the concentrations of the species
+                are calculated. Defaults to True.
+
+        Returns:
+            EnzymeMLDocument: The updated EnzymeML document.
+        """
+        from chromatopy.ioutils.enzymeml import add_measurements_to_enzymeml
+
+        return add_measurements_to_enzymeml(
+            doc=enzdoc,
+            new_measurements=self.measurements,
+            molecules=self.molecules,
+            internal_standard=self.internal_standard,
+            calculate_concentration=calculate_concentration,
+        )
 
     @classmethod
     def read_csv(
@@ -102,135 +321,6 @@ class ChromAnalyzer(BaseModel):
             fitter.fit(**fitting_kwargs)
             measurement.chromatograms[0].peaks = fitter.peaks
 
-    def add_standard(
-        self,
-        molecule: Molecule,
-        ph: float,
-        temperature: float,
-        temperature_unit: UnitDefinition,
-        concentrations: list[float],
-        conc_unit: UnitDefinition,
-        model: Literal["linear", "quadratic", "cubic"] = "linear",
-        visualize: bool = False,
-    ):
-        from calipytion.model import UnitDefinition as CalUnitDefinition
-
-        assert (
-            len(molecule.peaks) == len(concentrations)
-        ), f"Number of peaks {len(molecule.peaks)} does not match number of concentrations {len(concentrations)}."
-
-        calibrator = Calibrator(
-            molecule_id=molecule.id,
-            molecule_name=molecule.name,
-            concentrations=concentrations,
-            conc_unit=CalUnitDefinition(**conc_unit.model_dump()),
-            signals=[peak.area for peak in molecule.peaks],
-        )
-        calibrator.models = []
-        calibrator.add_model(
-            name="linear",
-            signal_law=f"a*{molecule.id} + b",
-        )
-        calibrator.fit_models()
-
-        model_obj = calibrator.get_model(model)
-
-        if visualize:
-            calibrator.visualize()
-
-        standard = calibrator.create_standard(
-            model=model_obj,
-            ph=ph,
-            temperature=temperature,
-            temp_unit=CalUnitDefinition(**temperature_unit.model_dump()),
-            retention_time=molecule.retention_time,
-        )
-
-        self.standards.append(standard)
-
-        print(f"📏 Added standard {molecule.name}")
-
-        return standard
-
-    def add_reaction_time(self, reaction_times: List[float], unit: str):
-        """Add reation times to the measurements.
-
-        Args:
-            reaction_times (List[float]): List of reaction times corresponding to the measurements.
-        """
-        assert len(reaction_times) == len(self.measurements), (
-            f"Length of reaction time {len(reaction_times)} does not match"
-            f" length of measurements {len(self.measurements)}."
-        )
-
-        for measurement, reaction_time in zip(self.measurements, reaction_times):
-            measurement.reaction_time = reaction_time
-            measurement.time_unit = unit
-
-    def reaction_time_from_injection_time(self):
-        """Calculate reaction times from the injection time between measurements."""
-        timestamps = [measurement.timestamp for measurement in self.measurements]
-        reaction_times = [
-            (timestamp - timestamps[0]).total_seconds() for timestamp in timestamps
-        ]
-
-        self.add_reaction_time(reaction_times)
-
-    def add_molecule(
-        self,
-        id: str,
-        name: str,
-        ld_id: str = None,
-        chebi: int = None,
-        retention_time: float = None,
-        reaction_times: List[float] = [],
-        init_conc: float = None,
-        conc_unit: str = None,
-        time_unit: str = None,
-        detector: SignalType = None,
-        tolerance: float = 0.2,
-        uniprot_id: str = None,
-        sequence: str = None,
-        molecular_weight: float = None,
-    ) -> Molecule:
-        detector = self._handel_detector(detector)
-
-        if retention_time:
-            peaks = self._get_peaks_by_retention_time(
-                retention_time=retention_time, tolerance=tolerance, detector=detector
-            )
-            print(
-                f"🏔️ Assigned {len(peaks)} peaks to {name} at {retention_time} ± {tolerance} min."
-            )
-        else:
-            peaks = []
-
-        if reaction_times:
-            assert len(reaction_times) == len(peaks), (
-                f"Length of reaction time {len(reaction_times)} does not match"
-                f" length of peaks {len(peaks)}."
-            )
-
-        analyte = Molecule(
-            id=id,
-            name=name,
-            chebi=chebi,
-            ld_id=ld_id,
-            retention_time=retention_time,
-            init_conc=init_conc,
-            conc_unit=conc_unit,
-            uniprot_id=uniprot_id,
-            reaction_times=reaction_times,
-            time_unit=time_unit,
-            molecular_weight=molecular_weight,
-            sequence=sequence,
-            peaks=peaks,
-        )
-
-        self.molecules.append(analyte)
-
-        return analyte
-
     def _handel_detector(self, detector: SignalType):
         """
         Handles the detector selection for the given SignalType.
@@ -271,7 +361,7 @@ class ChromAnalyzer(BaseModel):
         retention_time: float,
         detector: SignalType,
         tolerance: float = 0.2,
-    ) -> List[Peak]:
+    ) -> list[Peak]:
         """
         Returns a list of peaks within a specified retention time interval.
 
@@ -349,44 +439,12 @@ class ChromAnalyzer(BaseModel):
         # Show the plot
         fig.show()
 
-    def _get_reaction_times(self) -> List[float]:
-        for species in self.molecules:
-            if species.reaction_times:
-                return species.reaction_times, species.time_unit
-            else:
-                raise AttributeError("No information on reaction time found.")
-
-    def _get_data_conditions(self) -> Tuple[dict, dict]:
-        data = {}
-        conditions = {}
-
-        for species in self.molecules:
-            if not species.concentrations:
-                continue
-            label = f"{species.name},{species.conc_unit._unit.to_string()}"
-            data[label] = species.concentrations
-            conditions[label] = species.init_conc
-
-        return data, conditions
-
-    def _create_df(self) -> pd.DataFrame:
-        self._apply_calibrators()
-
-        times, time_unit = self._get_reaction_times()
-
-        data, _ = self._get_data_conditions()
-
-        time_label = f"time,{time_unit._unit.to_string()}"
-        data[time_label] = times
-
-        return pd.DataFrame.from_dict(data).set_index(time_label)
-
     def _get_peaks_in_retention_interval(
         self,
         chromatogram: Chromatogram,
         lower_retention_time: float,
         upper_retention_time: float,
-    ) -> List[Peak]:
+    ) -> list[Peak]:
         return [
             peak
             for peak in chromatogram.peaks
@@ -407,26 +465,90 @@ class ChromAnalyzer(BaseModel):
 
             calib_species.concentrations = calibrator.calculate(species=calib_species)
 
-    def get_molecule(self, id: str | int) -> Molecule:
-        try:
-            return next(molecule for molecule in self.molecules if molecule.chebi == id)
-        except StopIteration:
-            try:
-                return next(
-                    molecule for molecule in self.molecules if molecule.name == id
-                )
-            except StopIteration:
-                try:
-                    return next(
-                        molecule
-                        for molecule in self.molecules
-                        if molecule.uniprot_id == id
-                    )
-                except StopIteration:
-                    raise ValueError(f"Species with id {id} not found.")
+    def _update_molecule(self, molecule) -> bool:
+        """Updates the molecule if it already exists in the list of species."""
+        for idx, mol in enumerate(self.molecules):
+            if mol.pubchem_cid == molecule.pubchem_cid:
+                self.molecules[idx] = molecule
 
-    def to_csv(self, path: str):
-        self._create_df().to_csv(path)
+                return True
+
+        return False
+
+    def _update_protein(self, protein) -> bool:
+        """Updates the protein if it already exists in the list of proteins.
+        Returns True if the protein was updated, False otherwise."""
+        for idx, prot in enumerate(self.proteins):
+            if prot.id == protein.id:
+                self.proteins[idx] = protein
+
+                return True
+
+        return False
+
+    def visualize_peaks(self):
+        """
+        Plot the chromatogram with annotated peaks.
+
+        This method creates a plot of the chromatogram using the plotly library.
+        It adds a scatter trace for the retention times and signals, and if there are peaks present, it adds vertical lines for each peak.
+
+        Returns:
+            go.Figure: The plotly figure object.
+        """
+        fig = go.Figure()
+
+        # color map for unique pwak ids
+        unique_species = set(
+            [
+                peak.molecule_id
+                for meas in self.measurements
+                for peak in meas.chromatogram.peaks
+                if peak.molecule_id
+            ]
+        )
+        colors = pc.sample_colorscale(
+            "viridis", [i / len(unique_species) for i in range(len(unique_species))]
+        )
+        color_dict = dict(zip(unique_species, colors))
+
+        for meas in self.measurements:
+            for peak in meas.chromatogram.peaks:
+                if not peak.molecule_id:
+                    continue
+                fig.add_trace(
+                    go.Scatter(
+                        x=[meas.reaction_time],
+                        y=[peak.area],
+                        name=self.get_molecule(peak.molecule_id).name,
+                        marker=dict(color=color_dict[peak.molecule_id]),
+                    )
+                )
+
+            fig.update_layout(
+                xaxis_title=f"Reaction time / {meas.time_unit.name}",
+                yaxis_title="Peak area",
+            )
+
+        legends = set()
+        fig.for_each_trace(
+            lambda trace: trace.update(showlegend=False)
+            if (trace.name in legends)
+            else legends.add(trace.name)
+        )
+
+        fig.show()
+
+    def get_molecule(self, molecule_id: str) -> Molecule:
+        for molecule in self.molecules:
+            if molecule.id == molecule_id:
+                return molecule
+
+            if self.internal_standard:
+                if self.internal_standard.id == molecule_id:
+                    return self.internal_standard
+
+        raise ValueError(f"Molecule with ID {molecule_id} not found.")
 
     def visualize(self) -> go.Figure:
         """
@@ -440,7 +562,7 @@ class ChromAnalyzer(BaseModel):
         """
         fig = go.Figure()
         for meas in self.measurements:
-            chrom = meas.chromatograms[0]
+            chrom = meas.chromatogram
             fig.add_trace(
                 go.Scatter(
                     x=chrom.times,
@@ -483,15 +605,12 @@ class ChromAnalyzer(BaseModel):
         fig.show()
 
     def plot_concentrations(self):
-        df = self._create_df()
-
         fig = go.Figure()
 
         for species in self.molecules:
             if not species.concentrations:
                 continue
 
-            time_unit = species.time_unit._unit.to_string()
             conc_unit = species.conc_unit._unit.to_string()
             fig.add_trace(
                 go.Scatter(
@@ -514,7 +633,7 @@ class ChromAnalyzer(BaseModel):
     def apply_standards(self, tolerance: float = 1):
         data = defaultdict(list)
 
-        for standard in self.standards:
+        for standard in self.calibrators:
             lower_ret = standard.retention_time - tolerance
             upper_ret = standard.retention_time + tolerance
             calibrator = Calibrator.from_standard(standard)
@@ -536,58 +655,80 @@ class ChromAnalyzer(BaseModel):
 if __name__ == "__main__":
     from devtools import pprint
 
-    from chromatopy.units import mM
+    pprint(1)
 
-    dir_path = "/Users/max/Documents/jan-niklas/MjNK/guanosine_std"
-    file_path = (
-        "/Users/max/Documents/jan-niklas/MjNK/Standards/Adenosine Stadards_ 0.5 mM.txt"
+    from chromatopy.tools.molecule import Molecule
+    from chromatopy.units import M, min
+
+    path = "example_data/liam/"
+    reaction_times = [
+        0,
+        3,
+        6.0,
+        9,
+        12,
+        15,
+        18,
+        21,
+        24,
+        27,
+        30,
+        45,
+        60,
+        90,
+        120,
+        150,
+        180,
+    ]
+
+    ana = ChromAnalyzer.read_agilent_csv(
+        id="lr_205",
+        path=path,
+        reaction_times=reaction_times,
+        time_unit=min,
+        ph=7.0,
+        temperature=25.0,
     )
-
-    data_path = "/Users/max/Documents/jan-niklas/MjNK"
-
-    data_ana = ChromAnalyzer.read_chromeleon(data_path)
-
-    ana = ChromAnalyzer.read_chromeleon(dir_path)
-    del ana.measurements[0]
-
-    ana.find_peaks()
 
     ana.add_molecule(
-        ld_id="www.mol.com",
-        id="s0",
-        name="Guanosine",
-        retention_time=6.03,
+        id="mal",
+        name="maleimide",
+        pubchem_cid=10935,
+        init_conc=0.656,
+        conc_unit=M,
+        retention_time=6.05,
     )
 
-    print(ana.molecules)
-
-    # find and fit peaks
-
-    # scatterplot as multiplot for each measurement
-
-    # for meas in ana.measurements[1:]:
-    #     for chrom in meas.chromatograms:
-    #         chrom.fit()
-
-    # from matplotlib import pyplot as plt
-
-    # plt.plot(
-    #     ana.measurements[0].chromatograms[0].times,
-    #     ana.measurements[0].chromatograms[0].signals,
-    # )
-    # plt.plot(
-    #     ana.measurements[1].chromatograms[0].times,
-    #     ana.measurements[1].chromatograms[0].signals,
-    # )
-    # plt.plot(
-    #     ana.measurements[2].chromatograms[0].times,
-    #     ana.measurements[2].chromatograms[0].signals,
-    # )
-    # plt.show()
-
-    from chromatopy.units import C
-
-    stan = ana.add_standard(
-        ana.molecules[0], 7.4, 37, C, [0.5, 1, 1.5, 2, 2.5], mM, visualize=True
+    ana.define_internal_standard(
+        id="std",
+        name="internal standard",
+        pubchem_cid=123,
+        init_conc=1.0,
+        conc_unit=M,
+        retention_time=6.3,
+        retention_tolerance=0.05,
     )
-    pprint(stan)
+
+    enzdoc = ana.create_enzymeml(name="test")
+
+    # pprint(enzdoc)
+
+    # pprint(ana)
+
+    ana.visualize_peaks()
+
+    # Molecule(
+    #     id="s0",
+    #     pubchem_cid=123,
+    #     name="Molecule 1",
+    #     init_conc=1.0,
+    #     conc_unit=mM,
+    # )
+    import matplotlib.pyplot as plt
+
+    plt.scatter(
+        enzdoc.measurements[0].species_data[0].time,
+        enzdoc.measurements[0].species_data[0].data,
+    )
+    plt.show()
+    # ana.plot_measurements()

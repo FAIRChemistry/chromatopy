@@ -240,7 +240,9 @@ class UnitDefinition(_UnitDefinition):
 
     @staticmethod
     def _map_name(kind: UnitType) -> str:
-        return NAME_MAPS.get(kind, kind.capitalize())
+        if isinstance(kind, str):  # TODO: find issue of incorrect enum usage
+            return NAME_MAPS.get(kind, kind.capitalize())
+        return NAME_MAPS.get(kind, kind.name.capitalize())
 
     @staticmethod
     def _exponent(exponent: int) -> str:
