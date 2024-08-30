@@ -18,8 +18,8 @@ prefix: "chromatopy"
 - __time_unit__
   - Type: UnitDefinition
   - Description: Unit of time.
-- __chromatogram__
-  - Type: Chromatogram
+- __chromatograms__
+  - Type: Chromatogram[]
   - Description: Measured chromatogram and peaks.
 - temperature
   - Type: float
