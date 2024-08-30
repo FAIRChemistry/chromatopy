@@ -1,86 +1,110 @@
-import pathlib
 import re
-from datetime import datetime
 from io import StringIO
+from pathlib import Path
 from typing import Dict, List
 
 import pandas as pd
 
-from chromatopy.core import Measurement, Peak, SignalType
+from chromatopy.model import Measurement, Peak, SignalType, UnitDefinition
 from chromatopy.readers.abstractreader import AbstractReader
+from chromatopy.units.predefined import ul
 
 
 class ShimadzuReader(AbstractReader):
     SECTION_PATTERN = re.compile(r"\[(.*)\]")
 
-    def __init__(self, path: str):
-        super().__init__(path)
-        self._detector_id: str = None
-        self._channel_ids: List[str] = None
+    dirpath: str
+    file_paths: List[str] = []
+    reaction_times: list[float]
+    time_unit: UnitDefinition
 
-    def read(self) -> Measurement:
+    def __init__(
+        self,
+        dirpath: str,
+        reaction_times: list[float],
+        time_unit: UnitDefinition,
+    ):
+        super().__init__(dirpath, reaction_times, time_unit)
+        self._get_file_paths()
+        self._detector_id: str | None = None
+        self._channel_ids: List[str] = []
+
+    def read(self) -> list[Measurement]:
         """Reads the chromatographic data from the specified file.
 
         Returns:
             Measurement: A Measurement object representing the chromatographic data.
         """
-        content = self.open_file(self.path)
 
-        sections = self.create_sections(content)
-        self._get_available_detectors(sections)
+        assert len(self.file_paths) > 0, "No files found. Is the directory empty?"
 
-        info_section = sections.get("File Information")
-        acqisition_date = self.get_section_dict(info_section).get("Generated")
-        timestamp = datetime.strptime(acqisition_date, "%d.%m.%Y. %H:%M:%S")
+        measurements = []
+        for file, reaction_time in zip(self.file_paths, self.reaction_times):
+            content = self.open_file(file)
+            sections = self.create_sections(content)
+            self._get_available_detectors(sections)
 
-        sample_section = sections.get("Sample Information")
-        sample_dict = self.get_section_dict(sample_section)
-        dilution_factor = sample_dict.get("Dilution Factor", 1)
-        injection_volume = sample_dict.get("Injection Volume")
+            info_section = sections.get("File Information")
+            assert info_section, "No file information section found."
 
-        measurement = Measurement(
-            id=str(self.path),
-            timestamp=timestamp,
-            injection_volume=injection_volume,
-            dilution_factor=dilution_factor,
-            injection_volume_unit="µL",
-        )
+            acqisition_date = self.get_section_dict(info_section).get("Generated")
+            assert acqisition_date, "No acquisition date found."
 
-        for channel_id in self._channel_ids:
-            for section_key, section in sections.items():
-                if channel_id not in section_key:
-                    continue
+            # timestamp = datetime.strptime(acqisition_date, "%d.%m.%Y. %H:%M:%S")
 
-                section = section.strip()
+            sample_section = sections.get("Sample Information")
+            assert sample_section, "No sample information section found."
 
-                # Extract peak table
-                if "Peak Table" in section_key:
-                    peak_list = self.add_peaks(section)
-                    if not peak_list:
+            sample_dict = self.get_section_dict(sample_section)
+            assert sample_dict, "No sample information found."
+
+            dilution_factor = sample_dict.get("Dilution Factor", 1)
+            injection_volume = sample_dict.get("Injection Volume")
+
+            measurement = Measurement(
+                id=str(Path(file).stem),
+                reaction_time=reaction_time,
+                time_unit=self.time_unit,
+                injection_volume=injection_volume,
+                dilution_factor=dilution_factor,
+                injection_volume_unit=ul,
+            )
+
+            # peak tables
+            for channel_id in self._channel_ids:
+                for section_key, section in sections.items():
+                    if channel_id not in section_key:
                         continue
 
-                    peaks = [Peak(**peak) for peak in peak_list]
-                    # add timestamp from measurement to peaks
-                    for peak in peaks:
-                        peak.timestamp = timestamp
+                    section = section.strip()
 
-                # Extract measurement data
-                if "Chromatogram" in section_key:
-                    meta_section, section = re.split(r"(?=R\.Time)", section)
+                    # Extract peak table
+                    if "Peak Table" in section_key:
+                        peak_list = self.add_peaks(section)
+                        if not peak_list:
+                            continue
 
-                    chromatogram_meta = self.get_section_dict(meta_section)
+                        peaks = [Peak(**peak) for peak in peak_list]
+                        # add timestamp from measurement to peaks
 
-                    chromatogram_df = self.parse_chromatogram(section)
+                    # Extract measurement data
+                    if "Chromatogram" in section_key:
+                        meta_section, section = re.split(r"(?=R\.Time)", section)
 
-                    measurement.add_to_chromatograms(
-                        wavelength=int(chromatogram_meta["Wavelength(nm)"]),
-                        type=SignalType.UV,
-                        signals=chromatogram_df["Intensity"].tolist(),
-                        times=chromatogram_df["R.Time (min)"].tolist(),
-                        peaks=peaks,
-                    )
+                        chromatogram_meta = self.get_section_dict(meta_section)
 
-        return measurement
+                        chromatogram_df = self.parse_chromatogram(section)
+
+                        measurement.add_to_chromatograms(
+                            wavelength=int(chromatogram_meta["Wavelength(nm)"]),
+                            type=SignalType.UV,
+                            signals=chromatogram_df["Intensity"].tolist(),
+                            times=chromatogram_df["R.Time (min)"].tolist(),
+                            peaks=peaks,
+                        )
+            measurements.append(measurement)
+
+        return measurements
 
     def parse_chromatogram(self, table_string: str) -> pd.DataFrame:
         """Parse the data in a section as a table."""
@@ -101,7 +125,12 @@ class ShimadzuReader(AbstractReader):
         return table
 
     def open_file(self, path: str) -> str:
-        return pathlib.Path(path).read_text(encoding="ISO-8859-1")
+        """Read the content of a file as a string."""
+
+        try:
+            return Path(path).read_text(encoding="ISO-8859-1")
+        except UnicodeDecodeError:
+            raise IOError(f"Could not read file {path}")
 
     def create_sections(self, file_content: str) -> dict:
         """Parse a Shimadzu ASCII-export file into sections."""
@@ -116,7 +145,7 @@ class ShimadzuReader(AbstractReader):
 
         return dict(zip(section_names, section_contents))
 
-    def get_section_dict(self, section: str, nrows: int = None) -> dict:
+    def get_section_dict(self, section: str, nrows: int | None = None) -> dict:
         """Parse the metadata in a section as keys-values."""
 
         try:
@@ -174,7 +203,6 @@ class ShimadzuReader(AbstractReader):
             ).tolist()
         except KeyError as e:
             raise e
-            return []
 
     def add_peaks(self, section: str) -> List[dict]:
         try:
@@ -200,23 +228,49 @@ class ShimadzuReader(AbstractReader):
         return peaks
 
     def _get_available_detectors(self, sections: Dict[str, str]) -> None:
-        detector_info = self.get_section_dict(sections.get("Configuration"))
+        configuration = sections.get("Configuration")
+        assert configuration, "No configuration section found."
+
+        detector_info = self.get_section_dict(configuration)
+        assert detector_info, "No detector information found."
+
         detector_id = detector_info.get("Detector ID")
-        n_channels = int(detector_info.get("# of Channels"))
-        channel_ids = [f"Ch{i}" for i in range(1, n_channels + 1)]
+        assert detector_id, "No detector ID found."
+
+        n_channels = detector_info.get("# of Channels")
+        assert n_channels, "No number of channels found."
+
+        channel_ids = [f"Ch{i}" for i in range(1, int(n_channels) + 1)]
 
         self._detector_id = detector_id
         self._channel_ids = channel_ids
 
+    def _get_file_paths(self):
+        files = []
+        directory = Path(self.dirpath)
+
+        for file_path in directory.glob("*.txt"):
+            if file_path.name.startswith("."):
+                continue
+
+            files.append(str(file_path.absolute()))
+
+        assert (
+            len(files) == len(self.reaction_times)
+        ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.reaction_times)})."
+
+        self.file_paths = files
+
 
 if __name__ == "__main__":
-    path_new = "/Users/max/Documents/GitHub/shimadzu-example/data/sah/sah konst soph 1.78 mM 5-5.txt"
+    from devtools import pprint
 
-    path_old = (
-        "/Users/max/Documents/GitHub/shimadzu-example/data/calibration/bazdarac 0.7.txt"
-    )
-    reader_old = ShimadzuReader(path_new).read()
-    print(reader_old)
+    from chromatopy.units.predefined import min
 
-    reader_new = ShimadzuReader(path_old).read()
-    print(reader_new)
+    dirpath = "/Users/max/Documents/GitHub/shimadzu-example/data/kinetic/substrate_10mM_co-substrate3.12mM"
+
+    reaction_time = [0, 1, 2, 3, 4, 5.0]
+    reader = ShimadzuReader(dirpath, reaction_time, min)
+    paths = reader.read()
+
+    pprint(len(paths))
