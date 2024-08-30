@@ -48,7 +48,7 @@ def assamble_measurements_from_agilent_csv(
         measurements.append(
             Measurement(
                 id=f"m{path_idx}",
-                chromatogram=chromatogram,
+                chromatograms=[chromatogram],
                 reaction_time=reaction_time,
                 time_unit=time_unit,
                 temperature=temperature,
@@ -81,16 +81,17 @@ def get_csv_file_paths(dirpath: str) -> list[str]:
     found_count = 0
 
     for folder in dirs:
-        if folder.is_dir() and folder.name.endswith(".D"):
+        # Check if the folder is a directory and ends with ".D" and does not start with "."
+        if (
+            folder.is_dir()
+            and folder.name.endswith(".D")
+            and not folder.name.startswith(".")
+        ):
             for file in folder.iterdir():
-                if file.name == "RESULTS.CSV":
+                # Check if the file is "RESULTS.CSV" and does not start with "."
+                if file.name == "RESULTS.CSV" and not file.name.startswith("."):
                     found_count += 1
                     target_paths.append(str(file.absolute()))
-
-    assert found_count == len(
-        dirs
-    ), f"""Number of found *.D firectores {found_count} does not 
-    match the number of subdirectories {len(dirs)}"""
 
     if found_count == 0:
         raise FileNotFoundError("No RESULTS.CSV file found in the specified directory.")
