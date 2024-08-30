@@ -23,8 +23,18 @@ class ShimadzuReader(AbstractReader):
         dirpath: str,
         reaction_times: list[float],
         time_unit: UnitDefinition,
+        ph: float,
+        temperature: float,
+        temperature_unit: UnitDefinition,
     ):
-        super().__init__(dirpath, reaction_times, time_unit)
+        super().__init__(
+            dirpath,
+            reaction_times,
+            time_unit,
+            ph,
+            temperature,
+            temperature_unit,
+        )
         self._get_file_paths()
         self._detector_id: str | None = None
         self._channel_ids: List[str] = []

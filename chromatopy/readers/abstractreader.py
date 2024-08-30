@@ -15,15 +15,25 @@ class AbstractReader(ABC):
         dirpath (str): The path to the measurement directory.
         reaction_times (list[float]): The list of reaction times.
         time_unit (UnitDefinition): The unit of time used in the measurements.
-        _file_paths (list[str]): A list of file paths specific to each instance.
+        _file_paths (list[str]): The list of measurement file paths in the directory.
     """
 
     def __init__(
-        self, dirpath: str, reaction_times: list[float], time_unit: UnitDefinition
+        self,
+        dirpath: str,
+        reaction_times: list[float],
+        time_unit: UnitDefinition,
+        ph: float,
+        temperature: float,
+        temperature_unit: UnitDefinition,
     ):
         self.dirpath = dirpath
         self.reaction_times = reaction_times
         self.time_unit = time_unit
+        self.ph = ph
+        self.temperature = temperature
+        self.temperature_unit = temperature_unit
+
         self._file_paths: list[str] = []
 
     @abstractmethod

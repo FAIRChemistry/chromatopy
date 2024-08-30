@@ -83,6 +83,7 @@ class ChromAnalyzer(BaseModel):
             retention_time (float): Retention time tolerance for peak annotation in minutes.
             name (str | None, optional): Name of the molecule.
                 If not provided, the name is retrieved from the PubChem database. Defaults to None.
+            wavelength (float | None, optional): Wavelength of the detector on which the molecule was detected. Defaults to None.
         """
 
         if name is None:
@@ -180,6 +181,30 @@ class ChromAnalyzer(BaseModel):
 
         if not self._update_protein(protein):
             self.proteins.append(protein)
+
+    @classmethod
+    def read_shimadzu(
+        cls,
+        id: str,
+        path: str,
+        reaction_times: list[float],
+        time_unit: UnitDefinition,
+        ph: float,
+        temperature: float,
+        temperature_unit: UnitDefinition = C,
+    ):
+        from chromatopy.readers.shimadzu import ShimadzuReader
+
+        measurements = ShimadzuReader(
+            dirpath=path,
+            reaction_times=reaction_times,
+            time_unit=time_unit,
+            ph=ph,
+            temperature=temperature,
+            temperature_unit=temperature_unit,
+        ).read()
+
+        return cls(id=id, measurements=measurements)
 
     @classmethod
     def read_agilent_csv(
@@ -731,20 +756,49 @@ if __name__ == "__main__":
 
     # pprint(ana)
 
-    ana.visualize_peaks()
+    # ana.visualize_peaks()
 
-    # Molecule(
-    #     id="s0",
-    #     pubchem_cid=123,
-    #     name="Molecule 1",
-    #     init_conc=1.0,
-    #     conc_unit=mM,
+    # # Molecule(
+    # #     id="s0",
+    # #     pubchem_cid=123,
+    # #     name="Molecule 1",
+    # #     init_conc=1.0,
+    # #     conc_unit=mM,
+    # # )
+    # import matplotlib.pyplot as plt
+
+    # plt.scatter(
+    #     enzdoc.measurements[0].species_data[0].time,
+    #     enzdoc.measurements[0].species_data[0].data,
     # )
-    import matplotlib.pyplot as plt
-
-    plt.scatter(
-        enzdoc.measurements[0].species_data[0].time,
-        enzdoc.measurements[0].species_data[0].data,
-    )
-    plt.show()
+    # plt.show()
     # ana.plot_measurements()
+
+    from devtools import pprint
+
+    from chromatopy.units.predefined import min
+
+    dirpath = "/Users/max/Documents/GitHub/shimadzu-example/data/kinetic/substrate_10mM_co-substrate3.12mM"
+
+    reaction_time = [0, 1, 2, 3, 4, 5.0]
+    ana = ChromAnalyzer.read_shimadzu(
+        id="23234",
+        path=dirpath,
+        reaction_times=reaction_time,
+        time_unit=min,
+        ph=7.0,
+        temperature=25.0,
+        temperature_unit=C,
+    )
+
+    ana.add_molecule(
+        id="mal",
+        name="maleimide",
+        pubchem_cid=10935,
+        init_conc=0.656,
+        conc_unit=M,
+        retention_time=11.38,
+        wavelength=254,
+    )
+
+    ana.visualize()
