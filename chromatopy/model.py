@@ -80,7 +80,7 @@ class Measurement(BaseModel):
     id: str
     reaction_time: float
     time_unit: UnitDefinition
-    chromatogram: Chromatogram
+    chromatograms: list[Chromatogram] = Field(default_factory=list)
     temperature: Optional[float] = Field(default=None)
     temperature_unit: Optional[UnitDefinition] = Field(default=None)
     ph: Optional[float] = Field(default=None)
@@ -107,6 +107,18 @@ class Measurement(BaseModel):
             "chromatopy": "https://github.com/FAIRChemistry/chromatopy",
         },
     )
+
+    def filter_chromatograms(self, **kwargs) -> list[Chromatogram]:
+        """Filters the chromatograms attribute based on the given kwargs
+
+        Args:
+            **kwargs: The attributes to filter by.
+
+        Returns:
+            list[Chromatogram]: The filtered list of Chromatogram objects
+        """
+
+        return FilterWrapper[Chromatogram](self.chromatograms, **kwargs).filter()
 
     def set_attr_term(
         self,
@@ -172,6 +184,32 @@ class Measurement(BaseModel):
 
         add_namespace(self, prefix, iri)
         self.ld_type.append(term)
+
+    def add_to_chromatograms(
+        self,
+        type: Optional[SignalType] = None,
+        peaks: list[Peak] = [],
+        signals: list[float] = [],
+        times: list[float] = [],
+        processed_signal: list[float] = [],
+        wavelength: Optional[float] = None,
+        **kwargs,
+    ):
+        params = {
+            "type": type,
+            "peaks": peaks,
+            "signals": signals,
+            "times": times,
+            "processed_signal": processed_signal,
+            "wavelength": wavelength,
+        }
+
+        if "id" in kwargs:
+            params["id"] = kwargs["id"]
+
+        self.chromatograms.append(Chromatogram(**params))
+
+        return self.chromatograms[-1]
 
 
 class Chromatogram(BaseModel):
@@ -422,6 +460,7 @@ class Peak(BaseModel):
 class UnitDefinition(BaseModel):
     model_config: ConfigDict = ConfigDict(  # type: ignore
         validate_assigment=True,
+        use_enum_values=True,
     )  # type: ignore
 
     id: Optional[str] = Field(default=None)

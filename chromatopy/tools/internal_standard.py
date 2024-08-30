@@ -2,6 +2,7 @@ from loguru import logger
 from pydantic import BaseModel, Field
 
 from chromatopy.model import Measurement, UnitDefinition
+from chromatopy.tools.utility import _resolve_chromatogram
 
 logger.level("INFO")
 
@@ -35,7 +36,9 @@ class InternalStandard(BaseModel):
         without a measurement at t=0.
         """
 
-        for peak in measurement.chromatogram.peaks:
+        for peak in _resolve_chromatogram(
+            chromatograms=measurement.chromatograms, wavelength=None
+        ).peaks:
             if peak.molecule_id == self.molecule_id:
                 self.molecule_t0_signal = peak.area
             elif peak.molecule_id == self.standard_molecule_id:

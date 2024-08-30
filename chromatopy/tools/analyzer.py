@@ -3,7 +3,6 @@ import os
 import warnings
 from collections import defaultdict
 
-import pandas as pd
 import plotly.colors as pc
 import plotly.graph_objects as go
 from calipytion.model import Standard
@@ -22,6 +21,7 @@ from chromatopy.model import (
 )
 from chromatopy.tools.fit_chromatogram import ChromFit
 from chromatopy.tools.molecule import Molecule
+from chromatopy.tools.utility import _resolve_chromatogram
 from chromatopy.units import C, min
 
 
@@ -71,6 +71,7 @@ class ChromAnalyzer(BaseModel):
         retention_time: float,
         retention_tolerance: float = 0.2,
         name: str | None = None,
+        wavelength: float | None = None,
     ):
         """Adds a molecule to the list of species.
 
@@ -99,7 +100,7 @@ class ChromAnalyzer(BaseModel):
         if not self._update_molecule(molecule):
             self.molecules.append(molecule)
 
-        self._register_peaks(molecule, retention_tolerance)
+        self._register_peaks(molecule, retention_tolerance, wavelength)
 
     def define_internal_standard(
         self,
@@ -110,6 +111,7 @@ class ChromAnalyzer(BaseModel):
         conc_unit: UnitDefinition,
         retention_time: float,
         retention_tolerance: float = 0.2,
+        wavelength: float | None = None,
     ):
         self.internal_standard = Molecule(
             id=id,
@@ -120,11 +122,20 @@ class ChromAnalyzer(BaseModel):
             retention_time=retention_time,
         )
 
-        self._register_peaks(self.internal_standard, retention_tolerance)
+        self._register_peaks(
+            molecule=self.internal_standard,
+            ret_tolerance=retention_tolerance,
+            wavelength=wavelength,
+        )
 
-    def _register_peaks(self, molecule: Molecule, ret_tolerance: float):
+    def _register_peaks(
+        self,
+        molecule: Molecule,
+        ret_tolerance: float,
+        wavelength: float | None,
+    ):
         for meas in self.measurements:
-            for peak in meas.chromatogram.peaks:
+            for peak in _resolve_chromatogram(meas.chromatograms, wavelength).peaks:
                 if (
                     peak.retention_time - ret_tolerance
                     < molecule.retention_time
@@ -261,41 +272,41 @@ class ChromAnalyzer(BaseModel):
             calculate_concentration=calculate_concentration,
         )
 
-    @classmethod
-    def read_csv(
-        cls,
-        experiment_id: str,
-        path: str,
-        wavelength: float,
-        detector: str,
-        time_unit: str = min,
-        **kwargs,
-    ):
-        detectors = [det.value for det in SignalType]
-        assert detector in detectors, (
-            f"Detector '{detector}' not found. Available detectors are" f" {detectors}."
-        )
+    # @classmethod
+    # def read_csv(
+    #     cls,
+    #     experiment_id: str,
+    #     path: str,
+    #     wavelength: float,
+    #     detector: str,
+    #     time_unit: str = min,
+    #     **kwargs,
+    # ):
+    #     detectors = [det.value for det in SignalType]
+    #     assert detector in detectors, (
+    #         f"Detector '{detector}' not found. Available detectors are" f" {detectors}."
+    #     )
 
-        df = pd.read_csv(path, **kwargs)
-        col_names = df.columns
+    #     df = pd.read_csv(path, **kwargs)
+    #     col_names = df.columns
 
-        if not len(col_names) == 2:
-            raise ValueError(
-                f"Expected two columns in the csv file, found {len(col_names)}.",
-                "The first column should contain the time values and the second column"
-                " should contain the signal values.",
-            )
+    #     if not len(col_names) == 2:
+    #         raise ValueError(
+    #             f"Expected two columns in the csv file, found {len(col_names)}.",
+    #             "The first column should contain the time values and the second column"
+    #             " should contain the signal values.",
+    #         )
 
-        measurement = Measurement(id=path)
-        measurement.add_to_chromatograms(
-            times=df[col_names[0]].values.tolist(),
-            signals=df[col_names[1]].values.tolist(),
-            wavelength=wavelength,
-            time_unit=time_unit,
-            type=detector,
-        )
+    #     measurement = Measurement(id=path)
+    #     measurement.add_to_chromatograms(
+    #         times=df[col_names[0]].values.tolist(),
+    #         signals=df[col_names[1]].values.tolist(),
+    #         wavelength=wavelength,
+    #         time_unit=time_unit,
+    #         type=detector,
+    #     )
 
-        return cls(id=experiment_id, measurements=[measurement])
+    #     return cls(id=experiment_id, measurements=[measurement])
 
     @classmethod
     def read_chromeleon(cls, dir_path: str):
@@ -498,12 +509,13 @@ class ChromAnalyzer(BaseModel):
         """
         fig = go.Figure()
 
-        # color map for unique pwak ids
+        # color map for unique peak ids
         unique_species = set(
             [
                 peak.molecule_id
                 for meas in self.measurements
-                for peak in meas.chromatogram.peaks
+                for chrom in meas.chromatograms
+                for peak in chrom.peaks
                 if peak.molecule_id
             ]
         )
@@ -513,9 +525,13 @@ class ChromAnalyzer(BaseModel):
         color_dict = dict(zip(unique_species, colors))
 
         for meas in self.measurements:
-            for peak in meas.chromatogram.peaks:
-                if not peak.molecule_id:
-                    continue
+            peaks = [
+                peak
+                for chrom in meas.chromatograms
+                for peak in chrom.peaks
+                if peak.molecule_id
+            ]
+            for peak in peaks:
                 fig.add_trace(
                     go.Scatter(
                         x=[meas.reaction_time],
@@ -562,34 +578,34 @@ class ChromAnalyzer(BaseModel):
         """
         fig = go.Figure()
         for meas in self.measurements:
-            chrom = meas.chromatogram
-            fig.add_trace(
-                go.Scatter(
-                    x=chrom.times,
-                    y=chrom.signals,
-                    name=meas.id,
-                )
-            )
-
-            if chrom.peaks:
-                for peak in chrom.peaks:
-                    fig.add_vline(
-                        x=peak.retention_time,
-                        line_dash="dash",
-                        line_color="gray",
-                        annotation_text=peak.retention_time,
-                    )
-
-            if chrom.processed_signal:
+            for chrom in meas.chromatograms:
                 fig.add_trace(
                     go.Scatter(
                         x=chrom.times,
-                        y=chrom.processed_signal,
-                        mode="lines",
-                        line=dict(dash="dot", width=1),
-                        name="Processed signal",
+                        y=chrom.signals,
+                        name=meas.id,
                     )
                 )
+
+                if chrom.peaks:
+                    for peak in chrom.peaks:
+                        fig.add_vline(
+                            x=peak.retention_time,
+                            line_dash="dash",
+                            line_color="gray",
+                            annotation_text=peak.retention_time,
+                        )
+
+                if chrom.processed_signal:
+                    fig.add_trace(
+                        go.Scatter(
+                            x=chrom.times,
+                            y=chrom.processed_signal,
+                            mode="lines",
+                            line=dict(dash="dot", width=1),
+                            name="Processed signal",
+                        )
+                    )
 
         if chrom.wavelength:
             wave_string = f"({chrom.wavelength} nm)"
@@ -633,7 +649,7 @@ class ChromAnalyzer(BaseModel):
     def apply_standards(self, tolerance: float = 1):
         data = defaultdict(list)
 
-        for standard in self.calibrators:
+        for standard in self.molecules:
             lower_ret = standard.retention_time - tolerance
             upper_ret = standard.retention_time + tolerance
             calibrator = Calibrator.from_standard(standard)
@@ -643,7 +659,7 @@ class ChromAnalyzer(BaseModel):
                 for chrom in meas.chromatograms:
                     for peak in chrom.peaks:
                         if lower_ret < peak.retention_time < upper_ret:
-                            data[standard.molecule_name].append(
+                            data[standard.name].append(
                                 calibrator.calculate_concentrations(
                                     model=model, signals=[peak.area]
                                 )[0]

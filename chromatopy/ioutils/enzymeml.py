@@ -229,25 +229,28 @@ def measurements_to_measurmentdata(
             )
 
             # get peak of measurement, if it exists for the molecule_id
-            peak = next(
-                (
-                    peak
-                    for peak in measurement.chromatogram.peaks
-                    if peak.molecule_id == molecule_id
-                ),
-                None,
-            )
-
-            if internal_standard:
-                internal_std_peak = next(
-                    (
-                        peak
-                        for peak in measurement.chromatogram.peaks
-                        if peak.molecule_id
-                        == internal_std_dict[molecule_id].standard_molecule_id
-                    ),
+            for chrom in measurement.chromatograms:
+                peak = next(
+                    (peak for peak in chrom.peaks if peak.molecule_id == molecule_id),
                     None,
                 )
+                if peak:
+                    break
+
+            if internal_standard:
+                for chrom in measurement.chromatograms:
+                    internal_std_peak = next(
+                        (
+                            peak
+                            for peak in chrom.peaks
+                            if peak.molecule_id
+                            == internal_std_dict[molecule_id].standard_molecule_id
+                        ),
+                        None,
+                    )
+                    if internal_std_peak:
+                        break
+
                 assert internal_std_peak is not None, f"""
                 No peak for the internal standard molecule {internal_std_dict[molecule_id]}
                 was assigned in measurement {meas_idx}.
@@ -338,28 +341,30 @@ def extract_measurement_conditions(
 
 
 def measured_molecule_dict(
-    molecule_ids: list[str], measurments: list[Measurement]
+    molecule_ids: list[str], measurements: list[Measurement]
 ) -> dict[str, bool]:
-    """Checks all molecules are assigned at least one peak in the measurements.
-
+    """Checks if all molecules are assigned at least one peak in the measurements.
 
     Args:
         molecule_ids (list[str]): List of molecule IDs.
-        measurments (list[Measurement]): List of Measurement instances.
+        measurements (list[Measurement]): List of Measurement instances.
 
     Returns:
-        dict: A dictionary containing the molecule IDs as keys and a boolean value as values.
+        dict[str, bool]: A dictionary with molecule IDs as keys and boolean values indicating
+                         whether each molecule is assigned to at least one peak.
     """
 
+    # Initialize the dictionary with False for each molecule ID
     measured_dict = {mol_id: False for mol_id in molecule_ids}
 
-    for measurement in measurments:
-        peaks = (
-            peak.molecule_id
-            for peak in measurement.chromatogram.peaks
-            if peak.molecule_id is not None
-        )
-        for peak in peaks:
-            measured_dict[peak] = True
+    # Iterate through each measurement
+    for measurement in measurements:
+        # Iterate through each chromatogram in the measurement
+        for chrom in measurement.chromatograms:
+            # Iterate through each peak in the chromatogram
+            for peak in chrom.peaks:
+                # Mark the molecule ID as True if it is found in a peak
+                if peak.molecule_id in measured_dict:
+                    measured_dict[peak.molecule_id] = True
 
     return measured_dict
