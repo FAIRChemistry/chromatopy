@@ -1,6 +1,6 @@
-# Welcome to the Documentation on `chromatopy`
+# chromatopy 
 
-## Python tool to replace data management and processing of chromatographic data
+## Tool to process chromatographic time-course data
 
 
 **Read data from output files of analytical devices**

@@ -173,21 +173,24 @@ class ShimadzuReader(AbstractReader):
             return meta_table
 
         except pd.errors.ParserError:
-            pattern = r"(\b\d+),(\d+\b)"
-            section = re.sub(pattern, r"\1.\2", section)
+            try:
+                pattern = r"(\b\d+),(\d+\b)"
+                section = re.sub(pattern, r"\1.\2", section)
 
-            meta_table = (
-                pd.read_table(
-                    StringIO(section),
-                    nrows=nrows,
-                    header=None,
-                    sep=",",
+                meta_table = (
+                    pd.read_table(
+                        StringIO(section),
+                        nrows=nrows,
+                        header=None,
+                        sep=",",
+                    )
+                    .set_index(0)[1]
+                    .to_dict()
                 )
-                .set_index(0)[1]
-                .to_dict()
-            )
 
-            return meta_table
+                return meta_table
+            except pd.errors.ParserError:
+                return preprocess_to_dict(section)
 
     def preprocess_decimal_delimiters(self, data_str):
         pattern = r"(\d),(\d{3}\b)"
@@ -241,7 +244,9 @@ class ShimadzuReader(AbstractReader):
         configuration = sections.get("Configuration")
         assert configuration, "No configuration section found."
 
-        detector_info = self.get_section_dict(configuration)
+        detector_info = self.get_section_dict(
+            configuration,
+        )
         assert detector_info, "No detector information found."
 
         detector_id = detector_info.get("Detector ID")
@@ -272,15 +277,49 @@ class ShimadzuReader(AbstractReader):
         self.file_paths = files
 
 
+def preprocess_to_dict(input_string: str) -> dict:
+    # Initialize the result dictionary
+    result = {}
+
+    # Split the input string into lines
+    lines = input_string.strip().split("\n")
+
+    for line in lines:
+        # Split the line by the first comma
+        parts = line.split(",", 1)  # Split only at the first comma
+
+        # Extract key and value, stripping any leading/trailing whitespace
+        key = parts[0].strip()
+        value = parts[1].strip() if len(parts) > 1 else None
+
+        # Try to convert the value to a number if possible
+        try:
+            value = float(value) if "." in value else int(value)
+        except (ValueError, TypeError):
+            pass  # If conversion fails, keep the value as a string
+
+        # Add the key-value pair to the dictionary
+        result[key] = value
+
+    return result
+
+
 if __name__ == "__main__":
     from devtools import pprint
 
-    from chromatopy.units.predefined import min
+    from chromatopy.units.predefined import C, min
 
-    dirpath = "/Users/max/Documents/GitHub/shimadzu-example/data/kinetic/substrate_10mM_co-substrate3.12mM"
+    dirpath = "example_data/shimadzu"
 
-    reaction_time = [0, 1, 2, 3, 4, 5.0]
-    reader = ShimadzuReader(dirpath, reaction_time, min)
+    reaction_time = [0, 1, 2, 3, 4, 5.0, 6, 7, 8]
+    reader = ShimadzuReader(
+        dirpath=dirpath,
+        reaction_times=reaction_time,
+        time_unit=min,
+        ph=7.4,
+        temperature=25.0,
+        temperature_unit=C,
+    )
     paths = reader.read()
 
-    pprint(len(paths))
+    pprint(paths[0].chromatograms[0].peaks[0].__dict__)

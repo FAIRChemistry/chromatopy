@@ -1,5 +1,3 @@
-import glob
-import os
 import warnings
 from collections import defaultdict
 
@@ -246,6 +244,42 @@ class ChromAnalyzer(BaseModel):
 
         return cls(id=id, measurements=measurements)
 
+    @classmethod
+    def read_agilent(
+        cls,
+        path: str,
+        reaction_times: list[float],
+        time_unit: UnitDefinition,
+        ph: float,
+        temperature: float,
+        temperature_unit: UnitDefinition = C,
+    ):
+        from chromatopy.readers.agilent_csv import (
+            assamble_measurements_from_agilent_csv,
+        )
+        from chromatopy.readers.agilent_txt import AgilentTXTReader
+
+        try:
+            measurements = AgilentTXTReader(
+                dirpath=path,
+                reaction_times=reaction_times,
+                time_unit=time_unit,
+                ph=ph,
+                temperature=temperature,
+                temperature_unit=temperature_unit,
+            ).read()
+        except FileNotFoundError:
+            measurements = assamble_measurements_from_agilent_csv(
+                path=path,
+                reaction_times=reaction_times,
+                time_unit=time_unit,
+                ph=ph,
+                temperature=temperature,
+                temperature_unit=temperature_unit,
+            )
+
+        return cls(id=path, measurements=measurements)
+
     def create_enzymeml(
         self,
         name: str,
@@ -334,15 +368,27 @@ class ChromAnalyzer(BaseModel):
     #     return cls(id=experiment_id, measurements=[measurement])
 
     @classmethod
-    def read_chromeleon(cls, dir_path: str):
-        from chromatopy.readers.chromeleon import read_chromeleon_file
+    def read_chromeleon(
+        cls,
+        path: str,
+        reaction_times: list[float],
+        time_unit: UnitDefinition,
+        ph: float,
+        temperature: float,
+        temperature_unit: UnitDefinition = C,
+    ):
+        from chromatopy.readers.chromeleon import ChromeleonReader
 
-        txt_files = glob.glob(os.path.join(dir_path, "*.txt"))
-        txt_files.sort()
+        measurements = ChromeleonReader(
+            dirpath=path,
+            reaction_times=reaction_times,
+            time_unit=time_unit,
+            ph=ph,
+            temperature=temperature,
+            temperature_unit=temperature_unit,
+        ).read()
 
-        measurements = [read_chromeleon_file(file) for file in txt_files]
-
-        return cls(id=dir_path, measurements=measurements)
+        return cls(id=path, measurements=measurements)
 
     def find_peaks(self, **fitting_kwargs):
         print(

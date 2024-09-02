@@ -7,6 +7,7 @@ site_author: Max Häußler
 
 nav:
   - Home: index.md
+  - Supported Formats: supported_formats.md
   - Getting Started:
     - Reading in data: getting_started/read_in.md
     - Calculation of concentrations: getting_started/calibrator.md
