@@ -59,7 +59,7 @@ class AgilentTXTReader(AbstractReader):
         except AssertionError:
             raise FileNotFoundError(f"No 'Report.TXT' files found in '{self.dirpath}'.")
 
-        return file_paths
+        return sorted(file_paths)
 
     def _read_file(self, path: str) -> list[str]:
         """Reads the content of a file with different encodings."""
