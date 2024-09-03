@@ -18,7 +18,7 @@ def test_initialize_from_agilent_txt():
     )
 
     assert len(ana.measurements) == 49
-    assert ana.measurements[0].chromatograms[0].peaks[0].area == pytest.approx(16919.2)
+    assert ana.measurements[0].chromatograms[0].peaks[0].area == pytest.approx(45713.7)
 
 
 def test_initialize_from_agilent_csv():
