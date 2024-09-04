@@ -1,14 +1,19 @@
+import time
 import warnings
 from collections import defaultdict
 
+import numpy as np
 import plotly.colors as pc
 import plotly.graph_objects as go
 from calipytion.model import Standard
 from calipytion.tools import Calibrator
 from calipytion.tools.utility import pubchem_request_molecule_name
+from joblib import Parallel, delayed
+from lmfit.models import GaussianModel
 from loguru import logger
 from pydantic import BaseModel, Field
 from pyenzyme import EnzymeMLDocument, Protein
+from rich.progress import Progress, TaskID
 
 from chromatopy.model import (
     Chromatogram,
@@ -17,10 +22,10 @@ from chromatopy.model import (
     SignalType,
     UnitDefinition,
 )
-from chromatopy.tools.fit_chromatogram import ChromFit
 from chromatopy.tools.molecule import Molecule
+from chromatopy.tools.peak_utils import SpectrumProcessor
 from chromatopy.tools.utility import _resolve_chromatogram
-from chromatopy.units import C, min
+from chromatopy.units import C
 
 
 class ChromAnalyzer(BaseModel):
@@ -390,18 +395,53 @@ class ChromAnalyzer(BaseModel):
 
         return cls(id=path, measurements=measurements)
 
-    def find_peaks(self, **fitting_kwargs):
+    def find_peaks(self):
         print(
             f"🔍 Processing signal and integrating peaks for {len(self.measurements)} chromatograms."
         )
-        fitting_kwargs["verbose"] = False
-        for measurement in self.measurements:
-            fitter = ChromFit(
-                measurement.chromatograms[0].signals,
-                measurement.chromatograms[0].times,
+
+        # get all chromatograms and create spectrum processors:
+        processors = [
+            SpectrumProcessor(
+                time=chrom.times,
+                raw_data=chrom.signals,
+                silent=True,
             )
-            fitter.fit(**fitting_kwargs)
-            measurement.chromatograms[0].peaks = fitter.peaks
+            for meas in self.measurements
+            for chrom in meas.chromatograms
+        ]
+
+        def process_task(
+            processor: SpectrumProcessor, progress: Progress, task_id: TaskID
+        ):
+            processor.run_pripeline()
+            progress.update(task_id, advance=1)
+            time.sleep(0.1)
+            return processor
+
+        with Progress() as progress:
+            task = progress.add_task(
+                "Processing chromatograms...", total=len(self.measurements)
+            )
+
+            results = Parallel(n_jobs=-1, backend="threading")(
+                delayed(process_task)(processor, progress, task)
+                for processor in processors
+            )
+
+        processor_idx = 0
+        for meas in self.measurements:
+            for chrom in meas.chromatograms:
+                chrom.processed_signal = results[processor_idx].baseline_corrected_data
+                chrom.peaks = []
+                for peak in results[processor_idx].peak_params:
+                    chrom.add_to_peaks(
+                        retention_time=peak.center,
+                        area=peak.area,
+                        width=peak.width,
+                        height=peak.amplitude,
+                    )
+                processor_idx += 1
 
     def _handel_detector(self, detector: SignalType):
         """
@@ -437,6 +477,112 @@ class ChromAnalyzer(BaseModel):
             "Data from multiple detectors found. Please specify detector."
             f" {list(set(detectors))}"
         )
+
+    def plot_peaks_fitted_spectrum(self):
+        # make plotly figure for each chromatogram whereas ech chromatogram contains multiple traces and each comatogram is mapped to one slider
+        from plotly.express.colors import sample_colorscale
+
+        from chromatopy.tools.utility import generate_visibility
+
+        fig = go.Figure()
+
+        for idx, meas in enumerate(self.measurements):
+            for chrom in meas.chromatograms:
+                fig.add_trace(
+                    go.Scatter(
+                        visible=False,
+                        x=chrom.times,
+                        y=chrom.signals,
+                        mode="lines",
+                        name="Unprocessed",
+                        hovertext=f"{meas.id}",
+                        line=dict(
+                            color="black",  # Line color
+                            dash="dot",  # Line style ('dash' for dashed line)
+                            width=2,  # Line width
+                        ),
+                    )
+                )
+
+                fig.add_trace(
+                    go.Scatter(
+                        visible=False,
+                        x=chrom.times,
+                        y=chrom.processed_signal,
+                        mode="lines",
+                        name="Processed",
+                        hovertext=f"{meas.id}",
+                        line=dict(
+                            color="red",  # Line color
+                            dash="dot",  # Line style ('dash' for dashed line)
+                            width=2,  # Line width
+                        ),
+                    )
+                )
+
+                # model peaks as gaussians
+                color_map = sample_colorscale("viridis", len(chrom.peaks))
+
+                for peak in chrom.peaks:
+                    gaussian = GaussianModel()
+                    x_start = peak.retention_time - 5 * peak.width
+                    x_end = peak.retention_time + 5 * peak.width
+                    x_arr = np.linspace(x_start, x_end, 100)
+                    fig.add_trace(
+                        go.Scatter(
+                            visible=False,
+                            x=x_arr,
+                            y=gaussian.eval(
+                                x=x_arr,
+                                amplitude=peak.height,
+                                center=peak.retention_time,
+                                sigma=peak.width,
+                            ),
+                            mode="lines",
+                            name=f"Peak {peak.retention_time}",
+                            hovertext=f"{meas.id}",
+                            line=dict(
+                                color=color_map.pop(0),
+                                width=2,
+                            ),
+                        )
+                    )
+
+                    # get data for peak by solving the gaussian model from lmfit
+
+        fig.data[0].visible = True
+        fig.data[1].visible = True
+        n_peaks_in_first_chrom = len(self.measurements[0].chromatograms[0].peaks)
+        for i in range(2, 2 + n_peaks_in_first_chrom):
+            fig.data[i].visible = True
+
+        # define slider for each chromatogram
+
+        steps = []
+        for meas in self.measurements:
+            for chrom in meas.chromatograms:
+                step = {
+                    "label": f"{meas.id}",
+                    "method": "update",
+                    "args": [
+                        {
+                            "visible": generate_visibility(meas.id, fig),
+                        }
+                    ],
+                }
+                steps.append(step)
+
+        sliders = [
+            {
+                "active": 0,
+                "currentvalue": {"prefix": "Chromatogram: "},
+                "steps": steps,
+            }
+        ]
+
+        fig.update_layout(sliders=sliders)
+
+        fig.show()
 
     def _get_peaks_by_retention_time(
         self,
@@ -650,6 +796,7 @@ class ChromAnalyzer(BaseModel):
         fig = go.Figure()
         for meas in self.measurements:
             for chrom in meas.chromatograms:
+                print(meas.id)
                 fig.add_trace(
                     go.Scatter(
                         x=chrom.times,
@@ -687,6 +834,7 @@ class ChromAnalyzer(BaseModel):
             xaxis_title="Retention time / min",
             yaxis_title=f"Signal {wave_string}",
             height=600,
+            legend={"traceorder": "normal"},
         )
 
         fig.show()
@@ -740,111 +888,130 @@ class ChromAnalyzer(BaseModel):
 
 
 if __name__ == "__main__":
-    from devtools import pprint
+    # from devtools import pprint
 
-    pprint(1)
+    # pprint(1)
 
-    from chromatopy.tools.molecule import Molecule
-    from chromatopy.units import M, min
+    # from chromatopy.tools.molecule import Molecule
+    # from chromatopy.units import M, min
 
-    path = "example_data/liam/"
-    reaction_times = [
-        0,
-        3,
-        6.0,
-        9,
-        12,
-        15,
-        18,
-        21,
-        24,
-        27,
-        30,
-        45,
-        60,
-        90,
-        120,
-        150,
-        180,
-    ]
+    # path = "example_data/liam/"
+    # reaction_times = [
+    #     0,
+    #     3,
+    #     6.0,
+    #     9,
+    #     12,
+    #     15,
+    #     18,
+    #     21,
+    #     24,
+    #     27,
+    #     30,
+    #     45,
+    #     60,
+    #     90,
+    #     120,
+    #     150,
+    #     180,
+    # ]
 
-    ana = ChromAnalyzer.read_agilent_csv(
-        id="lr_205",
+    # ana = ChromAnalyzer.read_agilent_csv(
+    #     id="lr_205",
+    #     path=path,
+    #     reaction_times=reaction_times,
+    #     time_unit=min,
+    #     ph=7.0,
+    #     temperature=25.0,
+    # )
+
+    # ana.add_molecule(
+    #     id="mal",
+    #     name="maleimide",
+    #     pubchem_cid=10935,
+    #     init_conc=0.656,
+    #     conc_unit=M,
+    #     retention_time=6.05,
+    # )
+
+    # ana.define_internal_standard(
+    #     id="std",
+    #     name="internal standard",
+    #     pubchem_cid=123,
+    #     init_conc=1.0,
+    #     conc_unit=M,
+    #     retention_time=6.3,
+    #     retention_tolerance=0.05,
+    # )
+
+    # enzdoc = ana.create_enzymeml(name="test")
+
+    # # pprint(enzdoc)
+
+    # # pprint(ana)
+
+    # # ana.visualize_peaks()
+
+    # # # Molecule(
+    # # #     id="s0",
+    # # #     pubchem_cid=123,
+    # # #     name="Molecule 1",
+    # # #     init_conc=1.0,
+    # # #     conc_unit=mM,
+    # # # )
+    # # import matplotlib.pyplot as plt
+
+    # # plt.scatter(
+    # #     enzdoc.measurements[0].species_data[0].time,
+    # #     enzdoc.measurements[0].species_data[0].data,
+    # # )
+    # # plt.show()
+    # # ana.plot_measurements()
+
+    # from devtools import pprint
+
+    # from chromatopy.units.predefined import min
+
+    # dirpath = "/Users/max/Documents/GitHub/shimadzu-example/data/kinetic/substrate_10mM_co-substrate3.12mM"
+
+    # reaction_time = [0, 1, 2, 3, 4, 5.0]
+    # ana = ChromAnalyzer.read_shimadzu(
+    #     id="23234",
+    #     path=dirpath,
+    #     reaction_times=reaction_time,
+    #     time_unit=min,
+    #     ph=7.0,
+    #     temperature=25.0,
+    #     temperature_unit=C,
+    # )
+
+    # ana.add_molecule(
+    #     id="mal",
+    #     name="maleimide",
+    #     pubchem_cid=10935,
+    #     init_conc=0.656,
+    #     conc_unit=M,
+    #     retention_time=11.38,
+    #     wavelength=254,
+    # )
+
+    # ana.visualize()
+
+    from chromatopy.tools.analyzer import ChromAnalyzer
+    from chromatopy.units import min as min_
+
+    path = "/Users/max/Documents/jan-niklas/MjNK"
+
+    reaction_times = [0.0] * 18
+
+    ana = ChromAnalyzer.read_chromeleon(
         path=path,
         reaction_times=reaction_times,
-        time_unit=min,
-        ph=7.0,
+        time_unit=min_,
+        ph=7.4,
         temperature=25.0,
     )
 
-    ana.add_molecule(
-        id="mal",
-        name="maleimide",
-        pubchem_cid=10935,
-        init_conc=0.656,
-        conc_unit=M,
-        retention_time=6.05,
-    )
+    ana.find_peaks()
 
-    ana.define_internal_standard(
-        id="std",
-        name="internal standard",
-        pubchem_cid=123,
-        init_conc=1.0,
-        conc_unit=M,
-        retention_time=6.3,
-        retention_tolerance=0.05,
-    )
-
-    enzdoc = ana.create_enzymeml(name="test")
-
-    # pprint(enzdoc)
-
-    # pprint(ana)
-
-    # ana.visualize_peaks()
-
-    # # Molecule(
-    # #     id="s0",
-    # #     pubchem_cid=123,
-    # #     name="Molecule 1",
-    # #     init_conc=1.0,
-    # #     conc_unit=mM,
-    # # )
-    # import matplotlib.pyplot as plt
-
-    # plt.scatter(
-    #     enzdoc.measurements[0].species_data[0].time,
-    #     enzdoc.measurements[0].species_data[0].data,
-    # )
-    # plt.show()
-    # ana.plot_measurements()
-
-    from devtools import pprint
-
-    from chromatopy.units.predefined import min
-
-    dirpath = "/Users/max/Documents/GitHub/shimadzu-example/data/kinetic/substrate_10mM_co-substrate3.12mM"
-
-    reaction_time = [0, 1, 2, 3, 4, 5.0]
-    ana = ChromAnalyzer.read_shimadzu(
-        id="23234",
-        path=dirpath,
-        reaction_times=reaction_time,
-        time_unit=min,
-        ph=7.0,
-        temperature=25.0,
-        temperature_unit=C,
-    )
-
-    ana.add_molecule(
-        id="mal",
-        name="maleimide",
-        pubchem_cid=10935,
-        init_conc=0.656,
-        conc_unit=M,
-        retention_time=11.38,
-        wavelength=254,
-    )
-
-    ana.visualize()
+    print(ana.measurements[0].chromatograms[0].peaks[0])

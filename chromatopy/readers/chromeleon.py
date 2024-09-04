@@ -79,6 +79,8 @@ class ChromeleonReader(AbstractReader):
 
         # reaction_time, unit = self._extract_reaction_time(file_name)
 
+        print(content["Sample Information"][2][1])
+
         return Measurement(
             id=content["Sample Information"][2][1],
             chromatograms=[chromatogram],
@@ -147,7 +149,7 @@ class ChromeleonReader(AbstractReader):
             len(files) == len(self.reaction_times)
         ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.reaction_times)})."
 
-        self.file_paths = files
+        self.file_paths = sorted(files)
 
 
 if __name__ == "__main__":
@@ -161,4 +163,4 @@ if __name__ == "__main__":
     )
     measurements = reader.read()
 
-    print(measurements)
+    # print(measurements)

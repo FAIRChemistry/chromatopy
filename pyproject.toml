@@ -14,10 +14,10 @@ calipytion = { git = "https://github.com/FAIRChemistry/CaliPytion.git", branch =
 pyenzyme = { git = "https://github.com/EnzymeML/PyEnzyme.git", branch = "v2-migration" }
 plotly = "^5.19.0"
 rainbow-api = "^1.0.6"
-hplc-py = "0.2.5"
 joblib = "^1.4.2"
 rich = "^13.7.1"
 loguru = "^0.7.2"
+pybaselines = "^1.1.0"
 
 [tool.poetry.group.dev.dependencies]
 mkdocs-material = "^9.5.12"
