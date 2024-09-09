@@ -14,6 +14,7 @@ class ChromFit:
         self.times = times
         self.prcessed_signal: list[float] = []
         self.peaks: list[Peak] = []
+        self._remove_nan()
 
     def fit(
         self,

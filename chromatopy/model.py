@@ -80,10 +80,10 @@ class Measurement(BaseModel):
     id: str
     reaction_time: float
     time_unit: UnitDefinition
+    temperature: float
+    temperature_unit: UnitDefinition
+    ph: float
     chromatograms: list[Chromatogram] = Field(default_factory=list)
-    temperature: Optional[float] = Field(default=None)
-    temperature_unit: Optional[UnitDefinition] = Field(default=None)
-    ph: Optional[float] = Field(default=None)
     sample_name: Optional[str] = Field(default=None)
     timestamp: Optional[str] = Field(default=None)
     injection_volume: Optional[float] = Field(default=None)
@@ -325,13 +325,15 @@ class Chromatogram(BaseModel):
         area: float,
         molecule_id: Optional[str] = None,
         type: Optional[str] = None,
-        peak_start: Optional[float] = None,
-        peak_end: Optional[float] = None,
         width: Optional[float] = None,
-        height: Optional[float] = None,
+        amplitude: Optional[float] = None,
+        max_signal: Optional[float] = None,
+        skew: Optional[float] = None,
         percent_area: Optional[float] = None,
         tailing_factor: Optional[float] = None,
         separation_factor: Optional[float] = None,
+        peak_start: Optional[float] = None,
+        peak_end: Optional[float] = None,
         **kwargs,
     ):
         params = {
@@ -339,13 +341,15 @@ class Chromatogram(BaseModel):
             "area": area,
             "molecule_id": molecule_id,
             "type": type,
-            "peak_start": peak_start,
-            "peak_end": peak_end,
             "width": width,
-            "height": height,
+            "amplitude": amplitude,
+            "max_signal": max_signal,
+            "skew": skew,
             "percent_area": percent_area,
             "tailing_factor": tailing_factor,
             "separation_factor": separation_factor,
+            "peak_start": peak_start,
+            "peak_end": peak_end,
         }
 
         if "id" in kwargs:
@@ -365,13 +369,15 @@ class Peak(BaseModel):
     area: float
     molecule_id: Optional[str] = Field(default=None)
     type: Optional[str] = Field(default=None)
-    peak_start: Optional[float] = Field(default=None)
-    peak_end: Optional[float] = Field(default=None)
     width: Optional[float] = Field(default=None)
-    height: Optional[float] = Field(default=None)
+    amplitude: Optional[float] = Field(default=None)
+    max_signal: Optional[float] = Field(default=None)
+    skew: Optional[float] = Field(default=None)
     percent_area: Optional[float] = Field(default=None)
     tailing_factor: Optional[float] = Field(default=None)
     separation_factor: Optional[float] = Field(default=None)
+    peak_start: Optional[float] = Field(default=None)
+    peak_end: Optional[float] = Field(default=None)
 
     # JSON-LD fields
     ld_id: str = Field(
@@ -460,7 +466,6 @@ class Peak(BaseModel):
 class UnitDefinition(BaseModel):
     model_config: ConfigDict = ConfigDict(  # type: ignore
         validate_assigment=True,
-        use_enum_values=True,
     )  # type: ignore
 
     id: Optional[str] = Field(default=None)

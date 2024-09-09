@@ -1,6 +1,13 @@
+import sys
+
+import numpy as np
 import plotly.graph_objects as go
+from loguru import logger
 
 from chromatopy.model import Chromatogram
+
+logger.remove()
+logger.add(sys.stderr, level="INFO")
 
 
 def _resolve_chromatogram(
@@ -24,6 +31,21 @@ def _resolve_chromatogram(
     raise ValueError("No chromatogram found.")
 
 
+def pick_peak(
+    chromatograms: list[Chromatogram], retention_time: float, tolerance: float
+):
+    current_retention = retention_time
+    peaks = []
+
+    for chrom in chromatograms:
+        for peak in chrom.peaks:
+            if abs(peak.retention_time - current_retention) < tolerance:
+                peaks.append(peak)
+                current_retention = peak.retention_time
+        else:
+            pass
+
+
 def generate_visibility(hover_text: str, fig: go.Figure) -> list[bool]:
     visibility = []
     for trace in fig.data:
@@ -32,3 +54,33 @@ def generate_visibility(hover_text: str, fig: go.Figure) -> list[bool]:
         else:
             visibility.append(False)
     return visibility
+
+
+def generate_gaussian_data(
+    amplitude, center, half_height_diameter, start, end, num_points=100
+):
+    """
+    Generate x and y data for a Gaussian curve.
+
+    Parameters:
+    - amplitude: The peak height of the Gaussian.
+    - center: The position of the center of the peak.
+    - half_height_diameter: The full width at half maximum (FWHM) of the peak.
+    - start: The starting x-value.
+    - end: The ending x-value.
+    - num_points: Number of points to generate (default is 100).
+
+    Returns:
+    - x_values: Array of x-values.
+    - y_values: Array of y-values corresponding to the Gaussian curve.
+    """
+    # Calculate sigma from the half-height diameter (FWHM)
+    sigma = half_height_diameter / (2 * np.sqrt(2 * np.log(2)))
+
+    # Generate x values
+    x_values = np.linspace(start, end, num_points)
+
+    # Generate y values using the Gaussian function
+    y_values = amplitude * np.exp(-((x_values - center) ** 2) / (2 * sigma**2))
+
+    return x_values, y_values

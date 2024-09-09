@@ -1,38 +1,25 @@
 from __future__ import annotations
 
+import os
+import sys
+
 import numpy as np
-from lmfit.models import GaussianModel
-from matplotlib import pyplot as plt
-from pybaselines import Baseline
+import pandas as pd
+
+# from scipy.ndimage import uniform_filter1d
+# from scipy.signal import find_peaks
+from hplc.quant import Chromatogram as hplcChromatogram
+
+# from lmfit.models import GaussianModel
+from loguru import logger
+
+# from pybaselines import Baseline
 from pydantic import BaseModel
-from rich import print
-from scipy.ndimage import uniform_filter1d
-from scipy.signal import find_peaks
 
-# from chromatopy.model import UnitDefinition
+from chromatopy.model import Peak
 
-
-class PeakFitResult(BaseModel):
-    peak_index: int
-    amplitude: float
-    center: float
-    width: float
-    mode: str
-    area: float | None = None  # You can calculate and store the area if needed
-
-    def calculate_area(self, model: str = "gaussian"):
-        """Calculates the area under the peak based on the model."""
-        models = ("gaussian", "lorentzian")
-
-        if model == "gaussian":
-            # For Gaussian: Area = Amplitude * Width * sqrt(2*pi)
-            self.area = self.amplitude * self.width * np.sqrt(2 * np.pi)
-        elif model == "lorentzian":
-            # For Lorentzian: Area = Amplitude * Width * pi
-            self.area = self.amplitude * self.width * np.pi
-
-        else:
-            raise ValueError(f"Model {model} not supported. Choose from {models}.")
+logger.remove()
+logger.add(sys.stderr, level="INFO")
 
 
 class SpectrumProcessor(BaseModel):
@@ -40,155 +27,104 @@ class SpectrumProcessor(BaseModel):
     raw_data: list[float]
     smoothed_data: list[float] = []
     baseline: list[float] = []
-    baseline_corrected_data: list[float] = []
+    processed_signal: list[float] = []
     peak_indices: list[int] = []
-    peak_params: list[PeakFitResult] = []
+    peaks: list[Peak] = []
     silent: bool = False
-    # time_unit: UnitDefinition
+    smooth_window: int = 11
+    baseline_half_window: int | None = None
+    peak_prominence: float = 4
+    min_peak_height: float | None = None
 
-    def smooth_data(self, window: int = 11) -> list[float]:
-        """Smooths the raw data using a uniform filter.
-
-        Args:
-            window (int, optional): The size of the window. Defaults to 11.
-        """
+    def model_post_init(self, __context: sys.Any) -> None:
         self._remove_nan()
 
-        filtered = uniform_filter1d(self.raw_data, size=window)
-        if not self.silent:
-            print("Data smoothed.")
-        return filtered
-
-    # private method that checks the data for nan values adn removes them, deletes the corresponding time values
     def _remove_nan(self) -> None:
         """Removes NaN values from the data and the corresponding time values."""
         self.raw_data = [d for d in self.raw_data if not np.isnan(d)]
         self.time = [t for t, d in zip(self.time, self.raw_data) if not np.isnan(d)]
 
-    def correct_baseline(self) -> None:
-        # smooth the data
-        self.smoothed_data = self.smooth_data(window=11)
+    def silent_fit(self, **hplc_py_kwargs) -> hplcChromatogram:
+        """Wrapper function to suppress the output of the hplc-py Chromatogram.fit_peaks() method."""
 
-        baseliner = Baseline(self.smoothed_data)
+        # Save the original stdout and stderr
+        original_stdout = sys.stdout
+        original_stderr = sys.stderr
 
-        self.baseline = baseliner.mor(self.smoothed_data)[0]
-        self.baseline_corrected_data = self.smoothed_data - self.baseline
+        # Redirect stdout and stderr to /dev/null
+        sys.stdout = open(os.devnull, "w")
+        sys.stderr = open(os.devnull, "w")
 
-        if not self.silent:
-            print("Baseline corrected.")
+        try:
+            # Call the function that prints the unwanted output
+            return self.fit(**hplc_py_kwargs)
+        finally:
+            # Restore the original stdout and stderr
+            sys.stdout = original_stdout
+            sys.stderr = original_stderr
 
-    def search_peaks(self):
-        peaks, _ = find_peaks(self.baseline_corrected_data, height=None, prominence=4)
-        self.peak_indices = peaks
-
-        if not self.silent:
-            print(f"Found {len(peaks)} peaks.")
-
-    def fit_multiple_gaussians(self):
+    def fit(
+        self,
+        **hplc_py_kwargs,
+    ) -> SpectrumProcessor:
         """
-        Fits multiple Gaussians to the baseline-corrected data using the peaks found.
+        Fit the chromatogram peaks using the `hplc-py` `Chromatogram` class.
+
+        Parameters:
+            visualize (bool, optional): Whether to visualize the fitted peaks. Defaults to False.
+            **hplc_py_kwargs: Additional keyword arguments to pass to the hplc.quant.Chromatogram.fit_peaks() method.
 
         Returns:
-            dict: A dictionary containing the fit results and individual component fits.
+            hplcChromatogram: The fitted chromatogram.
         """
-        # Check if peak_indices is empty
-        if self.peak_indices is None or len(self.peak_indices) == 0:
-            raise ValueError("No peaks found. Run search_peaks() first.")
-
-        # Create a combined model by summing Gaussian models for each peak
-        mod = None
-        pars = None
-        for i, peak in enumerate(self.peak_indices, start=1):
-            prefix = f"g{i}_"
-            gauss = GaussianModel(prefix=prefix)
-            center = self.time[peak]
-            amplitude = self.baseline_corrected_data[peak]
-            sigma = (
-                self.time[min(len(self.time) - 1, peak + 10)]
-                - self.time[max(0, peak - 10)]
-            ) / 2.355  # FWHM estimate
-
-            if mod is None:
-                mod = gauss
-            else:
-                mod += gauss
-
-            # Update parameters with initial guesses
-            if pars is None:
-                pars = gauss.make_params(
-                    center=center, sigma=sigma, amplitude=amplitude
+        # if not isinstance(molecules, list):
+        #    molecules = [molecules]
+        fitter = hplcChromatogram(file=self.to_dataframe())
+        try:
+            fitter.fit_peaks(**hplc_py_kwargs)
+        except KeyError as e:
+            if "retention_time" in str(e):
+                logger.info(
+                    "No peaks found in the chromatogram. halving the prominence and trying again."
                 )
-            else:
-                pars.update(
-                    gauss.make_params(center=center, sigma=sigma, amplitude=amplitude)
+                hplc_py_kwargs["prominence"] /= 2
+                self.fit(**hplc_py_kwargs)
+
+        self.processed_signal = np.sum(fitter.unmixed_chromatograms, axis=1)
+
+        peaks = []
+        for record in fitter.peaks.to_dict(orient="records"):
+            peaks.append(
+                Peak(
+                    retention_time=record["retention_time"],
+                    area=record["area"],
+                    amplitude=record["amplitude"],
+                    skew=record["skew"],
+                    width=record["scale"],
+                    # max_signal=record["signal_maximum"],
                 )
-
-        # Fit the combined model to the data
-        out = mod.fit(self.baseline_corrected_data, pars, x=np.array(self.time))
-
-        # Extract the peak parameters
-        self.peak_params = [
-            PeakFitResult(
-                peak_index=i,
-                amplitude=out.params[f"g{i}_amplitude"].value,
-                center=out.params[f"g{i}_center"].value,
-                width=out.params[f"g{i}_sigma"].value,
-                mode="gaussian",
             )
-            for i in range(1, len(self.peak_indices) + 1)
-        ]
 
-        if not self.silent:
-            print("Fitted Gaussians to peaks.")
+        if len(peaks) > 0:
+            peaks = sorted(peaks, key=lambda x: x.retention_time)
 
-    def run_pripeline(self):
-        self.correct_baseline()
-        self.search_peaks()
-        self.fit_multiple_gaussians()
-        self.calculate_peak_areas()
+        self.peaks = peaks
 
-    def plot(self):
-        plt.plot(self.time, self.raw_data, label="Raw Data")
-        plt.plot(self.time, self.baseline, "--", label="Baseline")
-        plt.plot(self.time, self.baseline_corrected_data, label="Corrected")
-        # highlight peaks
-        plt.plot(
-            [self.time[i] for i in self.peak_indices],
-            [self.baseline_corrected_data[i] for i in self.peak_indices],
-            "x",
-            label="Peaks",
-        )
-        # plot the fitted Gaussians
-        for peak in self.peak_params:
-            gaussian = GaussianModel()
-            peak_start = max(0, int(peak.center - 3 * peak.width))
-            peak_end = min(len(self.time) - 1, int(peak.center + 3 * peak.width))
-            x_arr = np.array(self.time[peak_start:peak_end])
-            plt.plot(
-                x_arr,
-                gaussian.eval(
-                    x=x_arr,
-                    amplitude=peak.amplitude,
-                    center=peak.center,
-                    sigma=peak.width,
-                ),
-                ":",
-                label=f"Peak {peak.peak_index}",
-            )
-        plt.legend()
-        plt.show()
+        return self
 
-    def calculate_peak_areas(self):
-        for peak in self.peak_params:
-            peak.calculate_area()
-
-        if not self.silent:
-            print("Calculated peak areas.")
+    def to_dataframe(self) -> pd.DataFrame:
+        """
+        Returns the chromatogram as a pandas DataFrame with the columns 'time' and 'signal'
+        """
+        return pd.DataFrame(
+            {
+                "time": self.time,
+                "signal": self.raw_data,
+            }
+        ).dropna()
 
 
 if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-
     from chromatopy.tools.analyzer import ChromAnalyzer
     from chromatopy.units import min as min_
 
@@ -204,15 +140,9 @@ if __name__ == "__main__":
         temperature=25.0,
     )
 
-    chrom = ana.measurements[2].chromatograms[0]
-    # Check if chrom.times is not empty, contains only floats, and has the expected length
+    ana.visualize()
 
-    fitter = SpectrumProcessor(time=chrom.times, raw_data=chrom.signals)
-    fitter.correct_baseline()
-    fitter.search_peaks()
-    fitter.fit_multiple_gaussians()
-    fitter.calculate_peak_areas()
-    print(fitter.peak_params[0])
-    fitter.plot()
+    chrom = ana.measurements[0].chromatograms[0]
 
-    print(fitter.baseline_corrected_data)
+    ana.process_chromatograms(prominence=0.035)
+    ana.plot_peaks_fitted_spectrum(chrom)

@@ -79,10 +79,8 @@ class ChromeleonReader(AbstractReader):
 
         # reaction_time, unit = self._extract_reaction_time(file_name)
 
-        print(content["Sample Information"][2][1])
-
         return Measurement(
-            id=content["Sample Information"][2][1],
+            id=content["Sample Information"][5][1],
             chromatograms=[chromatogram],
             injection_volume=float(
                 content["Sample Information"][13][1].replace(",", ".")
@@ -93,6 +91,9 @@ class ChromeleonReader(AbstractReader):
             ),
             reaction_time=reaction_time,
             time_unit=time_unit,
+            ph=self.ph,
+            temperature=self.temperature,
+            temperature_unit=self.temperature_unit,
         )
 
     def _extract_reaction_time(self, file_name: str) -> tuple[float, UnitDefinition]:
@@ -139,8 +140,8 @@ class ChromeleonReader(AbstractReader):
             directory.rglob("*.txt")
         ), f"No .txt files found in '{self.dirpath}'."
 
-        for file_path in directory.rglob("*.txt"):
-            if file_path.name.startswith("."):
+        for file_path in directory.iterdir():
+            if file_path.name.startswith(".") or not file_path.name.endswith(".txt"):
                 continue
 
             files.append(str(file_path.absolute()))
