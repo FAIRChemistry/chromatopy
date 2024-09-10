@@ -3,8 +3,6 @@ from __future__ import annotations
 import copy
 import multiprocessing as mp
 import time
-import warnings
-from collections import defaultdict
 
 import numpy as np
 import plotly.colors as pc
@@ -12,7 +10,6 @@ import plotly.graph_objects as go
 import scipy
 import scipy.stats
 from calipytion.model import Standard
-from calipytion.tools import Calibrator
 from calipytion.tools.utility import pubchem_request_molecule_name
 from loguru import logger
 from pydantic import BaseModel, Field
@@ -22,8 +19,6 @@ from rich.progress import Progress
 from chromatopy.model import (
     Chromatogram,
     Measurement,
-    Peak,
-    SignalType,
     UnitDefinition,
 )
 from chromatopy.tools.molecule import Molecule, Protein
@@ -96,19 +91,16 @@ class ChromAnalyzer(BaseModel):
         if retention_tolerance:
             new_mol.retention_tolerance = retention_tolerance
 
-        if self._update_molecule(molecule):
-            self.molecules.append(new_mol)
+        self._update_molecule(new_mol)
 
-        self._register_peaks(
-            molecule, molecule.retention_tolerance, molecule.wavelength
-        )
+        self._register_peaks(new_mol, new_mol.retention_tolerance, new_mol.wavelength)
 
     def define_molecule(
         self,
         id: str,
         pubchem_cid: int,
         retention_time: float,
-        retention_tolerance: float = 0.2,
+        retention_tolerance: float = 0.1,
         init_conc: float | None = None,
         conc_unit: UnitDefinition | None = None,
         name: str | None = None,
@@ -120,7 +112,7 @@ class ChromAnalyzer(BaseModel):
             id (str): Internal identifier of the molecule such as `s0` or `asd45`.
             pubchem_cid (int): PubChem CID of the molecule.
             retention_time (float): Retention time tolerance for peak annotation in minutes.
-            retention_tolerance (float, optional): Retention time tolerance for peak annotation in minutes. Defaults to 0.2.
+            retention_tolerance (float, optional): Retention time tolerance for peak annotation in minutes. Defaults to 0.1.
             init_conc (float | None): Initial concentration of the molecule. Defaults to None.
             conc_unit (UnitDefinition | None): Unit of the concentration. Defaults to None.
             name (str | None, optional): Name of the molecule.
@@ -152,8 +144,7 @@ class ChromAnalyzer(BaseModel):
             retention_time=retention_time,
         )
 
-        if not self._update_molecule(molecule):
-            self.molecules.append(molecule)
+        self._update_molecule(molecule)
 
         self._register_peaks(molecule, retention_tolerance, wavelength)
 
@@ -246,7 +237,7 @@ class ChromAnalyzer(BaseModel):
         sequence: str | None = None,
         organism: str | None = None,
         organism_tax_id: int | None = None,
-        constant: bool | None = True,
+        constant: bool = True,
     ):
         """Adds a protein to the list of proteins or updates an existing protein
         based on the pubchem_cid of the molecule.
@@ -272,8 +263,7 @@ class ChromAnalyzer(BaseModel):
             constant=constant,
         )
 
-        if not self._update_protein(protein):
-            self.proteins.append(protein)
+        self._update_protein(protein)
 
     def add_protein(
         self,
@@ -296,8 +286,7 @@ class ChromAnalyzer(BaseModel):
         if conc_unit:
             nu_prot.conc_unit = conc_unit
 
-        if not self._update_protein(protein):
-            self.proteins.append(protein)
+        self._update_protein(nu_prot)
 
     @classmethod
     def read_asm(
@@ -440,6 +429,7 @@ class ChromAnalyzer(BaseModel):
         self,
         name: str,
         calculate_concentration: bool = True,
+        extrapolate: bool = False,
     ) -> EnzymeMLDocument:
         """Creates an EnzymeML document from the data in the ChromAnalyzer.
 
@@ -447,6 +437,8 @@ class ChromAnalyzer(BaseModel):
             name (str): Name of the EnzymeML document.
             calculate_concentration (bool, optional): If True, the concentrations of the species
                 are calculated. Defaults to True.
+            extrapolate (bool, optional): If True, the concentrations are extrapolated to if the
+                measured peak areas are outside the calibration range. Defaults to False.
 
         Returns:
             EnzymeMLDocument: _description_
@@ -454,12 +446,13 @@ class ChromAnalyzer(BaseModel):
         from chromatopy.ioutils.enzymeml import create_enzymeml
 
         return create_enzymeml(
-            name=name,
+            doc_name=name,
             molecules=self.molecules,
             proteins=self.proteins,
             measurements=self.measurements,
             calculate_concentration=calculate_concentration,
             internal_standard=self.internal_standard,
+            extrapolate=extrapolate,
         )
 
     def add_to_enzymeml(
@@ -865,56 +858,6 @@ class ChromAnalyzer(BaseModel):
 
         return chroms
 
-    def _get_peaks_by_retention_time(
-        self,
-        retention_time: float,
-        detector: SignalType,
-        tolerance: float = 0.2,
-    ) -> list[Peak]:
-        """
-        Returns a list of peaks within a specified retention time interval.
-
-        Args:
-            chromatogram (Chromatogram): The chromatogram object containing the peaks.
-            lower_retention_time (float): The lower bound of the retention time interval.
-            upper_retention_time (float): The upper bound of the retention time interval.
-
-        Returns:
-            List[Peak]: A list of peaks within the specified retention time interval.
-        """
-
-        lower_ret = retention_time - tolerance
-        upper_ret = retention_time + tolerance
-
-        peaks = []
-
-        for measurement in self.measurements:
-            chromatogram = measurement.chromatograms[0]
-
-            peaks_in_retention_interval = self._get_peaks_in_retention_interval(
-                chromatogram=chromatogram,
-                lower_retention_time=lower_ret,
-                upper_retention_time=upper_ret,
-            )
-
-            if len(peaks_in_retention_interval) == 1:
-                peaks.append(peaks_in_retention_interval[0])
-
-            elif len(peaks_in_retention_interval) == 0:
-                warnings.warn(
-                    "No peak annotated within retention time interval"
-                    f" [{lower_ret:.2f} : {upper_ret:.2f}] for masurement at"
-                    f" {measurement.timestamp} from {detector} found. Skipping measurement."
-                )
-
-            else:
-                raise ValueError(
-                    f"Multiple {len(peaks_in_retention_interval)} peaks found within"
-                    f"retention time interval [{lower_ret} : {upper_ret}]"
-                )
-
-        return peaks
-
     def plot_measurements(self):
         # Create a 2D plot using Plotly
         fig = go.Figure()
@@ -948,52 +891,26 @@ class ChromAnalyzer(BaseModel):
         # Show the plot
         fig.show()
 
-    def _get_peaks_in_retention_interval(
-        self,
-        chromatogram: Chromatogram,
-        lower_retention_time: float,
-        upper_retention_time: float,
-    ) -> list[Peak]:
-        return [
-            peak
-            for peak in chromatogram.peaks
-            if lower_retention_time < peak.retention_time < upper_retention_time
-        ]
-
-    def _apply_calibrators(self):
-        if not self.calibrators:
-            raise ValueError("No calibrators provided. Define calibrators first.")
-
-        if not self.molecules:
-            raise ValueError("No species provided. Define species first.")
-
-        for calibrator in self.calibrators:
-            calib_species = self.get_molecule(calibrator.name)
-            if not calib_species.peaks:
-                continue
-
-            calib_species.concentrations = calibrator.calculate(species=calib_species)
-
-    def _update_molecule(self, molecule) -> bool:
-        """Updates the molecule if it already exists in the list of species."""
+    def _update_molecule(self, molecule) -> None:
+        """Updates the molecule if it already exists in the list of species.
+        Otherwise, the molecule is added to the list of species."""
         for idx, mol in enumerate(self.molecules):
             if mol.id == molecule.id:
                 self.molecules[idx] = molecule
+                return
 
-                return True
+        self.molecules.append(molecule)
 
-        return False
-
-    def _update_protein(self, protein) -> bool:
+    def _update_protein(self, protein) -> None:
         """Updates the protein if it already exists in the list of proteins.
-        Returns True if the protein was updated, False otherwise."""
+        Otherwise, the protein is added to the list of proteins.
+        """
         for idx, prot in enumerate(self.proteins):
             if prot.id == protein.id:
                 self.proteins[idx] = protein
+                return
 
-                return True
-
-        return False
+        self.proteins.append(protein)
 
     def visualize_peaks(self):
         """
@@ -1134,27 +1051,6 @@ class ChromAnalyzer(BaseModel):
         )
 
         fig.show()
-
-    def apply_standards(self, tolerance: float = 1):
-        data = defaultdict(list)
-
-        for standard in self.molecules:
-            lower_ret = standard.retention_time - tolerance
-            upper_ret = standard.retention_time + tolerance
-            calibrator = Calibrator.from_standard(standard)
-            model = calibrator.models[0]
-
-            for meas in self.measurements:
-                for chrom in meas.chromatograms:
-                    for peak in chrom.peaks:
-                        if lower_ret < peak.retention_time < upper_ret:
-                            data[standard.name].append(
-                                calibrator.calculate_concentrations(
-                                    model=model, signals=[peak.area]
-                                )[0]
-                            )
-
-        return data
 
 
 if __name__ == "__main__":

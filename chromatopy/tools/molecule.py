@@ -41,6 +41,10 @@ class Molecule(BaseModel):
     retention_tolerance: float = Field(
         description="Tolerance for the retention time of the molecule", default=0.2
     )
+    constant: bool = Field(
+        description="Boolean indicating whether the molecule concentration is constant throughout the experiment",
+        default=True,
+    )
 
     # @model_validator(mode="before")
     # @classmethod

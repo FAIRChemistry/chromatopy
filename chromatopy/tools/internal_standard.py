@@ -8,10 +8,12 @@ logger.level("INFO")
 
 
 class InternalStandard(BaseModel):
-    molecule_id: str = Field(description="The ID of the molecule.")
-
-    standard_molecule_id: str = Field(description="The ID of the standard molecule.")
-
+    molecule_id: str = Field(
+        description="The ID of the molecule.",
+    )
+    standard_molecule_id: str = Field(
+        description="The ID of the standard molecule.",
+    )
     molecule_init_conc: float = Field(
         description="The initial concentration of the molecule."
     )

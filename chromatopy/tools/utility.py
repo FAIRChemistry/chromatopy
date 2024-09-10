@@ -84,3 +84,42 @@ def generate_gaussian_data(
     y_values = amplitude * np.exp(-((x_values - center) ** 2) / (2 * sigma**2))
 
     return x_values, y_values
+
+
+###########
+
+# def _apply_calibrators(calibrators = list[Calibrator]):
+#     if not self.calibrators:
+#         raise ValueError("No calibrators provided. Define calibrators first.")
+
+#     if not self.molecules:
+#         raise ValueError("No species provided. Define species first.")
+
+#     for calibrator in self.calibrators:
+#         calib_species = self.get_molecule(calibrator.name)
+#         if not calib_species.peaks:
+#             continue
+
+#         calib_species.concentrations = calibrator.calculate(species=calib_species)
+
+###########
+# def apply_standards(self, tolerance: float = 1):
+#     data = defaultdict(list)
+
+#     for standard in self.molecules:
+#         lower_ret = standard.retention_time - tolerance
+#         upper_ret = standard.retention_time + tolerance
+#         calibrator = Calibrator.from_standard(standard)
+#         model = calibrator.models[0]
+
+#         for meas in self.measurements:
+#             for chrom in meas.chromatograms:
+#                 for peak in chrom.peaks:
+#                     if lower_ret < peak.retention_time < upper_ret:
+#                         data[standard.name].append(
+#                             calibrator.calculate_concentrations(
+#                                 model=model, signals=[peak.area]
+#                             )[0]
+#                         )
+
+#     return data
