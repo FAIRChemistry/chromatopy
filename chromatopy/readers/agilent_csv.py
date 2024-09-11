@@ -119,7 +119,7 @@ def read_agilent_csv_peaks(path: str, skiprows: int = 6) -> list[Peak]:
             Peak(
                 retention_time=record["R.T."],
                 area=record["Area"],
-                height=record["Height"],
+                amplitude=record["Height"],
                 percent_area=record["Pct Total"],
             )
         )

@@ -75,6 +75,9 @@ class ShimadzuReader(AbstractReader):
                 id=str(Path(file).stem),
                 reaction_time=reaction_time,
                 time_unit=self.time_unit,
+                temperature=self.temperature,
+                temperature_unit=self.temperature_unit,
+                ph=self.ph,
                 injection_volume=injection_volume,
                 dilution_factor=dilution_factor,
                 injection_volume_unit=ul,
@@ -217,11 +220,11 @@ class ShimadzuReader(AbstractReader):
         except KeyError as e:
             raise e
 
-    def add_peaks(self, section: str) -> List[dict]:
+    def add_peaks(self, section: str) -> dict:
         try:
             meta, section = re.split(r"(?=Peak#)", section)
         except ValueError:
-            return []  # No peaks in the section
+            return {}  # No peaks in the section
 
         data_lines = section.split("\n")
         header = data_lines[0]
@@ -294,7 +297,7 @@ def preprocess_to_dict(input_string: str) -> dict:
 
         # Try to convert the value to a number if possible
         try:
-            value = float(value) if "." in value else int(value)
+            value = float(value) if "." in value else float(value)
         except (ValueError, TypeError):
             pass  # If conversion fails, keep the value as a string
 

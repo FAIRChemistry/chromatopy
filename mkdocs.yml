@@ -1,4 +1,4 @@
-site_name: ChromatoPy Documentation
+site_name: Chromatopy Documentation
 repo_url: https://github.com/FAIRChemistry/chromatopy
 repo_name: FAIRChemistry/chromatopy
 site_url: https://FAIRChemistry.github.io/chromatopy/
@@ -7,10 +7,11 @@ site_author: Max Häußler
 
 nav:
   - Home: index.md
-  - Supported Formats: supported_formats.md
+  - Data Preparation: supported_formats.md
   - Getting Started:
     - Reading in data: getting_started/read_in.md
     - Calculation of concentrations: getting_started/calibrator.md
+  - Installation: installation.md
 
 
 theme:
@@ -60,7 +61,6 @@ markdown_extensions:
   - pymdownx.snippets:
       auto_append:
         - includes/abbreviations.md
-
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid

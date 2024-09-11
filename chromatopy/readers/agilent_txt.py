@@ -82,7 +82,12 @@ class AgilentTXTReader(AbstractReader):
     ) -> Measurement:
         """Parses the file content into a Measurement object."""
         measurement = Measurement(
-            id=file_content[0], reaction_time=reaction_time, time_unit=time_unit
+            id=file_content[0],
+            reaction_time=reaction_time,
+            time_unit=time_unit,
+            ph=self.ph,
+            temperature=self.temperature,
+            temperature_unit=self.temperature_unit,
         )
         signal_slices = self._identify_signal_slices(file_content)
 
@@ -127,10 +132,7 @@ class AgilentTXTReader(AbstractReader):
 
         for line in signal_content:
             if line.startswith("Signal"):
-                signal_type = re.search(r"\bSignal\b \d+: (\w+)", line).group(1)
                 signal.type = SignalType.FID
-            elif line.startswith("  # "):
-                peak_units = self._extract_peak_units(line)
             elif re.match(r"^\s*\d+", line):
                 peak_values = self._extract_peak(line)
                 signal.add_to_peaks(**peak_values)

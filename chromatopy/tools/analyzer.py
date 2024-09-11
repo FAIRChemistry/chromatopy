@@ -236,7 +236,7 @@ class ChromAnalyzer(BaseModel):
         conc_unit: UnitDefinition,
         sequence: str | None = None,
         organism: str | None = None,
-        organism_tax_id: int | None = None,
+        organism_tax_id: str | None = None,
         constant: bool = True,
     ):
         """Adds a protein to the list of proteins or updates an existing protein
@@ -459,6 +459,7 @@ class ChromAnalyzer(BaseModel):
         self,
         enzdoc: EnzymeMLDocument,
         calculate_concentration: bool = True,
+        extrapolate: bool = False,
     ) -> EnzymeMLDocument:
         """Adds the data from the ChromAnalyzer to an existing EnzymeML document.
 
@@ -466,6 +467,8 @@ class ChromAnalyzer(BaseModel):
             enzdoc (EnzymeMLDocument): The EnzymeML document to which the data should be added.
             calculate_concentration (bool, optional): If True, the concentrations of the species
                 are calculated. Defaults to True.
+            extrapolate (bool, optional): If True, the concentrations are extrapolated to if the
+                measured peak areas are outside the calibration range. Defaults to False.
 
         Returns:
             EnzymeMLDocument: The updated EnzymeML document.
@@ -478,6 +481,7 @@ class ChromAnalyzer(BaseModel):
             molecules=self.molecules,
             internal_standard=self.internal_standard,
             calculate_concentration=calculate_concentration,
+            extrapolate=extrapolate,
         )
 
     def get_molecule(self, molecule_id: str) -> Molecule:
