@@ -22,5 +22,5 @@ jobs:
         with:
           path: .cache
           key: ${{ github.ref }}
-      - run: pip install mkdocs-material
+      - run: pip install mkdocs-material mkdocs-jupyter mkdocs-plotly-plugin
       - run: mkdocs gh-deploy --force

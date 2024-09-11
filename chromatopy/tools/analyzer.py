@@ -52,6 +52,17 @@ class ChromAnalyzer(BaseModel):
         default=None,
     )
 
+    def __repr__(self):
+        return (
+            f"ChromAnalyzer(id={self.id!r}, "
+            f"molecules={len(self.molecules)}, "
+            f"proteins={len(self.proteins)}, "
+            f"measurements={len(self.measurements)}"
+        )
+
+    def __repr_html__(self):
+        return "<div>Hello world!</div>"
+
     def add_molecule_from_standard(
         self,
         standard: Standard,

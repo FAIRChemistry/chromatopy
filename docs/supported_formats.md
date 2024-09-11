@@ -2,9 +2,9 @@
 
 ## 📂 Data organization
 
-chromatopy strives to simplify the data import and processing of chomatographic data. The tool focuses on efficient handling of time-course reaction data, allowing to combine the measured data with data on reaction conditions, concentration calculations and export to the EnzymeML format.  
+`chromatopy` strives to simplify the data import and processing of chromatographic data. The tool focuses on efficient handling of time-course reaction data, allowing to combine the measured data with data on reaction conditions, concentration calculations and export to the EnzymeML format.  
 
-For this purpose, chromatopy requires a specific organization of the measurement data of a time-course or calibration series. The scope of one analysis run is therefore eighter a single chemical sample which is measured over time or a calibration series with multiple samples for different concentrations. 
+For this purpose, `chromatopy` requires a specific organization of the measurement data of a time-course or calibration series. The scope of one analysis run is therefore eighter a single chemical sample which is measured over time or a calibration series with multiple samples for different concentrations. 
 
 ### Time-course data
 
@@ -17,7 +17,7 @@ For this purpose, chromatopy requires a specific organization of the measurement
 ### Calibration data
 
 - The set of calibration data files should be stored within a single folder.
-- The files need to be named in a alphabetically sortable way to represent the logical order of the data. E.g. naming calibration data by ascending concentration values `abts_001uM.json` `abts_050uM.json` `abts_300uM.json`.
+- The files need to be named in an alphabetically sortable way to represent the logical order of the data. E.g. naming calibration data by ascending concentration values `abts_001uM.json` `abts_050uM.json` `abts_300uM.json`.
 - For calibration data the corresponding concentration cannot be extracted from the file name.
 
 ## 🔧 Supported Formats
@@ -32,11 +32,11 @@ Peak detection and integration with subsequent export to the ASM format is the r
 !!! info
     The Allotrope Simple Model (ASM) is a JSON-based and vendor-independent format for analytical data. It is designed to store raw and processed data as well as metadata.
 
-The ASM format is the preferred format for data import. It can be exported from OpenChrom and contains the measured signal and data of all peaks which were processed by OpenChrom. The format is supported by chromatopy and can be imported directly.
+The ASM format is the preferred format for data import. It can be exported from OpenChrom and contains the measured signal and data of all peaks which were processed by OpenChrom. The format is supported by `chromatopy` and can be imported directly.
 
 ### Vendor specific formats
 
-As an alternative to the ASM format, chromatopy supports the import of chromatographic data from various vendors.  Samples of all supported formats are provided below.
+As an alternative to the ASM format, `chromatopy` supports the import of chromatographic data from various vendors.  Samples of all supported formats are provided below.
 
 ??? example "File Examples"
 

@@ -4,15 +4,17 @@ repo_name: FAIRChemistry/chromatopy
 site_url: https://FAIRChemistry.github.io/chromatopy/
 site_author: Max Häußler
 
-
 nav:
   - Home: index.md
   - Data Preparation: supported_formats.md
-  - Getting Started:
-    - Reading in data: getting_started/read_in.md
+  - Usage:
+    - Reading in data: examples/read_data.ipynb
     - Calculation of concentrations: getting_started/calibrator.md
   - Installation: installation.md
 
+plugins:
+  - plotly
+  - mkdocs-jupyter
 
 theme:
   name: material
