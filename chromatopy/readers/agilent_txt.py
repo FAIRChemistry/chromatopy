@@ -1,5 +1,8 @@
 import re
 from pathlib import Path
+from typing import Any
+
+from loguru import logger
 
 from chromatopy.model import Chromatogram, Measurement, SignalType, UnitDefinition
 from chromatopy.readers.abstractreader import AbstractReader
@@ -7,24 +10,12 @@ from chromatopy.units import ul
 
 
 class AgilentTXTReader(AbstractReader):
-    def __init__(
-        self,
-        dirpath: str,
-        reaction_times: list[float],
-        time_unit: UnitDefinition,
-        ph: float,
-        temperature: float,
-        temperature_unit: UnitDefinition,
-    ):
-        super().__init__(
-            dirpath,
-            reaction_times,
-            time_unit,
-            ph,
-            temperature,
-            temperature_unit,
-        )
-        self.file_paths = self._get_file_paths()
+    def model_post_init(self, __context: Any) -> None:
+        if not self.reaction_times or not self.time_unit or not self.file_paths:
+            logger.debug(
+                "Collecting file paths without reaction time and unit parsing."
+            )
+            self._get_file_paths()
 
     def read(self) -> list[Measurement]:
         """Reads chromatographic data from the specified files.
@@ -184,10 +175,5 @@ class AgilentTXTReader(AbstractReader):
 
 if __name__ == "__main__":
     dir_path = "/Users/max/Documents/training_course/hao"
-    from chromatopy.units import C, min
 
     reaction_times = [0.0] * 49
-    reader = AgilentTXTReader(dir_path, reaction_times, min, 7.0, 25.0, C)
-    measurements = reader.read()
-    for measurement in measurements:
-        print(measurement)

@@ -6,6 +6,22 @@
 
 For this purpose, `chromatopy` requires a specific organization of the measurement data of a time-course or calibration series. The scope of one analysis run is therefore eighter a single chemical sample which is measured over time or a calibration series with multiple samples for different concentrations. 
 
+!!! example
+    An exemplary consisting of calibration mensurements and time-course data should be organized as follows:
+    ```
+    📂 Project
+    │
+    ├── 📂 Calibration
+    │   ├── abts_001uM.json
+    │   ├── abts_050uM.json
+    │   └── abts_300uM.json
+    │
+    └── 📂 Time-course
+        ├── B002_12_h.json
+        ├── B002_24_h.json
+        └── B002_36_h.json
+    ```
+
 ### Time-course data
 
 - All data files of a time-course series should be stored within a single folder.
@@ -357,3 +373,7 @@ If not already done, download and setup OpenChrom as described in the [installat
 ![Batch process steps](pics/batch_setup.png)
 
 8. After the processing is finished, the data can be imported with chromatopy.
+
+### What if my data cannot be processed with OpenChrom?
+
+If the OpenChrom converter for your data does not work as expected, please check the [OpenChroms Issues](https://github.com/OpenChrom/openchrom/issues), if it is a known issue. If not, consider submitting an issue to the OpenChrom repository.

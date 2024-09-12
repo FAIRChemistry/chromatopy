@@ -32,6 +32,10 @@ class ChromAnalyzer(BaseModel):
         description="Unique identifier of the given object.",
     )
 
+    name: str = Field(
+        description="Name of the ChromAnalyzer object.",
+    )
+
     molecules: list[Molecule] = Field(
         description="List of species present in the measurements.",
         default_factory=list,
@@ -303,101 +307,167 @@ class ChromAnalyzer(BaseModel):
     def read_asm(
         cls,
         path: str,
-        reaction_times: list[float],
-        time_unit: UnitDefinition,
         ph: float,
         temperature: float,
         id: str | None = None,
+        name: str = "Chromatographic measurement",
+        reaction_times: list[float] | None = None,
+        time_unit: UnitDefinition | None = None,
         temperature_unit: UnitDefinition = C,
-    ):
+    ) -> ChromAnalyzer:
+        """Reads chromatographic from a directory, containing Allotrope Simple Model (ASM) files.
+        Measurements are assumed to be named alphabetically, allowing sorting by file name.
+
+        !!! tip
+            The reaction time ad the corresponding unit can be part of the file name of each individual ASM file.
+            In this case, the `reaction_times` and `time_unit` arguments can be omitted.
+            units can be defined as `sec`, `second`, `min`, `minute`, or `hour`.
+            Examples for valid file names are `m0 12.5 min.json`, `m0 12 min`, `m0 12.5 minutes`, `m0 12.5min`,
+            `m0 50mins.json`, `m0 50.12 seconds.json`, `m0_50sec.json`.
+
+
+        Args:
+            path (str): Path to the directory containing the ASM files.
+            ph (float): pH value of the measurement.
+            temperature (float): Temperature of the measurement.
+            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            name (str): Name the measurement. Defaults to "Chromatographic measurement".
+            reaction_times (list[float]): List of reaction times, corresponding to each measurement in the directory.
+            time_unit (UnitDefinition): Unit of the time values.
+            temperature_unit (UnitDefinition, optional): _description_. Defaults to C.
+
+        Returns:
+            ChromAnalyzer: ChromAnalyzer object containing the measurements.
+        """
         from chromatopy.readers.asm import ASMReader
 
-        measurements = ASMReader(
-            dirpath=path,
-            reaction_times=reaction_times,
-            time_unit=time_unit,
-            ph=ph,
-            temperature=temperature,
-            temperature_unit=temperature_unit,
-        ).read()
+        data = {
+            "dirpath": path,
+            "reaction_times": reaction_times,
+            "time_unit": time_unit,
+            "ph": ph,
+            "temperature": temperature,
+            "temperature_unit": temperature_unit,
+        }
+
+        if data["time_unit"] is None:
+            data.pop("time_unit")
+        if data["reaction_times"] is None:
+            data.pop("reaction_times")
+
+        measurements = ASMReader(**data).read()  # type: ignore
 
         if id is None:
             id = path
 
-        return cls(id=id, measurements=measurements)
+        return cls(id=id, name=name, measurements=measurements)
 
     @classmethod
     def read_shimadzu(
         cls,
-        id: str,
         path: str,
-        reaction_times: list[float],
-        time_unit: UnitDefinition,
         ph: float,
         temperature: float,
+        id: str | None = None,
+        name: str = "Chromatographic measurement",
+        reaction_times: list[float] | None = None,
+        time_unit: UnitDefinition | None = None,
         temperature_unit: UnitDefinition = C,
-    ):
+    ) -> ChromAnalyzer:
+        """Reads chromatographic data from a directory containing Shimadzu files.
+        Measurements are assumed to be named alphabetically, allowing sorting by file name.
+
+        Args:
+            path (str): Path to the directory containing the Shimadzu files.
+            ph (float): pH value of the measurement.
+            temperature (float): Temperature of the measurement.
+            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            name (str): Name the measurement. Defaults to "Chromatographic measurement".
+            reaction_times (list[float], optional): List of reaction times, corresponding to each measurement in the directory.
+            time_unit (UnitDefinition, optional): Unit of the time values. If the reaction times are part of the file name, this argument can be omitted.
+            temperature_unit (UnitDefinition, optional): Unit of the temperature. Defaults to Celsius (C).
+
+        Returns:
+            ChromAnalyzer: ChromAnalyzer object containing the measurements.
+        """
         from chromatopy.readers.shimadzu import ShimadzuReader
 
-        measurements = ShimadzuReader(
-            dirpath=path,
-            reaction_times=reaction_times,
-            time_unit=time_unit,
-            ph=ph,
-            temperature=temperature,
-            temperature_unit=temperature_unit,
-        ).read()
+        data = {
+            "dirpath": path,
+            "reaction_times": reaction_times,
+            "time_unit": time_unit,
+            "ph": ph,
+            "temperature": temperature,
+            "temperature_unit": temperature_unit,
+        }
 
-        return cls(id=id, measurements=measurements)
+        if data["time_unit"] is None:
+            data.pop("time_unit")
+        if data["reaction_times"] is None:
+            data.pop("reaction_times")
+
+        measurements = ShimadzuReader(**data).read()  # type: ignore
+
+        if id is None:
+            id = path
+
+        return cls(id=id, name=name, measurements=measurements)
 
     @classmethod
     def read_agilent(
         cls,
         path: str,
-        reaction_times: list[float],
-        time_unit: UnitDefinition,
         ph: float,
         temperature: float,
+        id: str | None = None,
+        name: str = "Chromatographic measurement",
+        reaction_times: list[float] | None = None,
+        time_unit: UnitDefinition | None = None,
         temperature_unit: UnitDefinition = C,
-    ):
+    ) -> ChromAnalyzer:
         """Reads chromatographic data from an Agilent *.csv or *.txt file.
 
         Args:
-            path (str): _description_
-            reaction_times (list[float]): _description_
-            time_unit (UnitDefinition): _description_
-            ph (float): _description_
-            temperature (float): _description_
-            temperature_unit (UnitDefinition, optional): _description_. Defaults to C.
+            path (str): Path to the directory containing the Agilent files.
+            ph (float): pH value of the measurement.
+            temperature (float): Temperature of the measurement.
+            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            name (str): Name the measurement. Defaults to "Chromatographic measurement".
+            reaction_times (list[float], optional): List of reaction times, corresponding to each measurement. If not provided, reaction times must be part of the file names.
+            time_unit (UnitDefinition, optional): Unit of the time values. If the reaction times are part of the file name, this argument can be omitted.
+            temperature_unit (UnitDefinition, optional): Unit of the temperature. Defaults to Celsius (C).
 
         Returns:
-            _type_: _description_
+            ChromAnalyzer: ChromAnalyzer object containing the measurements.
         """
         from chromatopy.readers.agilent_csv import (
             assamble_measurements_from_agilent_csv,
         )
         from chromatopy.readers.agilent_txt import AgilentTXTReader
 
-        try:
-            measurements = AgilentTXTReader(
-                dirpath=path,
-                reaction_times=reaction_times,
-                time_unit=time_unit,
-                ph=ph,
-                temperature=temperature,
-                temperature_unit=temperature_unit,
-            ).read()
-        except FileNotFoundError:
-            measurements = assamble_measurements_from_agilent_csv(
-                path=path,
-                reaction_times=reaction_times,
-                time_unit=time_unit,
-                ph=ph,
-                temperature=temperature,
-                temperature_unit=temperature_unit,
-            )
+        data = {
+            "dirpath": path,
+            "reaction_times": reaction_times,
+            "time_unit": time_unit,
+            "ph": ph,
+            "temperature": temperature,
+            "temperature_unit": temperature_unit,
+        }
 
-        return cls(id=path, measurements=measurements)
+        if data["time_unit"] is None:
+            data.pop("time_unit")
+        if data["reaction_times"] is None:
+            data.pop("reaction_times")
+
+        try:
+            measurements = AgilentTXTReader(**data).read()  # type: ignore
+        except FileNotFoundError:
+            measurements = assamble_measurements_from_agilent_csv(**data)
+
+        if id is None:
+            id = path
+
+        return cls(id=id, name=name, measurements=measurements)
 
     @classmethod
     def read_chromeleon(
@@ -1205,11 +1275,12 @@ if __name__ == "__main__":
 
     from chromatopy.units import hour, mM
 
-    path = "/Users/max/Documents/GitHub/chromatopy/tests/test_readers/data/asm"
+    path = "/Users/max/Documents/GitHub/chromatopy/docs/examples/data/asm"
 
     analyzer = ChromAnalyzer.read_asm(
         path,
-        reaction_times=[0, 0.5, 2, 6],
+        reaction_times=[],
+        # reaction_times=[0, 0.5, 2, 6],
         time_unit=hour,
         ph=7,
         temperature=25,

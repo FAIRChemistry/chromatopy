@@ -1,41 +1,25 @@
 import re
 from io import StringIO
 from pathlib import Path
-from typing import Dict, List
+from typing import Any, ClassVar, Dict, List
 
 import pandas as pd
+from loguru import logger
 
-from chromatopy.model import Measurement, Peak, SignalType, UnitDefinition
+from chromatopy.model import Measurement, Peak, SignalType
 from chromatopy.readers.abstractreader import AbstractReader
 from chromatopy.units.predefined import ul
 
 
 class ShimadzuReader(AbstractReader):
-    SECTION_PATTERN = re.compile(r"\[(.*)\]")
+    SECTION_PATTERN: ClassVar[re.Pattern] = re.compile(r"\[(.*)\]")
 
-    dirpath: str
-    file_paths: List[str] = []
-    reaction_times: list[float]
-    time_unit: UnitDefinition
-
-    def __init__(
-        self,
-        dirpath: str,
-        reaction_times: list[float],
-        time_unit: UnitDefinition,
-        ph: float,
-        temperature: float,
-        temperature_unit: UnitDefinition,
-    ):
-        super().__init__(
-            dirpath,
-            reaction_times,
-            time_unit,
-            ph,
-            temperature,
-            temperature_unit,
-        )
-        self._get_file_paths()
+    def model_post_init(self, __context: Any) -> None:
+        if not self.reaction_times or not self.time_unit or not self.file_paths:
+            logger.debug(
+                "Collecting file paths without reaction time and unit parsing."
+            )
+            self._get_file_paths()
         self._detector_id: str | None = None
         self._channel_ids: List[str] = []
 

@@ -29,6 +29,7 @@ mkdocs-plotly-plugin = "^0.1.3"
 mkdocs-jupyter = "^0.25.0"
 jupyter-contrib-nbextensions = "^0.7.0"
 notebook = "<7"
+mkdocstrings = {extras = ["python"], version = "^0.26.1"}
 
 [build-system]
 requires = ["poetry-core"]

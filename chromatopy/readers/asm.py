@@ -1,31 +1,20 @@
 import json
 from pathlib import Path
+from typing import Any
 
 from loguru import logger
 
-from chromatopy.model import Chromatogram, Measurement, Peak, UnitDefinition
+from chromatopy.model import Chromatogram, Measurement, Peak
 from chromatopy.readers.abstractreader import AbstractReader
 
 
 class ASMReader(AbstractReader):
-    def __init__(
-        self,
-        dirpath: str,
-        reaction_times: list[float],
-        time_unit: UnitDefinition,
-        ph: float,
-        temperature: float,
-        temperature_unit: UnitDefinition,
-    ):
-        super().__init__(
-            dirpath,
-            reaction_times,
-            time_unit,
-            ph,
-            temperature,
-            temperature_unit,
-        )
-        self._get_file_paths()
+    def model_post_init(self, __context: Any) -> None:
+        if not self.reaction_times or not self.time_unit or not self.file_paths:
+            logger.debug(
+                "Collecting file paths without reaction time and unit parsing."
+            )
+            self._get_file_paths()
 
     def read(self) -> list[Measurement]:
         """Reads the chromatographic data from the specified files.
@@ -182,15 +171,18 @@ class ASMReader(AbstractReader):
 
 
 if __name__ == "__main__":
-    from chromatopy.units import C, minute
+    from chromatopy.units import C
+    from chromatopy.units.predefined import minute
 
     reader = ASMReader(
-        dirpath="tests/test_readers/data/asm",
-        reaction_times=[0, 10, 20, 30],
+        dirpath="/Users/max/Documents/GitHub/chromatopy/docs/examples/data/asm",
+        reaction_times=[],
         time_unit=minute,
         ph=7.4,
         temperature=37,
         temperature_unit=C,
     )
     measurements = reader.read()
-    print(measurements)
+    print(reader.reaction_times)
+    print(reader.time_unit.base_units)
+    print(reader.file_paths)

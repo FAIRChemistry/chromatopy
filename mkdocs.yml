@@ -11,14 +11,18 @@ nav:
     - Reading in data: examples/read_data.ipynb
     - Calculation of concentrations: getting_started/calibrator.md
   - Installation: installation.md
+  - API Reference:
+    - ChromAnalyzer: api_reference/analyzer.md
 
 plugins:
   - plotly
   - mkdocs-jupyter
+  - mkdocstrings
+
 
 theme:
   name: material
-  #logo: images/FOR5596_square.png
+  logo: pics/logo.png
   features:
     - navigation.instant
     - navigation.instant.preview
@@ -36,18 +40,27 @@ theme:
     - content.code.copy
     - content.code.annotation
     - content.tooltips
-  palette: 
-    # Palette toggle for light mode
-    - scheme: default
+  palette:
+
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
       toggle:
-        icon: material/brightness-7 
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: custom
+      toggle:
+        icon: material/brightness-7
         name: Switch to dark mode
 
     # Palette toggle for dark mode
-    - scheme: slate
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
       toggle:
         icon: material/brightness-4
-        name: Switch to light mode
+        name: Switch to system preference
 
 
 markdown_extensions:
@@ -85,3 +98,6 @@ extra_javascript:
   - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+extra_css:
+  - stylesheets/extra.css
