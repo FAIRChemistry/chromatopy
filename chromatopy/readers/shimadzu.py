@@ -101,6 +101,9 @@ class ShimadzuReader(AbstractReader):
                         )
             measurements.append(measurement)
 
+        if not self.silent:
+            self.print_success(len(measurements))
+
         return measurements
 
     def parse_chromatogram(self, table_string: str) -> pd.DataFrame:
@@ -189,13 +192,11 @@ class ShimadzuReader(AbstractReader):
             return table.apply(
                 lambda row: {
                     "retention_time": row["R.Time"],
-                    "retention_time_unit": "min",
                     "peak_start": row["I.Time"],
                     "peak_end": row["F.Time"],
-                    "height": row["Height"],
+                    "amplitude": row["Height"],
                     "area": row["Area"],
-                    "width": row["F.Time"] - row["I.Time"],
-                    "width_unit": "min",
+                    # "width": row["F.Time"] - row["I.Time"],
                     "tailing_factor": row["Tailing"],
                     "separation_factor": row["Sep.Factor"],
                 },

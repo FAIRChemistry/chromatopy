@@ -35,6 +35,9 @@ class AgilentTXTReader(AbstractReader):
             )
             measurements.append(measurement)
 
+        if not self.silent:
+            self.print_success(len(measurements))
+
         return measurements
 
     def _get_file_paths(self) -> list[str]:
@@ -139,22 +142,20 @@ class AgilentTXTReader(AbstractReader):
             # Combine the 2nd and 3rd columns for the 'type' field
             peak_type = f"{columns[2]} {columns[3]}"
             return {
-                "id": int(columns[0]),
                 "retention_time": float(columns[1]),
                 "type": peak_type,
                 "width": float(columns[4]),
                 "area": float(columns[5]),
-                "height": float(columns[6]),
-                "area_percent": float(columns[7]),
+                "amplitude": float(columns[6]),
+                "percent_area": float(columns[7]),
             }
         else:
             return {
-                "id": int(columns[0]),
                 "retention_time": float(columns[1]),
                 "type": columns[2],
                 "width": float(columns[3]),
                 "area": float(columns[4]),
-                "height": float(columns[5]),
+                "amplitude": float(columns[5]),
                 "area_percent": float(columns[6]),
             }
 
@@ -171,9 +172,3 @@ class AgilentTXTReader(AbstractReader):
             key: line[unit_slice].strip("[]")
             for key, unit_slice in unit_slice_dict.items()
         }
-
-
-if __name__ == "__main__":
-    dir_path = "/Users/max/Documents/training_course/hao"
-
-    reaction_times = [0.0] * 49

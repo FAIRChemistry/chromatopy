@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import multiprocessing as mp
 import time
+from pathlib import Path
 
 import numpy as np
 import plotly.colors as pc
@@ -314,6 +315,7 @@ class ChromAnalyzer(BaseModel):
         reaction_times: list[float] | None = None,
         time_unit: UnitDefinition | None = None,
         temperature_unit: UnitDefinition = C,
+        silent: bool = False,
     ) -> ChromAnalyzer:
         """Reads chromatographic from a directory, containing Allotrope Simple Model (ASM) files.
         Measurements are assumed to be named alphabetically, allowing sorting by file name.
@@ -335,6 +337,7 @@ class ChromAnalyzer(BaseModel):
             reaction_times (list[float]): List of reaction times, corresponding to each measurement in the directory.
             time_unit (UnitDefinition): Unit of the time values.
             temperature_unit (UnitDefinition, optional): _description_. Defaults to C.
+            silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
@@ -348,6 +351,7 @@ class ChromAnalyzer(BaseModel):
             "ph": ph,
             "temperature": temperature,
             "temperature_unit": temperature_unit,
+            "silent": silent,
         }
 
         if data["time_unit"] is None:
@@ -373,6 +377,7 @@ class ChromAnalyzer(BaseModel):
         reaction_times: list[float] | None = None,
         time_unit: UnitDefinition | None = None,
         temperature_unit: UnitDefinition = C,
+        silent: bool = False,
     ) -> ChromAnalyzer:
         """Reads chromatographic data from a directory containing Shimadzu files.
         Measurements are assumed to be named alphabetically, allowing sorting by file name.
@@ -386,6 +391,8 @@ class ChromAnalyzer(BaseModel):
             reaction_times (list[float], optional): List of reaction times, corresponding to each measurement in the directory.
             time_unit (UnitDefinition, optional): Unit of the time values. If the reaction times are part of the file name, this argument can be omitted.
             temperature_unit (UnitDefinition, optional): Unit of the temperature. Defaults to Celsius (C).
+            silent (bool, optional): If True, no success message is printed. Defaults to False.
+
 
         Returns:
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
@@ -399,6 +406,7 @@ class ChromAnalyzer(BaseModel):
             "ph": ph,
             "temperature": temperature,
             "temperature_unit": temperature_unit,
+            "silent": silent,
         }
 
         if data["time_unit"] is None:
@@ -424,6 +432,7 @@ class ChromAnalyzer(BaseModel):
         reaction_times: list[float] | None = None,
         time_unit: UnitDefinition | None = None,
         temperature_unit: UnitDefinition = C,
+        silent: bool = False,
     ) -> ChromAnalyzer:
         """Reads chromatographic data from an Agilent *.csv or *.txt file.
 
@@ -436,6 +445,7 @@ class ChromAnalyzer(BaseModel):
             reaction_times (list[float], optional): List of reaction times, corresponding to each measurement. If not provided, reaction times must be part of the file names.
             time_unit (UnitDefinition, optional): Unit of the time values. If the reaction times are part of the file name, this argument can be omitted.
             temperature_unit (UnitDefinition, optional): Unit of the temperature. Defaults to Celsius (C).
+            silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
@@ -445,6 +455,18 @@ class ChromAnalyzer(BaseModel):
         )
         from chromatopy.readers.agilent_txt import AgilentTXTReader
 
+        directory = Path(path)
+        txt_paths = [
+            str(f.absolute())
+            for f in directory.rglob("*.TXT")
+            if f.parent.parent == directory
+        ]
+        csv_paths = [
+            str(f.absolute())
+            for f in directory.rglob("*.csv")
+            if f.parent.parent == directory
+        ]
+
         data = {
             "dirpath": path,
             "reaction_times": reaction_times,
@@ -452,6 +474,7 @@ class ChromAnalyzer(BaseModel):
             "ph": ph,
             "temperature": temperature,
             "temperature_unit": temperature_unit,
+            "silent": silent,
         }
 
         if data["time_unit"] is None:
@@ -460,9 +483,11 @@ class ChromAnalyzer(BaseModel):
             data.pop("reaction_times")
 
         try:
+            data["file_paths"] = txt_paths  # type: ignore
             measurements = AgilentTXTReader(**data).read()  # type: ignore
         except FileNotFoundError:
-            measurements = assamble_measurements_from_agilent_csv(**data)
+            data["file_paths"] = csv_paths  # type: ignore
+            measurements = assamble_measurements_from_agilent_csv(**data)  # type: ignore
 
         if id is None:
             id = path
@@ -473,38 +498,54 @@ class ChromAnalyzer(BaseModel):
     def read_chromeleon(
         cls,
         path: str,
-        reaction_times: list[float],
-        time_unit: UnitDefinition,
         ph: float,
         temperature: float,
+        id: str | None = None,
+        name: str = "Chromatographic measurement",
+        reaction_times: list[float] | None = None,
+        time_unit: UnitDefinition | None = None,
         temperature_unit: UnitDefinition = C,
+        silent: bool = False,
     ) -> ChromAnalyzer:
-        """Reads chromatographic data from a Chromeleon *.txt file.
+        """Reads chromatographic data from an Agilent *.csv or *.txt file.
 
         Args:
-            path (str): Path to directory containing the Chromeleon *.txt files.
-            reaction_times (list[float]): List of reaction times for each measurement.
-            time_unit (UnitDefinition): Unit of the time values.
+            path (str): Path to the directory containing the Agilent files.
             ph (float): pH value of the measurement.
             temperature (float): Temperature of the measurement.
-            temperature_unit (UnitDefinition, optional): Unit of the temperature value.
-                Defaults to C.
+            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            name (str): Name the measurement. Defaults to "Chromatographic measurement".
+            reaction_times (list[float], optional): List of reaction times, corresponding to each measurement. If not provided, reaction times must be part of the file names.
+            time_unit (UnitDefinition, optional): Unit of the time values. If the reaction times are part of the file name, this argument can be omitted.
+            temperature_unit (UnitDefinition, optional): Unit of the temperature. Defaults to Celsius (C).
+            silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
         """
         from chromatopy.readers.chromeleon import ChromeleonReader
 
-        measurements = ChromeleonReader(
-            dirpath=path,
-            reaction_times=reaction_times,
-            time_unit=time_unit,
-            ph=ph,
-            temperature=temperature,
-            temperature_unit=temperature_unit,
-        ).read()
+        data = {
+            "dirpath": path,
+            "reaction_times": reaction_times,
+            "time_unit": time_unit,
+            "ph": ph,
+            "temperature": temperature,
+            "temperature_unit": temperature_unit,
+            "silent": silent,
+        }
 
-        return cls(id=path, measurements=measurements)
+        if data["time_unit"] is None:
+            data.pop("time_unit")
+        if data["reaction_times"] is None:
+            data.pop("reaction_times")
+
+        if id is None:
+            id = path
+
+        measurements = ChromeleonReader(**data).read()  # type: ignore
+
+        return cls(id=path, name=name, measurements=measurements)
 
     def create_enzymeml(
         self,
@@ -708,20 +749,30 @@ class ChromAnalyzer(BaseModel):
             theme = "plotly_white"
             signal_color = "black"
 
+        peak_vis_mode = None
+
         fig = go.Figure()
 
         for meas in self.measurements:
-            for chrom in meas.chromatograms:
+            for chrom in meas.chromatograms[:1]:
                 # model peaks as gaussians
-                color_map = sample_colorscale("viridis", len(chrom.peaks))
                 if chrom.peaks:
                     peaks_exist = True
+                    if len(chrom.peaks) == 1:
+                        color_map = ["teal"]
+                    else:
+                        color_map = sample_colorscale("viridis", len(chrom.peaks))
+
                     for color, peak in zip(color_map, chrom.peaks):
                         if assigned_only and not peak.molecule_id:
                             continue
-                        if peak.amplitude is None or peak.width is None:
-                            continue
-                        if peak.peak_start and peak.peak_end:
+
+                        if peak.molecule_id:
+                            peak_name = self.get_molecule(peak.molecule_id).name
+                        else:
+                            peak_name = f"Peak {peak.retention_time:.2f}"
+
+                        if peak.peak_start and peak.peak_end and peak.width:
                             x_arr, data = generate_gaussian_data(
                                 amplitude=peak.amplitude,
                                 center=peak.retention_time,
@@ -729,7 +780,9 @@ class ChromAnalyzer(BaseModel):
                                 start=peak.peak_start,
                                 end=peak.peak_end,
                             )
-                        else:
+                            peak_vis_mode = "gaussian"
+
+                        elif peak.skew and peak.width:
                             x_start = peak.retention_time - 3 * peak.width
                             x_end = peak.retention_time + 3 * peak.width
                             x_arr = np.linspace(x_start, x_end, 100)
@@ -742,13 +795,24 @@ class ChromAnalyzer(BaseModel):
                                 )
                                 * peak.amplitude
                             )
+                            peak_vis_mode = "skewnorm"
+
+                        else:
+                            # make only h-line at retention time
+                            interval = 0.03
+                            left_shifted = peak.retention_time - interval
+                            right_shifted = peak.retention_time + interval
+                            x_arr = [
+                                left_shifted,
+                                right_shifted,
+                                right_shifted,
+                                left_shifted,
+                                left_shifted,
+                            ]
+                            data = [0, 0, peak.amplitude, peak.amplitude, 0]
 
                         custom1 = [round(peak.area)] * len(x_arr)
                         custom2 = [round(peak.retention_time, 2)] * len(x_arr)
-                        if peak.molecule_id:
-                            peak_name = self.get_molecule(peak.molecule_id).name
-                        else:
-                            peak_name = f"Peak {peak.retention_time:.2f}"
                         customdata = np.stack((custom1, custom2), axis=-1)
                         fig.add_trace(
                             go.Scatter(
@@ -770,6 +834,7 @@ class ChromAnalyzer(BaseModel):
                                 fillcolor=color,
                             )
                         )
+
                 else:
                     peaks_exist = False
 
@@ -813,12 +878,12 @@ class ChromAnalyzer(BaseModel):
                 else:
                     processed_signal_exist = False
 
-        if peak.peak_start:
-            logger.info(
-                "Peaks are visualized as Gaussians. Visual deviations between the signal and the peaks may occur."
-            )
-
         n_peaks_in_first_chrom = len(self.measurements[0].chromatograms[0].peaks)
+
+        if peak_vis_mode == "gaussian":
+            logger.warning(
+                "Gaussian peaks are used for visualization, the actual peak shape might differ and is based on the previous preak processing."
+            )
 
         if signal_exist and not processed_signal_exist:
             fig.data[n_peaks_in_first_chrom].visible = True
@@ -1068,7 +1133,6 @@ class ChromAnalyzer(BaseModel):
         fig = go.Figure()
         for meas in self.measurements:
             for chrom in meas.chromatograms:
-                print(meas.id)
                 fig.add_trace(
                     go.Scatter(
                         x=chrom.times,

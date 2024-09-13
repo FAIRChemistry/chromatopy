@@ -9,7 +9,7 @@ from pydantic import BaseModel, model_validator
 from chromatopy.model import Measurement, UnitDefinition
 
 
-class ReactionTimeUnitError(Exception):
+class MetadataExtractionError(Exception):
     def __init__(self, message, suggestion=None):
         if suggestion:
             message += f"\n{str(suggestion)}"
@@ -17,6 +17,13 @@ class ReactionTimeUnitError(Exception):
 
 
 class UnitConsistencyError(Exception):
+    def __init__(self, message, suggestion=None):
+        if suggestion:
+            message += f"\n{str(suggestion)}"
+        super().__init__(message)
+
+
+class FileNotFoundInDirectoryError(Exception):
     def __init__(self, message, suggestion=None):
         if suggestion:
             message += f"\n{str(suggestion)}"
@@ -32,6 +39,7 @@ class AbstractReader(BaseModel):
     ph: float
     temperature: float
     temperature_unit: UnitDefinition
+    silent: bool
 
     file_paths: list[str] = []
 
@@ -42,9 +50,9 @@ class AbstractReader(BaseModel):
         if not data.get("reaction_times"):
             try:
                 cls._parse_time_and_unit(data)
-            except ReactionTimeUnitError as e:
+            except MetadataExtractionError as e:
                 logger.debug(e)
-                raise ReactionTimeUnitError(
+                raise MetadataExtractionError(
                     str(e),
                     suggestion="Alternatively, provide the reaction times and unit manually.",
                 )
@@ -59,7 +67,9 @@ class AbstractReader(BaseModel):
     def validate_data_consistency(self):
         """Validate the data consistency."""
         if not self.file_paths:
-            raise ValueError(f"No files in found in the directory {self.dirpath}.")
+            raise FileNotFoundInDirectoryError(
+                f"No files found in the directory {self.dirpath}."
+            )
         if not self.reaction_times:
             raise ValueError("No reaction times provided.")
         if not self.time_unit:
@@ -78,18 +88,24 @@ class AbstractReader(BaseModel):
     ) -> None:
         """Check if reaction time and unit can be parsed from filenames in the directory."""
 
-        path = Path(data["dirpath"])
-        if not path.exists():
-            raise FileNotFoundError(f"Directory '{data['dirpath']}' does not exist.")
-        if not path.is_dir():
-            raise NotADirectoryError(f"'{data['dirpath']}' is not a directory.")
+        try:
+            filenames = [Path(f) for f in data["file_paths"]]
+        except KeyError:
+            path = Path(data["dirpath"])
+            if not path.exists():
+                raise FileNotFoundError(
+                    f"Directory '{data['dirpath']}' does not exist."
+                )
+            if not path.is_dir():
+                raise NotADirectoryError(f"'{data['dirpath']}' is not a directory.")
 
-        # get all filnames of normal files in the directory. exclude hidden files
-        pattern = r"(\d+(\.\d+)?)\s?(min|minutes?|sec|seconds?|hours?)"
+            # get all filnames of normal files in the directory. exclude hidden files
 
-        filenames = [
-            f for f in path.iterdir() if f.is_file() and not f.name.startswith(".")
-        ]
+            filenames = [
+                f for f in path.iterdir() if f.is_file() and not f.name.startswith(".")
+            ]
+
+        pattern = r"(\d+(\.\d+)?)\s*[_-]?\s*(min|minutes?|sec|seconds?|hours?)"
 
         # check if all filenames contain a reaction time and unit
         if all(re.search(pattern, f.name) for f in filenames):
@@ -110,7 +126,7 @@ class AbstractReader(BaseModel):
                 logger.debug(
                     f"Reaction times in directory '{data['dirpath']}' are not unique."
                 )
-                raise ReactionTimeUnitError(
+                raise MetadataExtractionError(
                     f"Reaction times in directory '{data['dirpath']}' are not unique."
                 )
 
@@ -131,7 +147,7 @@ class AbstractReader(BaseModel):
                 logger.debug(
                     f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
                 )
-                raise ReactionTimeUnitError(
+                raise MetadataExtractionError(
                     f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
                 )
 
@@ -146,7 +162,7 @@ class AbstractReader(BaseModel):
             logger.debug(
                 f"Reaction times and units could not be parsed from filenames in directory '{data['dirpath']}'."
             )
-            raise ReactionTimeUnitError(
+            raise MetadataExtractionError(
                 f"Reaction times and units could not be parsed from filenames in directory '{data['dirpath']}'."
             )
 
@@ -170,9 +186,9 @@ class AbstractReader(BaseModel):
 
         unit_str = unit_str.lower()
         match unit_str:
-            case "min" | "minutes":
+            case "min" | "mins" | "minutes":
                 return minute
-            case "sec" | "seconds":
+            case "sec" | "secs" | "seconds":
                 return second
             case "hour" | "hours":
                 return hour
@@ -183,6 +199,10 @@ class AbstractReader(BaseModel):
     def read(self) -> list[Measurement]:
         """Abstract method that must be implemented by subclasses."""
         pass
+
+    def print_success(self, n_measurement_objects: int) -> None:
+        """Prints a success message."""
+        print(f"✅ Loaded {n_measurement_objects} chromatograms.")
 
 
 # Then, instantiate the ConcreteReader instead of AbstractReader

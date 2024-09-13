@@ -29,6 +29,9 @@ class ASMReader(AbstractReader):
             measurement = self._map_measurement(content, reaction_time, file)
             measurements.append(measurement)
 
+        if not self.silent:
+            self.print_success(len(measurements))
+
         return measurements
 
     def _get_file_paths(self):
