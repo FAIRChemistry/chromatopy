@@ -9,6 +9,7 @@ nav:
   - Data Preparation: supported_formats.md
   - Usage:
     - Reading in data: examples/read_data.ipynb
+    - Visualize data: examples/visualize.md
     - Calculation of concentrations: getting_started/calibrator.md
   - Installation: installation.md
   - API Reference:
@@ -81,6 +82,9 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+        - name: plotly
+          class: mkdocs-plotly
+          format: !!python/name:mkdocs_plotly_plugin.fences.fence_plotly
   - tables
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji

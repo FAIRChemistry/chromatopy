@@ -734,9 +734,18 @@ class ChromAnalyzer(BaseModel):
                 "No peaks found in one of the chromatograms, try to reduce the `prominence` in the `hplc_py_kwargs` of the `process_chromatograms` method."
             )
 
-    def plot_peaks_fitted_spectrum(
+    def visualize_all(
         self, assigned_only: bool = False, dark_mode: bool = False
-    ):
+    ) -> go.Figure:
+        """Plots the fitted peaks of the chromatograms in an interactive figure.
+
+        Args:
+            assigned_only (bool, optional): If True, only the peaks that are assigned to a molecule are plotted. Defaults to False.
+            dark_mode (bool, optional): If True, the figure is displayed in dark mode. Defaults to False.
+
+        Returns:
+            go.Figure: _description_
+        """
         # make plotly figure for each chromatogram whereas ech chromatogram contains multiple traces and each comatogram is mapped to one slider
         from plotly.express.colors import sample_colorscale
 
@@ -919,12 +928,12 @@ class ChromAnalyzer(BaseModel):
 
         fig.update_layout(
             sliders=sliders,
-            xaxis_title="Retention time (min)",
+            xaxis_title="retention time [min]",
             yaxis_title="Intensity",
             template=theme,
         )
 
-        fig.show()
+        return fig
 
     def add_standard(
         self,
@@ -1008,39 +1017,6 @@ class ChromAnalyzer(BaseModel):
 
         return chroms
 
-    def plot_measurements(self):
-        # Create a 2D plot using Plotly
-        fig = go.Figure()
-
-        for meas in self.measurements:
-            chromatogram = meas.chromatograms[
-                0
-            ]  # Assuming each measurement has at least one chromatogram
-            x = chromatogram.times
-            z = chromatogram.signals
-
-            # Adding each chromatogram as a 2D line plot to the figure
-            fig.add_trace(
-                go.Scatter(
-                    x=x,
-                    y=z,
-                    mode="lines",  # Line plot
-                    name=f"{meas.id.split('/')[-1]}",
-                )
-            )
-
-            # Update plot layout
-        fig.update_layout(
-            title="Chromatogram Plot",
-            xaxis_title="Time (min)",
-            yaxis_title=f"Absorbance {chromatogram.wavelength} nm",
-            margin=dict(l=0, r=0, b=0, t=30),  # Adjust margins to fit layout
-            plot_bgcolor="white",  # Set background to white for better visibility
-        )
-
-        # Show the plot
-        fig.show()
-
     def _update_molecule(self, molecule) -> None:
         """Updates the molecule if it already exists in the list of species.
         Otherwise, the molecule is added to the list of species."""
@@ -1062,104 +1038,33 @@ class ChromAnalyzer(BaseModel):
 
         self.proteins.append(protein)
 
-    def visualize_peaks(self):
+    def visualize_spectra(self, dark_mode: bool = False) -> go.Figure:
         """
-        Plot the chromatogram with annotated peaks.
+        Plots all chromatograms in the ChromAnalyzer in a single plot.
 
-        This method creates a plot of the chromatogram using the plotly library.
-        It adds a scatter trace for the retention times and signals, and if there are peaks present, it adds vertical lines for each peak.
 
         Returns:
             go.Figure: The plotly figure object.
         """
+
+        if dark_mode:
+            theme = "plotly_dark"
+        else:
+            theme = "plotly_white"
+
         fig = go.Figure()
 
-        # color map for unique peak ids
-        unique_species = set(
-            [
-                peak.molecule_id
-                for meas in self.measurements
-                for chrom in meas.chromatograms
-                for peak in chrom.peaks
-                if peak.molecule_id
-            ]
-        )
-        colors = pc.sample_colorscale(
-            "viridis", [i / len(unique_species) for i in range(len(unique_species))]
-        )
-        color_dict = dict(zip(unique_species, colors))
-
-        for meas in self.measurements:
-            peaks = [
-                peak
-                for chrom in meas.chromatograms
-                for peak in chrom.peaks
-                if peak.molecule_id
-            ]
-            for peak in peaks:
-                fig.add_trace(
-                    go.Scatter(
-                        x=[meas.reaction_time],
-                        y=[peak.area],
-                        name=self.get_molecule(peak.molecule_id).name,
-                        marker=dict(color=color_dict[peak.molecule_id]),
-                    )
-                )
-
-            fig.update_layout(
-                xaxis_title=f"Reaction time / {meas.time_unit.name}",
-                yaxis_title="Peak area",
-            )
-
-        legends = set()
-        fig.for_each_trace(
-            lambda trace: trace.update(showlegend=False)
-            if (trace.name in legends)
-            else legends.add(trace.name)
-        )
-
-        fig.show()
-
-    def visualize(self) -> go.Figure:
-        """
-        Plot the chromatogram.
-
-        This method creates a plot of the chromatogram using the plotly library.
-        It adds a scatter trace for the retention times and signals, and if there are peaks present, it adds vertical lines for each peak.
-
-        Returns:
-            go.Figure: The plotly figure object.
-        """
-        fig = go.Figure()
-        for meas in self.measurements:
-            for chrom in meas.chromatograms:
+        color_map = pc.sample_colorscale("viridis", len(self.measurements))
+        for meas, color in zip(self.measurements, color_map):
+            for chrom in meas.chromatograms[:1]:
                 fig.add_trace(
                     go.Scatter(
                         x=chrom.times,
                         y=chrom.signals,
                         name=meas.id,
+                        line=dict(width=2, color=color),
                     )
                 )
-
-                if chrom.peaks:
-                    for peak in chrom.peaks:
-                        fig.add_vline(
-                            x=peak.retention_time,
-                            line_dash="dash",
-                            line_color="gray",
-                            annotation_text=peak.retention_time,
-                        )
-
-                if chrom.processed_signal:
-                    fig.add_trace(
-                        go.Scatter(
-                            x=chrom.times,
-                            y=chrom.processed_signal,
-                            mode="lines",
-                            line=dict(dash="dot", width=1),
-                            name="Processed signal",
-                        )
-                    )
 
         if chrom.wavelength:
             wave_string = f"({chrom.wavelength} nm)"
@@ -1167,39 +1072,72 @@ class ChromAnalyzer(BaseModel):
             wave_string = ""
 
         fig.update_layout(
-            xaxis_title="Retention time / min",
-            yaxis_title=f"Signal {wave_string}",
+            xaxis_title="retention time [min]",
+            yaxis_title=f"Intensity {wave_string}",
             height=600,
             legend={"traceorder": "normal"},
+            template=theme,
         )
 
-        fig.show()
+        return fig
 
-    def plot_concentrations(self):
-        fig = go.Figure()
+    # def visualize_peaks(self):
+    #     """
+    #     Plot the chromatogram with annotated peaks.
 
-        for species in self.molecules:
-            if not species.concentrations:
-                continue
+    #     This method creates a plot of the chromatogram using the plotly library.
+    #     It adds a scatter trace for the retention times and signals, and if there are peaks present, it adds vertical lines for each peak.
 
-            conc_unit = species.conc_unit._unit.to_string()
-            fig.add_trace(
-                go.Scatter(
-                    x=species.reaction_times,
-                    y=species.concentrations,
-                    mode="markers",
-                    name=f"{species.name} (initial concentration: {species.init_conc} {conc_unit}",
-                )
-            )
+    #     Returns:
+    #         go.Figure: The plotly figure object.
+    #     """
+    #     fig = go.Figure()
 
-        fig.update_layout(
-            xaxis_title="time (min)",
-            yaxis_title=f"concentration ({conc_unit})",
-            margin=dict(l=0, r=0, b=0, t=30),
-            plot_bgcolor="white",
-        )
+    #     # color map for unique peak ids
+    #     unique_species = set(
+    #         [
+    #             peak.molecule_id
+    #             for meas in self.measurements
+    #             for chrom in meas.chromatograms
+    #             for peak in chrom.peaks
+    #             if peak.molecule_id
+    #         ]
+    #     )
+    #     colors = pc.sample_colorscale(
+    #         "viridis", [i / len(unique_species) for i in range(len(unique_species))]
+    #     )
+    #     color_dict = dict(zip(unique_species, colors))
 
-        fig.show()
+    #     for meas in self.measurements:
+    #         peaks = [
+    #             peak
+    #             for chrom in meas.chromatograms
+    #             for peak in chrom.peaks
+    #             if peak.molecule_id
+    #         ]
+    #         for peak in peaks:
+    #             fig.add_trace(
+    #                 go.Scatter(
+    #                     x=[meas.reaction_time],
+    #                     y=[peak.area],
+    #                     name=self.get_molecule(peak.molecule_id).name,
+    #                     marker=dict(color=color_dict[peak.molecule_id]),
+    #                 )
+    #             )
+
+    #         fig.update_layout(
+    #             xaxis_title=f"Reaction time / {meas.time_unit.name}",
+    #             yaxis_title="Peak area",
+    #         )
+
+    #     legends = set()
+    #     fig.for_each_trace(
+    #         lambda trace: trace.update(showlegend=False)
+    #         if (trace.name in legends)
+    #         else legends.add(trace.name)
+    #     )
+
+    #     fig.show()
 
 
 if __name__ == "__main__":
