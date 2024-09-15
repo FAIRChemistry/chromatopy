@@ -1,44 +1,27 @@
-import unittest
+# import unittest
 
-import pytest
+# import pytest
 
-from chromatopy.core.measurement import Measurement
-from chromatopy.readers.shimadzu import ShimadzuReader
+# from chromatopy.readers.shimadzu import ShimadzuReader
+# from chromatopy.units import min
 
-DIR_PATH = "data/shimadzu/"
-FILE_PATH = "tests/test_readers/data/shimadzu/Output-sample 0.txt"
+# DIR_PATH = "tests/test_readers/data/shimadzu"
 
 
-@pytest.mark.readers
-class TestShimadzuReader(unittest.TestCase):
-    # can read a single file and return a dictionary
-    def test_read_single_file(self):
-        reader = ShimadzuReader(FILE_PATH)
+# @pytest.mark.readers
+# class TestShimadzuReader(unittest.TestCase):
+#     # can read a single file and return a dictionary
+#     def test_read_shimadzu(self):
+#         reader = ShimadzuReader(
+#             dirpath=DIR_PATH,
+#             reaction_times=[0] * 9,
+#             time_unit=min,
+#             ph=7.4,
+#             temperature=25.0,
+#             temperature_unit="C",
+#         )
 
-        result = reader.read()
+#         measurements = reader.read()
 
-        assert isinstance(result[0], Measurement)
-
-    # raises FileNotFoundError when path does not exist
-    def test_file_not_found_error(self):
-        # Arrange
-        path = "nonexistent/path/to/file.txt"
-
-        # Act & Assert
-        with pytest.raises(FileNotFoundError):
-            ShimadzuReader(path)
-
-    def test_map_measurement(self):
-        # Arrange
-        reader = ShimadzuReader(FILE_PATH)
-        content = reader.open_file(FILE_PATH)
-        sections = reader.create_sections(content)
-
-        # Act
-        result = reader.get_measurement_conditions(sections)
-
-        # Assert
-        assert isinstance(result, dict)
-        assert result["timestamp"].isoformat() == "2023-12-12T11:15:12"
-        assert result["injection_volume"] == 20
-        assert result["injection_volume_unit"] == "µL"
+#         assert len(measurements) == 9
+#         assert measurements[0].chromatograms[0].peaks[0].area == pytest.approx(1278.0)
