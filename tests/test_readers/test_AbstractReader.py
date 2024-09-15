@@ -34,6 +34,7 @@ def test_parse_time_and_unit_success(working_data_dir):
         ph=7.0,
         temperature=25.0,
         temperature_unit=C,
+        silent=False,
     )
     file_names = [file.split("/")[-1] for file in reader.file_paths]
 

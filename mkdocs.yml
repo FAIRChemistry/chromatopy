@@ -8,9 +8,9 @@ nav:
   - Home: index.md
   - Data Preparation: supported_formats.md
   - Usage:
-    - Reading in Data: examples/read_data.ipynb
+    - 📖 Read Data: examples/read_data.md
     - 🖼️ Visualize Data: examples/visualize.md
-    - Assign Peaks: examples/peak_assignment.ipynb
+    - 🏔️ Assign Peaks: examples/peak_assignment.md
   - Installation: installation.md
   - API Reference:
     - ChromAnalyzer: api_reference/analyzer.md

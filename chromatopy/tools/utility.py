@@ -88,11 +88,12 @@ def generate_gaussian_data(
     return x_values, y_values
 
 
-def visualize_enzymeml(enzymeml_doc: EnzymeMLDocument):
+def visualize_enzymeml(enzymeml_doc: EnzymeMLDocument, return_fig: bool = False):
     """visualize the data in the EnzymeML document
 
     Args:
         enzymeml_doc (EnzymeMLDocument): The EnzymeML document to visualize
+        return_fig (bool, optional): Whether to return the figure. Defaults to False.
     """
     for species in enzymeml_doc.measurements[0].species_data:
         if species.data:
@@ -109,7 +110,11 @@ def visualize_enzymeml(enzymeml_doc: EnzymeMLDocument):
     elif species.data_type == DataTypes.CONCENTRATION:
         plt.ylabel(f"concentration [{unit_to_str(species.data_unit)}]")
     plt.xlabel(f"reaction time [{unit_to_str(species.time_unit)}]")
+
     plt.show()
+    if return_fig:
+        return plt
+    return None
 
 
 def get_species_by_id(enzymeml_doc: EnzymeMLDocument, species_id: str):

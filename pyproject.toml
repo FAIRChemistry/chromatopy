@@ -30,6 +30,7 @@ mkdocs-jupyter = "^0.25.0"
 jupyter-contrib-nbextensions = "^0.7.0"
 notebook = "<7"
 mkdocstrings = {extras = ["python"], version = "^0.26.1"}
+nbval = "^0.11.0"
 
 [build-system]
 requires = ["poetry-core"]
