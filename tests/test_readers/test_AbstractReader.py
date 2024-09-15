@@ -1,3 +1,5 @@
+import os
+
 import pytest
 
 from chromatopy.readers.abstractreader import AbstractReader, UnitConsistencyError
@@ -36,7 +38,9 @@ def test_parse_time_and_unit_success(working_data_dir):
         temperature_unit=C,
         silent=False,
     )
-    file_names = [file.split("/")[-1] for file in reader.file_paths]
+
+    # Extract only the filenames
+    file_names = [os.path.basename(file) for file in reader.file_paths]
 
     assert reader.reaction_times == [0.0, 0.33, 3.4, 10]
     assert reader.time_unit == minute
