@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -36,7 +37,7 @@ class SpectrumProcessor(BaseModel):
     peak_prominence: float = 4
     min_peak_height: float | None = None
 
-    def model_post_init(self, __context: sys.Any) -> None:
+    def model_post_init(self, __context: Any) -> None:
         self._remove_nan()
 
     def _remove_nan(self) -> None:
@@ -85,12 +86,12 @@ class SpectrumProcessor(BaseModel):
         except KeyError as e:
             if "retention_time" in str(e):
                 logger.info(
-                    "No peaks found in the chromatogram. halving the prominence and trying again."
+                    "No peaks found in the chromatogram. Halving the prominence and trying again."
                 )
                 hplc_py_kwargs["prominence"] /= 2
                 self.fit(**hplc_py_kwargs)
 
-        self.processed_signal = np.sum(fitter.unmixed_chromatograms, axis=1)
+        self.processed_signal = np.sum(fitter.unmixed_chromatograms, axis=1).tolist()
 
         peaks = []
         for record in fitter.peaks.to_dict(orient="records"):
@@ -122,27 +123,3 @@ class SpectrumProcessor(BaseModel):
                 "signal": self.raw_data,
             }
         ).dropna()
-
-
-if __name__ == "__main__":
-    from chromatopy.tools.analyzer import ChromAnalyzer
-    from chromatopy.units import min as min_
-
-    path = "/Users/max/Documents/jan-niklas/MjNK"
-
-    reaction_times = [0.0] * 18
-
-    ana = ChromAnalyzer.read_chromeleon(
-        path=path,
-        reaction_times=reaction_times,
-        time_unit=min_,
-        ph=7.4,
-        temperature=25.0,
-    )
-
-    ana.visualize()
-
-    chrom = ana.measurements[0].chromatograms[0]
-
-    ana.process_chromatograms(prominence=0.035)
-    ana.plot_peaks_fitted_spectrum(chrom)

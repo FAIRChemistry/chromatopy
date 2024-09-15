@@ -47,7 +47,7 @@ class ChromFit:
                 Peak(
                     retention_time=record["retention_time"],
                     area=record["area"],
-                    height=record["amplitude"],
+                    amplitude=record["amplitude"],
                 )
             )
 
@@ -56,9 +56,8 @@ class ChromFit:
         return [
             Peak(
                 retention_time=peak["retention_time"],
-                retention_time_unit=self.time_unit,
                 area=peak["area"],
-                height=peak["amplitude"],
+                amplitude=peak["amplitude"],
             )
             for peak in peaks
         ]

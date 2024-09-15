@@ -79,14 +79,24 @@ class ASMReader(AbstractReader):
                 f"More than one chromatogram found in file '{path}'. Using the first chromatogram only."
             )
 
-        sample_document = doc[0]["sample document"]
+        try:
+            sample_document = doc[0]["sample document"]
+            meas_document = doc[0]["measurement document"]
+        except KeyError:
+            sample_document = doc[0]["measurement aggregate document"][
+                "measurement document"
+            ]["sample document"]
+            meas_document = doc[0]["measurement aggregate document"][
+                "measurement document"
+            ]
+
+        # sample info
         name = sample_document.get("written name")
         sample_id = sample_document.get("sample identifier")
         if not sample_id and name:
             sample_id = name
 
-        meas_document = doc[0]["measurement document"]
-        peak_list = meas_document["peak list"]["peak"]
+        # signal and time
         signal = meas_document["chromatogram data cube"]["data"]["measures"][0]
         time = meas_document["chromatogram data cube"]["data"]["dimensions"][0]
         time_unit = meas_document["chromatogram data cube"]["cube-structure"][
@@ -100,6 +110,22 @@ class ASMReader(AbstractReader):
             pass
         else:
             raise ValueError(f"Unit '{time_unit}' not recognized")
+
+        try:
+            peak_list = meas_document["peak list"]["peak"]
+        except KeyError:
+            try:
+                analyte_document = doc[0]["analyte aggregate document"][
+                    "analyteDocument"
+                ]
+
+                if len(analyte_document) > 1:
+                    logger.warning(
+                        f"More than one analyte document found in '{path}'. Using the first analyte document only."
+                    )
+                peak_list = analyte_document[0]["peak list"]["peak"]
+            except KeyError:
+                peak_list = []
 
         peaks = [self.map_peaks(peak) for peak in peak_list]
 
@@ -125,6 +151,8 @@ class ASMReader(AbstractReader):
         if area["unit"] == "mAU.s":
             area["value"] *= 60
         elif area["unit"] == "mAU.min":
+            pass
+        elif area["unit"] == "unitless":
             pass
         else:
             raise ValueError(f"Unit '{area['unit']}' not recognized")
@@ -161,12 +189,19 @@ class ASMReader(AbstractReader):
         else:
             raise ValueError(f"Unit '{peak_end['unit']}' not recognized")
 
+        try:
+            asym_factor = peak_dict["chromatographic peak asymmetry factor"]["value"]
+        except KeyError:
+            asym_factor = None
+        except TypeError:
+            asym_factor = None
+
         return Peak(
             retention_time=peak_dict["retention time"]["value"],
             area=peak_dict["peak area"]["value"],
             amplitude=peak_dict["peak height"]["value"],
             width=peak_dict["peak width at half height"]["value"],
-            skew=peak_dict["chromatographic peak asymmetry factor"],
+            skew=asym_factor,
             percent_area=peak_dict["relative peak area"]["value"],
             peak_start=peak_dict["peak start"]["value"],
             peak_end=peak_dict["peak end"]["value"],

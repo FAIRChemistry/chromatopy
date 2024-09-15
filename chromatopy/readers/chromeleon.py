@@ -118,6 +118,9 @@ class ChromeleonReader(AbstractReader):
         df["step"] = df["step"].str.replace(",", ".").astype(float)
         df["value"] = df["value"].str.replace(",", ".").astype(float)
 
+        # drop rows with NaN values
+        df.dropna(inplace=True)
+
         return df
 
     def _get_file_paths(self):

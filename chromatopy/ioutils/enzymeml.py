@@ -73,6 +73,10 @@ def create_enzymeml(
     # create EnzymeML Measurement
     ph, temp, time_unit, temp_unit = extract_measurement_conditions(measurements)
 
+    species_data = list(measurement_data_instances.values())
+    for species in species_data:
+        species.time_unit = EnzymeMLUnitDefinition(**time_unit.model_dump())
+
     enzml_measurement = EnzymeMLMeasurement(
         id="m0",
         name="m0",
@@ -246,7 +250,7 @@ def add_measurement_to_MeasurementData(
     molecules: list[Molecule],
     internal_standard: Molecule | None,
     extrapolate: bool,
-) -> dict[str, EnzymeMLMeasurement]:
+) -> dict[str, MeasurementData]:
     """Converts a list of chromatographic Measurement instances to
     EnzymeML MeasurementData instances.
     This method takes into account that not all molecules are measured in each
@@ -270,6 +274,10 @@ def add_measurement_to_MeasurementData(
     """
     all_moecules = {molecule.id: molecule for molecule in molecules}
     measured_once = get_measured_once(list(all_moecules.keys()), measurements)
+
+    # exclude internal stanard molecules if there are any
+    if internal_standard:
+        measured_once.discard(internal_standard.id)
 
     # check if any molecule has an external standard
     has_external_standard = any([molecule.standard for molecule in molecules])
@@ -307,12 +315,7 @@ def add_measurement_to_MeasurementData(
         calibrators = {}
         calculate_concentration = False
 
-    print(f"Calibration strategy: {strategy}")
-    print(f"Calibrators: {calibrators.keys()}")
-    print(f"Calculate concentration: {calculate_concentration}")
-
     for meas_idx, measurement in enumerate(measurements):
-        print(measurement.reaction_time)
         for chrom in measurement.chromatograms:
             for molecule_id in measured_once:
                 add_data(
@@ -343,8 +346,6 @@ def add_data(
         ),
         None,
     )
-
-    print(f"incoming time {reaction_time}")
 
     measurement_data.time.append(reaction_time)
 

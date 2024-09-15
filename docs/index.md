@@ -46,23 +46,21 @@ graph LR
 
 ## ⭐ Key Features
 
-- **🌱 Data processing based on raw data**   
-Leave behind data processing in spreadsheet applications and directly start with data analysis based on raw data. See the supported file formats.
+- **🌱 Low friction data processing**   
+Leave behind data processing in spreadsheet applications and directly start with data analysis based on raw data.
 - **🧪 Enrich reaction data with metadata**  
 Assign metadata like initial concentrations of reactants, temperature, pH, etc. to reaction data to yield modeling-ready data.
 - **📈 Create and apply calibration curves**  
 Create calibrators for your analytes and use them throughout your data analysis for seamless concentration calculation.
-- **⏳ Batch processing of time-course data**  
-Batch-process chromatograms with [OpenChrom](https://lablicate.com/platform/openchrom) or via the [`hplc-py`](https://cremerlab.github.io/hplc-py/) interface.
 - **📂 FAIR data**  
-Transform your data into EnzymeML format for subsequent analysis or archiving.
+Transform your data into EnzymeML format for subsequent analysis pipelines.
 
 ## 🛠️ Installation
 
 Install `chromatopy` using `pip`:
 
 ```bash
-pip install chromatopy
+pip install chromatopy # 🚧 not released yet
 ```
 
 or from source:
@@ -71,4 +69,4 @@ or from source:
 pip install git+https://github.com/FAIRChemistry/chromatopy.git
 ```
 
-For installation and setup instructions for OpenChrom, refer to the [_Installation_](installation.md#openchrome-from-lablicate) section.
+For installation and setup instructions for OpenChrom, refer to the [Installation](installation.md#openchrome-from-lablicate) section.

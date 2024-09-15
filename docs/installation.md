@@ -5,7 +5,7 @@
 `chromatopy` can be installed using `pip`:
 
 ```bash
-pip install chromatopy
+pip install chromatopy # 🚧 not released yet
 ```
 
 or from source:

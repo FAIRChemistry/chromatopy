@@ -8,9 +8,9 @@ nav:
   - Home: index.md
   - Data Preparation: supported_formats.md
   - Usage:
-    - Reading in data: examples/read_data.ipynb
-    - Visualize data: examples/visualize.md
-    - Calculation of concentrations: getting_started/calibrator.md
+    - Reading in Data: examples/read_data.ipynb
+    - 🖼️ Visualize Data: examples/visualize.md
+    - Assign Peaks: examples/peak_assignment.ipynb
   - Installation: installation.md
   - API Reference:
     - ChromAnalyzer: api_reference/analyzer.md
@@ -102,6 +102,11 @@ extra_javascript:
   - javascripts/mathjax.js
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+  - javascripts/katex.js
+  - https://unpkg.com/katex@0/dist/katex.min.js
+  - https://unpkg.com/katex@0/dist/contrib/auto-render.min.js
+  - https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/mhchem.min.js
 
 extra_css:
   - stylesheets/extra.css
+  - https://unpkg.com/katex@0/dist/katex.min.css

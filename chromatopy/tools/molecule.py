@@ -32,7 +32,7 @@ class Molecule(BaseModel):
     retention_time: float = Field(
         description="Retention time of the molecule in minutes"
     )
-    wavelength: float = Field(
+    wavelength: float | None = Field(
         description="Wavelength at which the molecule was detected", default=None
     )
     standard: Standard | None = Field(

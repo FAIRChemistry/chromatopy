@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import copy
+import json
 import multiprocessing as mp
 import time
 from pathlib import Path
@@ -87,24 +88,29 @@ class ChromAnalyzer(BaseModel):
         conc_unit: UnitDefinition | None = None,
         retention_tolerance: float | None = None,
     ) -> None:
-        """Adds a molecule to the list of species. Allowing to update the initial concentration,
-        concentration unit and retention time tolerance.
+        """
+        Adds a molecule to the list of species, allowing to update the initial concentration,
+        concentration unit, and retention time tolerance.
 
         Args:
             molecule (Molecule): The molecule object to be added.
+            init_conc (float | None, optional): The initial concentration of the molecule. Defaults to None.
+            conc_unit (UnitDefinition | None, optional): The unit of the concentration. Defaults to None.
             retention_tolerance (float | None, optional): Retention time tolerance for peak annotation
                 in minutes. Defaults to None.
         """
 
         new_mol = copy.deepcopy(molecule)
 
-        if init_conc:
+        if init_conc is not None:
+            print("init_conc", init_conc)
             new_mol.init_conc = init_conc
+            print("new_mol.init_conc", new_mol.init_conc)
 
-        if conc_unit:
+        if conc_unit is not None:
             new_mol.conc_unit = conc_unit
 
-        if retention_tolerance:
+        if retention_tolerance is not None:
             new_mol.retention_tolerance = retention_tolerance
 
         self._update_molecule(new_mol)
@@ -232,6 +238,8 @@ class ChromAnalyzer(BaseModel):
             ret_tolerance (float): Retention time tolerance for peak annotation in minutes.
             wavelength (float | None): Wavelength of the detector on which the molecule was detected.
         """
+        assigned_peak_count = 0
+
         for meas in self.measurements:
             for peak in _resolve_chromatogram(meas.chromatograms, wavelength).peaks:
                 if (
@@ -240,9 +248,12 @@ class ChromAnalyzer(BaseModel):
                     < peak.retention_time + ret_tolerance
                 ):
                     peak.molecule_id = molecule.id
+                    assigned_peak_count += 1
                     logger.debug(
                         f"{molecule.id} assigned as molecule ID for peak at {peak.retention_time}."
                     )
+
+        print(f"🎯 Assigned {molecule.name} to {assigned_peak_count} peaks")
 
     def define_protein(
         self,
@@ -450,9 +461,7 @@ class ChromAnalyzer(BaseModel):
         Returns:
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
         """
-        from chromatopy.readers.agilent_csv import (
-            assamble_measurements_from_agilent_csv,
-        )
+        from chromatopy.readers.agilent_csv import AgilentCSVReader
         from chromatopy.readers.agilent_txt import AgilentTXTReader
 
         directory = Path(path)
@@ -487,7 +496,7 @@ class ChromAnalyzer(BaseModel):
             measurements = AgilentTXTReader(**data).read()  # type: ignore
         except FileNotFoundError:
             data["file_paths"] = csv_paths  # type: ignore
-            measurements = assamble_measurements_from_agilent_csv(**data)  # type: ignore
+            measurements = AgilentCSVReader(**data).read()  # type: ignore
 
         if id is None:
             id = path
@@ -547,7 +556,46 @@ class ChromAnalyzer(BaseModel):
 
         return cls(id=path, name=name, measurements=measurements)
 
-    def create_enzymeml(
+    def to_json(self, path):
+        """
+        Serialize the instance to a JSON file.
+        Parameters:
+            path (str or Path): The file path where the JSON data will be saved.
+                                If the parent directory does not exist, it will be created.
+        Returns:
+            None: This method does not return a value. It writes the instance's
+            attributes to a JSON file at the specified path.
+        """
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Serialize the instance to JSON, allowing overwriting
+        with open(path, "w") as file:
+            file.write(self.model_dump_json(indent=2))
+
+    @classmethod
+    def from_json(cls, path):
+        """
+        Load an instance of the class from a JSON file.
+
+        Args:
+            path (str): The file path to the JSON file.
+
+        Returns:
+            An instance of the class populated with data from the JSON file.
+
+        Raises:
+            FileNotFoundError: If the specified file does not exist.
+            json.JSONDecodeError: If the file contains invalid JSON.
+        """
+        # Load from a JSON file
+        with open(path, "r") as file:
+            data = json.load(file)
+
+        # Return an instance of the class
+        return cls(**data)
+
+    def to_enzymeml(
         self,
         name: str,
         calculate_concentration: bool = True,
@@ -637,13 +685,22 @@ class ChromAnalyzer(BaseModel):
         max_retention_time: float | None = None,
         **hplc_py_kwargs,
     ):
-        """Processes the chromatograms using the HPLC-Py library.
+        """
+        Processes the chromatograms using the [`hplc-py`](https://cremerlab.github.io/hplc-py/index.html) library.
+        !!! info
+            Please consider using OpenChrom or other chromatography software to calculate peak areas.
+            Especially for complex chromatograms, the results may be more accurate.
 
         Args:
             prominence: The prominence of the peaks to be detected. Defaults to 0.03.
+            min_retention_time: The minimum retention time to be considered in the peak detection.
+                Defaults to None.
+            max_retention_time: The maximum retention time to be considered in the peak detection.
+                Defaults to None.
             hplc_py_kwargs: Keyword arguments to be passed to the `fit_peaks` method of the
-                `HPLC-Py library <https://cremerlab.github.io/hplc-py/quant.html#hplc.quant.Chromatogram.fit_peaks>`_.
+                `hplc-py` library. For more information, visit the [HPLC-Py Documentation](https://cremerlab.github.io/hplc-py/quant.html#hplc.quant.Chromatogram.fit_peaks).
         """
+
         hplc_py_kwargs["prominence"] = prominence
         hplc_py_kwargs["approx_peak_width"] = 0.6
         processors = []
@@ -715,11 +772,16 @@ class ChromAnalyzer(BaseModel):
 
                 chrom.processed_signal = np.concatenate(
                     [
-                        np.full(nans_laft, np.nan),
+                        np.full(nans_laft, float(0)),
                         results[processor_idx].processed_signal,
-                        np.full(nans_right, np.nan),
+                        np.full(nans_right, float(0)),
                     ]
                 ).tolist()
+
+                # replace nan values and nones with 0
+                # self.processed_signal = [
+                #     0 if np.isnan(d) or d is None else d for d in self.processed_signal
+                # ]
 
                 chrom.peaks = results[processor_idx].peaks
                 processor_idx += 1
@@ -890,7 +952,7 @@ class ChromAnalyzer(BaseModel):
         n_peaks_in_first_chrom = len(self.measurements[0].chromatograms[0].peaks)
 
         if peak_vis_mode == "gaussian":
-            logger.warning(
+            logger.info(
                 "Gaussian peaks are used for visualization, the actual peak shape might differ and is based on the previous preak processing."
             )
 
@@ -943,6 +1005,15 @@ class ChromAnalyzer(BaseModel):
         wavelength: float | None = None,
         visualize: bool = True,
     ):
+        """Creates a standard curve for a molecule based on the peak areas and concentrations.
+
+        Args:
+            molecule (Molecule): The molecule for which the standard curve should be created.
+            concs (list[float]): List of concentrations of the molecule matching the order of the `measurements` in the `ChromAnalyzer`.
+            conc_unit (UnitDefinition): _description_
+            wavelength (float | None, optional): The wavelength of the detector. Defaults to None.
+            visualize (bool, optional): If True, the standard curve is visualized. Defaults to True.
+        """
         assert any(
             [molecule in [mol for mol in self.molecules]]
         ), "Molecule not found in molecules of analyzer."
@@ -997,7 +1068,6 @@ class ChromAnalyzer(BaseModel):
             temp_unit=temperature_unit,
             visualize=visualize,
         )
-        print(f"Standard for {molecule.name} added.")
 
     def _get_chromatograms_by_wavelegnth(self, wavelength: float) -> list[Chromatogram]:
         """Returns a list of chromatograms at a specified wavelength.
@@ -1023,6 +1093,7 @@ class ChromAnalyzer(BaseModel):
         for idx, mol in enumerate(self.molecules):
             if mol.id == molecule.id:
                 self.molecules[idx] = molecule
+                assert self.molecules[idx] is molecule
                 return
 
         self.molecules.append(molecule)
@@ -1042,6 +1113,8 @@ class ChromAnalyzer(BaseModel):
         """
         Plots all chromatograms in the ChromAnalyzer in a single plot.
 
+        Args:
+            dark_mode (bool, optional): If True, the figure is displayed in dark mode. Defaults to False.
 
         Returns:
             go.Figure: The plotly figure object.
@@ -1080,248 +1153,3 @@ class ChromAnalyzer(BaseModel):
         )
 
         return fig
-
-    # def visualize_peaks(self):
-    #     """
-    #     Plot the chromatogram with annotated peaks.
-
-    #     This method creates a plot of the chromatogram using the plotly library.
-    #     It adds a scatter trace for the retention times and signals, and if there are peaks present, it adds vertical lines for each peak.
-
-    #     Returns:
-    #         go.Figure: The plotly figure object.
-    #     """
-    #     fig = go.Figure()
-
-    #     # color map for unique peak ids
-    #     unique_species = set(
-    #         [
-    #             peak.molecule_id
-    #             for meas in self.measurements
-    #             for chrom in meas.chromatograms
-    #             for peak in chrom.peaks
-    #             if peak.molecule_id
-    #         ]
-    #     )
-    #     colors = pc.sample_colorscale(
-    #         "viridis", [i / len(unique_species) for i in range(len(unique_species))]
-    #     )
-    #     color_dict = dict(zip(unique_species, colors))
-
-    #     for meas in self.measurements:
-    #         peaks = [
-    #             peak
-    #             for chrom in meas.chromatograms
-    #             for peak in chrom.peaks
-    #             if peak.molecule_id
-    #         ]
-    #         for peak in peaks:
-    #             fig.add_trace(
-    #                 go.Scatter(
-    #                     x=[meas.reaction_time],
-    #                     y=[peak.area],
-    #                     name=self.get_molecule(peak.molecule_id).name,
-    #                     marker=dict(color=color_dict[peak.molecule_id]),
-    #                 )
-    #             )
-
-    #         fig.update_layout(
-    #             xaxis_title=f"Reaction time / {meas.time_unit.name}",
-    #             yaxis_title="Peak area",
-    #         )
-
-    #     legends = set()
-    #     fig.for_each_trace(
-    #         lambda trace: trace.update(showlegend=False)
-    #         if (trace.name in legends)
-    #         else legends.add(trace.name)
-    #     )
-
-    #     fig.show()
-
-
-if __name__ == "__main__":
-    # from devtools import pprint
-
-    # pprint(1)
-
-    # from chromatopy.tools.molecule import Molecule
-    # from chromatopy.units import M, min
-
-    # path = "example_data/liam/"
-    # reaction_times = [
-    #     0,
-    #     3,
-    #     6.0,
-    #     9,
-    #     12,
-    #     15,
-    #     18,
-    #     21,
-    #     24,
-    #     27,
-    #     30,
-    #     45,
-    #     60,
-    #     90,
-    #     120,
-    #     150,
-    #     180,
-    # ]
-
-    # ana = ChromAnalyzer.read_agilent_csv(
-    #     id="lr_205",
-    #     path=path,
-    #     reaction_times=reaction_times,
-    #     time_unit=min,
-    #     ph=7.0,
-    #     temperature=25.0,
-    # )
-
-    # ana.add_molecule(
-    #     id="mal",
-    #     name="maleimide",
-    #     pubchem_cid=10935,
-    #     init_conc=0.656,
-    #     conc_unit=M,
-    #     retention_time=6.05,
-    # )
-
-    # ana.define_internal_standard(
-    #     id="std",
-    #     name="internal standard",
-    #     pubchem_cid=123,
-    #     init_conc=1.0,
-    #     conc_unit=M,
-    #     retention_time=6.3,
-    #     retention_tolerance=0.05,
-    # )
-
-    # enzdoc = ana.create_enzymeml(name="test")
-
-    # # pprint(enzdoc)
-
-    # # pprint(ana)
-
-    # # ana.visualize_peaks()
-
-    # # # Molecule(
-    # # #     id="s0",
-    # # #     pubchem_cid=123,
-    # # #     name="Molecule 1",
-    # # #     init_conc=1.0,
-    # # #     conc_unit=mM,
-    # # # )
-    # # import matplotlib.pyplot as plt
-
-    # # plt.scatter(
-    # #     enzdoc.measurements[0].species_data[0].time,
-    # #     enzdoc.measurements[0].species_data[0].data,
-    # # )
-    # # plt.show()
-    # # ana.plot_measurements()
-
-    # from devtools import pprint
-
-    # from chromatopy.units.predefined import min
-
-    # dirpath = "/Users/max/Documents/GitHub/shimadzu-example/data/kinetic/substrate_10mM_co-substrate3.12mM"
-
-    # reaction_time = [0, 1, 2, 3, 4, 5.0]
-    # ana = ChromAnalyzer.read_shimadzu(
-    #     id="23234",
-    #     path=dirpath,
-    #     reaction_times=reaction_time,
-    #     time_unit=min,
-    #     ph=7.0,
-    #     temperature=25.0,
-    #     temperature_unit=C,
-    # )
-
-    # ana.add_molecule(
-    #     id="mal",
-    #     name="maleimide",
-    #     pubchem_cid=10935,
-    #     init_conc=0.656,
-    #     conc_unit=M,
-    #     retention_time=11.38,
-    #     wavelength=254,
-    # )
-
-    # ana.visualize()
-
-    # from chromatopy.tools.analyzer import ChromAnalyzer
-    # from chromatopy.units import min as min_
-
-    # path = "/Users/max/Documents/jan-niklas/MjNK"
-
-    # reaction_times = [0.0] * 18
-
-    # ana = ChromAnalyzer.read_chromeleon(
-    #     path=path,
-    #     reaction_times=reaction_times,
-    #     time_unit=min_,
-    #     ph=7.4,
-    #     temperature=25.0,
-    # )
-    # ana.measurements = ana.measurements
-
-    # ana.process_chromatograms(
-    #     min_retention_time=5, max_retention_time=25, prominence=0.008
-    # )
-
-    # print(ana.measurements[0].chromatograms[0].peaks[0])
-    # ana.plot_peaks_fitted_spectrum()
-
-    ######
-
-    from chromatopy.units import hour, mM
-
-    path = "/Users/max/Documents/GitHub/chromatopy/docs/examples/data/asm"
-
-    analyzer = ChromAnalyzer.read_asm(
-        path,
-        reaction_times=[],
-        # reaction_times=[0, 0.5, 2, 6],
-        time_unit=hour,
-        ph=7,
-        temperature=25,
-    )
-
-    n1_triphosphate = analyzer.define_molecule(
-        pubchem_cid=127255957,
-        id="n1_triphosphate",
-        name="N6 Benzyl ATP",
-        retention_time=13.94,
-        init_conc=2.5,
-        conc_unit=mM,
-    )
-
-    y_Hcy = analyzer.define_molecule(
-        pubchem_cid=-1,
-        id="y_Hcy",
-        name="y Hcy",
-        retention_time=15.68,
-        init_conc=0.5,
-        conc_unit=mM,
-    )
-
-    DHBAL = analyzer.define_molecule(
-        pubchem_cid=8768,
-        id="DHBAL",
-        name="DHBAL",
-        retention_time=22.97,
-        init_conc=0.3,
-        conc_unit=mM,
-    )
-
-    DHBAL_O3 = analyzer.define_molecule(
-        pubchem_cid=-1,
-        id="DHBAL_O3",
-        name="DHBAL O3",
-        retention_time=23.21,
-        init_conc=0,
-        conc_unit=mM,
-    )
-
-    analyzer.plot_peaks_fitted_spectrum()

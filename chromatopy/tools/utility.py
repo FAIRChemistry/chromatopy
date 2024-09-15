@@ -3,8 +3,10 @@ import sys
 import numpy as np
 import plotly.graph_objects as go
 from loguru import logger
+from matplotlib import pyplot as plt
+from pyenzyme import DataTypes, EnzymeMLDocument
 
-from chromatopy.model import Chromatogram
+from chromatopy.model import Chromatogram, UnitDefinition
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
@@ -84,6 +86,74 @@ def generate_gaussian_data(
     y_values = amplitude * np.exp(-((x_values - center) ** 2) / (2 * sigma**2))
 
     return x_values, y_values
+
+
+def visualize_enzymeml(enzymeml_doc: EnzymeMLDocument):
+    """visualize the data in the EnzymeML document
+
+    Args:
+        enzymeml_doc (EnzymeMLDocument): The EnzymeML document to visualize
+    """
+    for species in enzymeml_doc.measurements[0].species_data:
+        if species.data:
+            plt.scatter(
+                species.time,
+                species.data,
+                label=get_species_by_id(enzymeml_doc, species.species_id).name,
+            )
+    plt.legend()
+
+    # handel y label
+    if species.data_type == DataTypes.PEAK_AREA:
+        plt.ylabel("Peak Area [-]")
+    elif species.data_type == DataTypes.CONCENTRATION:
+        plt.ylabel(f"concentration [{unit_to_str(species.data_unit)}]")
+    plt.xlabel(f"reaction time [{unit_to_str(species.time_unit)}]")
+    plt.show()
+
+
+def get_species_by_id(enzymeml_doc: EnzymeMLDocument, species_id: str):
+    for species in enzymeml_doc.small_molecules:
+        if species.id == species_id:
+            return species
+
+
+def unit_to_str(unit: UnitDefinition) -> str:
+    magnitude_dict = {
+        1: "",
+        -1: "",
+        -3: "m",
+        -6: "µ",
+        -9: "n",
+        -12: "p",
+    }
+
+    # Handle single base unit cases
+    if len(unit.base_units) == 1:
+        base_unit = unit.base_units[0]
+
+        if base_unit.kind.value == "second":
+            if base_unit.multiplier == 1:
+                return "s"
+            elif base_unit.multiplier == 60:
+                return "min"
+            elif base_unit.multiplier == 3600:
+                return "h"
+            else:
+                return unit.name or ""
+        else:
+            return unit.name or ""
+
+    # Handle mole per litre cases
+    elif len(unit.base_units) == 2:
+        u1, u2 = unit.base_units
+        if u1.kind.value == "mole" and u2.kind.value == "litre" and u2.exponent == -1:
+            return f"{magnitude_dict[u1.scale]}M"
+        else:
+            return unit.name or ""
+
+    # Default return for other cases
+    return unit.name or ""
 
 
 ###########

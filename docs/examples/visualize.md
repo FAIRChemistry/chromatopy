@@ -1,5 +1,6 @@
 # 🖼️ Visualize Data
 
+
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FAIRChemistry/chromatopy/blob/update-sdrdm/docs/examples/visualize.ipynb)
 
 After initializing the `ChromAnalyzer`, the loaded spectra and identified peaks can be visualized in different ways. Eight all spectra can be plotted in a single interactive plot, or individual spectra and the quantified peaks can be plotted separately, providing means for visual inspection prior to further analysis and processing. 
