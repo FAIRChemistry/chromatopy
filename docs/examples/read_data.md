@@ -1,6 +1,6 @@
 # 📖 Read Chromatographic Data
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FAIRChemistry/chromatopy/blob/update-sdrdm/docs/examples/read_data.ipynb)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FAIRChemistry/chromatopy/blob/main/docs/examples/read_data.ipynb)
 
 ---
 
