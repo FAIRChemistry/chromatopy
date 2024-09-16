@@ -1,5 +1,9 @@
 # Chromatopy
 
+[![Documentation](https://img.shields.io/badge/Documentation-Online-blue.svg)](fairchemistry.github.io/chromatopy/)
+[![Tests](https://github.com/FAIRChemistry/CaliPytion/actions/workflows/tests.yaml/badge.svg)](https://github.com/FAIRChemistry/chromatopy/actions/workflows/run_tests.yaml)
+[![PyPI version](https://badge.fury.io/py/CaliPytion.svg)](https://badge.fury.io/py/chromatopy)
+
 ## ℹ️ Overview
 
 `chromatopy` is a Python package which aims to streamline the data processing and analysis of chromatographic reaction data. It allows to process raw or pre-processed chromatographic data, enrich it with metadata such as reaction time, temperature, pH, and initial concentrations of reaction components. Finally, the peaks of interest can be aggregated, concentrations calculated, and the time-course data for each analyte transformed to EnzymeML data.

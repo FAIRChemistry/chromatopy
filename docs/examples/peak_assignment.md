@@ -34,30 +34,31 @@ __Returns__:
 
 ### Define Molecules
 
-Consider the following cascade reaction, where molecules measurable by chromatography are highlighted in purple:
+Consider the following cascade reaction, where molecules measurable by chromatography are highlighted in blue:
 
 ```mermaid
 graph LR
-  A[<b>n1-triphosphate</b><br>2.5 mM] --> C{<i>MjMAT</i><br>0.05 mM};
+  A[<b>N<sup>6</sup>-benzyl-ATP</b><br>2.5 mM] --> C{<b><i>Mj</i>MAT</b><br>0.05 mM};
 
-  B[<b>y-Hcy</b><br>5 mM] --> C
-  style C stroke-width:2px,fill:transparent,stroke:#000
+  B[<b><i>ortho</i>-nitrobenzyl-<i>DL</i>-homocysteine</b><br>5 mM] --> C
+  style C fill:transparent,stroke:#000
   
-  C --> D[<b>n1y</b>]
-  style D fill:transparent,stroke:#000,stroke-width:2px;
+  C --> D[<b><i>ortho</i>-Nitrobenzyl-<i>S</>-Adenosylmethionine analogue</b>]
+  style D fill:transparent,stroke:#000;
 
-  D --> E{<i>RnCOMT</i><br>0.05 mM};
-  style E stroke-width:2px,fill:transparent,stroke:#000
+  D --> E{<b><i>Rn</i>COMT</b><br>0.05 mM};
+  style E fill:transparent,stroke:#000
 
-  DHBAL[<b>DHBAL</b><br>0.3 mM] --> E
+  DHBAL[<b><i>3,4</i>-dihydroxybenzaldehyde</b><br>0.3 mM] --> E
 
-  E --> F[<b>O<sup>3</sup>-modified DHBAL</b>] & G[<b><i>S</i>-adenosyl-<i>L</i>-homocysteine analogue</b>]
+  E --> F[<b>O<sup>3</sup>-modified <i>3,4</i>-dihydroxybenzaldehyde</b>] & G[<b><i>S</i>-adenosyl-<i>L</i>-homocysteine analogue</b>]
 
-  style G fill:transparent,stroke:#000,stroke-width:2px;
+  style G fill:transparent,stroke:#000;
 ```
 
 
-This cascade reaction involves two enzymatic steps. In the first step, the enzyme <span style="font-style: italic;">MjMAT</span> catalyzes the conversion of <span style="font-style: italic;">N<sup>6</sup>-benzyl-ATP</span> (`n1_triphosphate`) and <span style="font-style: italic;">ortho-nitrobenzyl-DL-homocysteine</span> (`y_Hcy`) into an AdoONB analogue (`n1y`). In the second step, the enzyme <span style="font-style: italic;">RnCOMT</span> further processes `n1y` and <span style="font-style: italic;">3,4-dihydroxybenzaldehyde</span> (`DHBAL`) to produce a modified <span style="font-style: italic;">O<sup>3</sup>-DHBAL</span> (`DHBAL_modified`) and an <span style="font-style: italic;">S-adenosyl-L-homocysteine analogue</span>.
+This cascade reaction involves two enzymatic steps. In the first step, the Methionine Adenosyltransferase from _Methanocaldococcus jannaschii_ (<i>Mj</i>MAT) catalyzes the conversion of N<sup>6</sup>-benzyl-ATP (`n1_triphosphate`) and <i>ortho</i>-nitrobenzyl-<i>DL</i>-homocysteine (`y_Hcy`) into <i>ortho</i>-Nitrobenzyl-<i>S</>-Adenosylmethionine analogue (`n1y`). In the second step, the Catechol-O-methyltransferase from *Rattus norvegicus* (*RnCOMT*) further processes `n1y` and <i>3,4</i>-dihydroxybenzaldehyde (`DHBAL`) to produce O<sup>3</sup>-modified <i>3,4</i>-dihydroxybenzaldehyde (`DHBAL_modified`) and an <i>S</i>-adenosyl-<i>L</i>-homocysteine analogue.
+
 
 The following retention times are known:
 
