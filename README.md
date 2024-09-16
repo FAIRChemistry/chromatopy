@@ -1,8 +1,9 @@
 # Chromatopy
 
 [![Documentation](https://img.shields.io/badge/Documentation-Online-blue.svg)](https://fairchemistry.github.io/chromatopy/)
-[![Tests](https://github.com/FAIRChemistry/chromatopy/actions/workflows/tests.yaml/badge.svg)](https://github.com/FAIRChemistry/chromatopy/actions/workflows/run_tests.yaml)
+[![Tests](https://github.com/FAIRChemistry/chromatopy/actions/workflows/run_tests.yaml/badge.svg)](https://github.com/FAIRChemistry/chromatopy/actions/workflows/run_tests.yaml)
 [![PyPI version](https://badge.fury.io/py/chromatopy.svg)](https://badge.fury.io/py/chromatopy)
+
 
 ## ℹ️ Overview
 
