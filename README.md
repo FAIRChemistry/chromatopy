@@ -74,4 +74,4 @@ or from source:
 pip install git+https://github.com/FAIRChemistry/chromatopy.git
 ```
 
-For more information an examples, please refer to the [Documentation](fairchemistry.github.io/chromatopy/) section.
+For more information an examples, please refer to the [Documentation](https://fairchemistry.github.io/chromatopy/) section.
