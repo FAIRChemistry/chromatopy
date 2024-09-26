@@ -203,31 +203,3 @@ class AbstractReader(BaseModel):
     def print_success(self, n_measurement_objects: int) -> None:
         """Prints a success message."""
         print(f"✅ Loaded {n_measurement_objects} chromatograms.")
-
-
-# Then, instantiate the ConcreteReader instead of AbstractReader
-if __name__ == "__main__":
-    from chromatopy.units.predefined import C
-
-    other = "/Users/max/Documents/GitHub/chromatopy/tests/test_readers/data/test_dir_correct_file_names"
-    orig = "/Users/max/Documents/GitHub/chromatopy/docs/examples/data/asm"
-    wrong = "/Users/max/Documents/GitHub/chromatopy/tests/test_readers/data/test_dir_wrong_units"
-
-    class ConcreteReader(AbstractReader):
-        def read(self) -> list[Measurement]:
-            # Implement the reading logic here
-            # This is just a placeholder implementation
-            return []
-
-    reader = ConcreteReader(
-        dirpath=orig,
-        reaction_times=[],
-        ph=7.0,
-        time_unit=None,
-        temperature=25.0,
-        temperature_unit=C,
-    )
-
-    print(reader.reaction_times)
-    print(reader.file_paths)
-    print(reader.time_unit.base_units)

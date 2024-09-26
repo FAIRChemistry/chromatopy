@@ -71,9 +71,15 @@ class ASMReader(AbstractReader):
         reaction_time: float,
         path: str,
     ):
-        doc = content["liquid chromatography aggregate document"][
-            "liquid chromatography document"
-        ]
+        try:
+            doc = content["liquid chromatography aggregate document"][
+                "liquid chromatography document"
+            ]
+        except KeyError:
+            doc = content["gas chromatography aggregate document"][
+                "gas chromatography document"
+            ]
+
         if len(doc) > 1:
             logger.warning(
                 f"More than one chromatogram found in file '{path}'. Using the first chromatogram only."
@@ -85,7 +91,7 @@ class ASMReader(AbstractReader):
         except KeyError:
             sample_document = doc[0]["measurement aggregate document"][
                 "measurement document"
-            ]["sample document"]
+            ][0]["sample document"]
             meas_document = doc[0]["measurement aggregate document"][
                 "measurement document"
             ]
@@ -95,6 +101,9 @@ class ASMReader(AbstractReader):
         sample_id = sample_document.get("sample identifier")
         if not sample_id and name:
             sample_id = name
+
+        if isinstance(meas_document, list):
+            meas_document = meas_document[0]
 
         # signal and time
         signal = meas_document["chromatogram data cube"]["data"]["measures"][0]
@@ -125,7 +134,12 @@ class ASMReader(AbstractReader):
                     )
                 peak_list = analyte_document[0]["peak list"]["peak"]
             except KeyError:
-                peak_list = []
+                try:
+                    peak_list = meas_document["processed data document"]["peak list"][
+                        "peak"
+                    ]
+                except KeyError:
+                    peak_list = []
 
         peaks = [self.map_peaks(peak) for peak in peak_list]
 
@@ -148,22 +162,27 @@ class ASMReader(AbstractReader):
 
     def map_peaks(self, peak_dict: dict) -> Peak:
         area = peak_dict["peak area"]
-        if area["unit"] == "mAU.s":
-            area["value"] *= 60
-        elif area["unit"] == "mAU.min":
-            pass
-        elif area["unit"] == "unitless":
-            pass
-        else:
-            raise ValueError(f"Unit '{area['unit']}' not recognized")
+        if len(peak_dict.keys()) == 2:
+            if area["unit"] == "mAU.s":
+                area["value"] *= 60
+            elif area["unit"] == "mAU.min":
+                pass
+            elif area["unit"] == "unitless":
+                pass
+            else:
+                raise ValueError(f"Unit '{area['unit']}' not recognized")
 
-        width = peak_dict["peak width at half height"]
-        if width["unit"] == "s":
-            width["value"] /= 60
-        elif width["unit"] == "min":
-            pass
+        if "peak width at half height" in peak_dict:
+            width = peak_dict["peak width at half height"]
+            if width["unit"] == "s":
+                width["value"] /= 60
+            elif width["unit"] == "min":
+                pass
+            else:
+                raise ValueError(f"Unit '{width['unit']}' not recognized")
+            width_value = width["value"]
         else:
-            raise ValueError(f"Unit '{width['unit']}' not recognized")
+            width_value = None
 
         retention_time = peak_dict["retention time"]
         if retention_time["unit"] == "s":
@@ -200,7 +219,7 @@ class ASMReader(AbstractReader):
             retention_time=peak_dict["retention time"]["value"],
             area=peak_dict["peak area"]["value"],
             amplitude=peak_dict["peak height"]["value"],
-            width=peak_dict["peak width at half height"]["value"],
+            width=width_value,
             skew=asym_factor,
             percent_area=peak_dict["relative peak area"]["value"],
             peak_start=peak_dict["peak start"]["value"],
@@ -212,15 +231,28 @@ if __name__ == "__main__":
     from chromatopy.units import C
     from chromatopy.units.predefined import minute
 
+    first = "/Users/max/Documents/GitHub/chromatopy/docs/examples/data/asm"
+    other = "docs/examples/data/asm_3/"
+
     reader = ASMReader(
-        dirpath="/Users/max/Documents/GitHub/chromatopy/docs/examples/data/asm",
-        reaction_times=[],
+        dirpath=first,
+        reaction_times=[
+            0,
+            1,
+            2,
+            3,
+        ],
         time_unit=minute,
         ph=7.4,
         temperature=37,
         temperature_unit=C,
+        silent=False,
     )
     measurements = reader.read()
-    print(reader.reaction_times)
-    print(reader.time_unit.base_units)
-    print(reader.file_paths)
+    # print(reader.reaction_times)
+    # print(reader.time_unit.base_units)
+    # print(reader.file_paths)
+
+    from devtools import pprint
+
+    pprint(measurements[0].chromatograms[0].peaks)
