@@ -90,6 +90,8 @@ class AbstractReader(BaseModel):
 
         try:
             filenames = [Path(f) for f in data["file_paths"]]
+            if len(filenames) == 0:
+                raise KeyError
         except KeyError:
             path = Path(data["dirpath"])
             if not path.exists():
@@ -101,70 +103,61 @@ class AbstractReader(BaseModel):
 
             # get all filnames of normal files in the directory. exclude hidden files
 
-            filenames = [
-                f for f in path.iterdir() if f.is_file() and not f.name.startswith(".")
-            ]
+            filenames = [f for f in path.iterdir() if not f.name.startswith(".")]
 
-        pattern = r"(\d+(\.\d+)?)\s*[_-]?\s*(min|minutes?|sec|seconds?|hours?)"
+        pattern = r".*?(\d+(\.\d+)?)\s*[_-]?\s*(min|minutes?|sec|seconds?|hours?)"
 
-        # check if all filenames contain a reaction time and unit
-        if all(re.search(pattern, f.name) for f in filenames):
-            # extract all reaction times and units from the filenames
-            rctn_time_path_dict: dict[float, str] = {}
-            units = []
+        # extract all reaction times and units from the filenames or parent directories
+        rctn_time_path_dict: dict[float, str] = {}
+        units = []
 
-            for file in filenames:
-                match = re.search(pattern, file.name)
-                assert (
-                    match is not None
-                ), f"Could not parse reaction time from '{file.name}'."
+        for file in filenames:
+            match = re.search(pattern, file.name)
+            if not match:
+                match = re.search(pattern, file.parent.name)
+            if match:
                 reaction_time = float(match.group(1))
-                units.append(match.group(3))
+                unit = match.group(3)
+                if reaction_time in rctn_time_path_dict:
+                    logger.debug(
+                        f"Duplicate reaction time '{reaction_time}' found in directory '{data['dirpath']}'."
+                    )
+                    raise MetadataExtractionError(
+                        f"Reaction times in directory '{data['dirpath']}' are not unique."
+                    )
                 rctn_time_path_dict[reaction_time] = str(file.absolute())
-
-            if not len(list(rctn_time_path_dict.keys())) == len(filenames):
-                logger.debug(
-                    f"Reaction times in directory '{data['dirpath']}' are not unique."
-                )
+                units.append(unit)
+            else:
+                logger.debug(f"Could not parse reaction time from '{file}'.")
                 raise MetadataExtractionError(
-                    f"Reaction times in directory '{data['dirpath']}' are not unique."
+                    f"Could not parse reaction time from '{file}'."
                 )
 
-            # check if all units are the same
-            if not all(unit == units[0] for unit in units):
-                logger.debug(
-                    f"Units of reaction times in directory '{data['dirpath']}' are not consistent: {units}"
-                )
-                raise UnitConsistencyError(
-                    f"Units of reaction times in directory '{data['dirpath']}' are not consistent: {units}"
-                )
-
-            try:
-                unit_definition = AbstractReader._map_unit_str_to_UnitDefinition(
-                    units[0]
-                )
-            except ValueError:
-                logger.debug(
-                    f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
-                )
-                raise MetadataExtractionError(
-                    f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
-                )
-
-            data["file_paths"] = []
-            data["reaction_times"] = []
-            for time, full_path in sorted(rctn_time_path_dict.items()):
-                data["reaction_times"].append(time)
-                data["file_paths"].append(full_path)
-            data["time_unit"] = unit_definition
-
-        else:
+        # check if all units are the same
+        if not all(unit == units[0] for unit in units):
             logger.debug(
-                f"Reaction times and units could not be parsed from filenames in directory '{data['dirpath']}'."
+                f"Units of reaction times in directory '{data['dirpath']}' are not consistent: {units}"
+            )
+            raise UnitConsistencyError(
+                f"Units of reaction times in directory '{data['dirpath']}' are not consistent: {units}"
+            )
+
+        try:
+            unit_definition = AbstractReader._map_unit_str_to_UnitDefinition(units[0])
+        except ValueError:
+            logger.debug(
+                f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
             )
             raise MetadataExtractionError(
-                f"Reaction times and units could not be parsed from filenames in directory '{data['dirpath']}'."
+                f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
             )
+
+        data["file_paths"] = []
+        data["reaction_times"] = []
+        for time, full_path in sorted(rctn_time_path_dict.items()):
+            data["reaction_times"].append(time)
+            data["file_paths"].append(full_path)
+        data["time_unit"] = unit_definition
 
     @staticmethod
     def _map_unit_str_to_UnitDefinition(

@@ -68,6 +68,7 @@ Please note, that automatic reaction time and unit detection does not work for `
 
 ```python
 from chromatopy import ChromAnalyzer
+from chromatopy.units import minute
 
 data_dir = "data/agilent_txt"
 reaction_times = [0, 10, 20, 40]
@@ -76,6 +77,8 @@ analyzer = ChromAnalyzer.read_agilent(
     path=data_dir,
     ph=7.4,
     temperature=25,
+    reaction_times=reaction_times,
+    time_unit=minute,
 )
 ```
 ```

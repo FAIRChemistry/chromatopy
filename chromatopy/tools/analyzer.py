@@ -465,14 +465,15 @@ class ChromAnalyzer(BaseModel):
         from chromatopy.readers.agilent_txt import AgilentTXTReader
 
         directory = Path(path)
+
         txt_paths = [
             str(f.absolute())
-            for f in directory.rglob("*.TXT")
+            for f in directory.rglob("Report.TXT")
             if f.parent.parent == directory
         ]
         csv_paths = [
             str(f.absolute())
-            for f in directory.rglob("*.csv")
+            for f in directory.rglob("RESULTS.CSV")
             if f.parent.parent == directory
         ]
 
@@ -491,12 +492,14 @@ class ChromAnalyzer(BaseModel):
         if data["reaction_times"] is None:
             data.pop("reaction_times")
 
-        try:
+        if not csv_paths and txt_paths:
             data["file_paths"] = txt_paths  # type: ignore
             measurements = AgilentTXTReader(**data).read()  # type: ignore
-        except FileNotFoundError:
+        elif csv_paths and not txt_paths:
             data["file_paths"] = csv_paths  # type: ignore
             measurements = AgilentCSVReader(**data).read()  # type: ignore
+        else:
+            raise IOError(f"No 'REPORT.TXT' or 'RESULTS.CSV' files found in '{path}'.")
 
         if id is None:
             id = path
@@ -1153,3 +1156,11 @@ class ChromAnalyzer(BaseModel):
         )
 
         return fig
+
+
+if __name__ == "__main__":
+    path = "/Users/max/Documents/GitHub/eyring-kinetics/data/hetero/RAU-R503"
+
+    ana = ChromAnalyzer.read_agilent(path, ph=7.4, temperature=37)
+    for meas in ana.measurements:
+        print(meas.reaction_time)
