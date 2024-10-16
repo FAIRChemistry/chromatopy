@@ -5,6 +5,7 @@ import json
 import multiprocessing as mp
 import time
 from pathlib import Path
+from typing import Literal
 
 import numpy as np
 import plotly.colors as pc
@@ -14,7 +15,7 @@ import scipy.stats
 from calipytion.model import Standard
 from calipytion.tools.utility import pubchem_request_molecule_name
 from loguru import logger
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from pyenzyme import EnzymeMLDocument
 from rich.progress import Progress
 
@@ -38,6 +39,34 @@ class ChromAnalyzer(BaseModel):
         description="Name of the ChromAnalyzer object.",
     )
 
+    mode: Literal["timecourse", "calibration"] = Field(
+        description="Mode of the ChromAnalyzer: 'timecourse' or 'calibration'."
+    )
+
+    # Common attributes
+    ph: float = Field(..., description="pH value of the measurement.")
+    temperature: float = Field(..., description="Temperature of the measurement.")
+    temperature_unit: UnitDefinition = Field(
+        default=C, description="Unit of the temperature."
+    )
+
+    # Attributes for timecourse mode
+    reaction_times: list[float] | None = Field(
+        None, description="List of reaction times."
+    )
+    time_unit: UnitDefinition | None = Field(
+        None, description="Unit of the reaction times."
+    )
+
+    # Attributes for calibration mode
+    concentrations: list[float] | None = Field(
+        None, description="List of concentrations."
+    )
+    concentration_unit: UnitDefinition | None = Field(
+        None, description="Unit of the concentrations."
+    )
+
+    # Data attributes
     molecules: list[Molecule] = Field(
         description="List of species present in the measurements.",
         default_factory=list,
@@ -54,9 +83,58 @@ class ChromAnalyzer(BaseModel):
     )
 
     internal_standard: Molecule | None = Field(
-        description="Internal standard molecule used for concentation calculation.",
+        description="Internal standard molecule used for concentration calculation.",
         default=None,
     )
+
+    @model_validator(mode="before")
+    def infer_mode_and_check_fields(self):
+        mode = self.mode
+        reaction_times = self.reaction_times
+        time_unit = self.time_unit
+        concentrations = self.concentrations
+        concentration_unit = self.concentration_unit
+
+        # Infer mode if not specified
+        if mode is None:
+            if reaction_times is not None and time_unit is not None:
+                mode = "timecourse"
+            elif concentrations is not None and concentration_unit is not None:
+                mode = "calibration"
+            else:
+                raise ValueError(
+                    "Cannot infer 'mode'. Provide either 'reaction_times' and 'time_unit', "
+                    "or 'concentrations' and 'concentration_unit'."
+                )
+            self.mode = mode
+
+        # Validate fields based on mode
+        if mode == "timecourse":
+            if reaction_times is None or time_unit is None:
+                raise ValueError(
+                    "For 'timecourse' mode, 'reaction_times' and 'time_unit' must be provided."
+                )
+            # Ensure calibration fields are not set
+            if concentrations is not None or concentration_unit is not None:
+                raise ValueError(
+                    "For 'timecourse' mode, 'concentrations' and 'concentration_unit' should not be provided."
+                )
+        elif mode == "calibration":
+            if concentrations is None or concentration_unit is None:
+                raise ValueError(
+                    "For 'calibration' mode, 'concentrations' and 'concentration_unit' must be provided."
+                )
+            # Ensure timecourse fields are not set
+            if reaction_times is not None or time_unit is not None:
+                raise ValueError(
+                    "For 'calibration' mode, 'reaction_times' and 'time_unit' should not be provided."
+                )
+        else:
+            raise ValueError(
+                f"Invalid mode '{mode}'. Mode must be 'timecourse' or 'calibration'."
+            )
+
+        return self
 
     def __repr__(self):
         return (
@@ -65,9 +143,6 @@ class ChromAnalyzer(BaseModel):
             f"proteins={len(self.proteins)}, "
             f"measurements={len(self.measurements)}"
         )
-
-    def __repr_html__(self):
-        return "<div>Hello world!</div>"
 
     def add_molecule_from_standard(
         self,
@@ -1159,8 +1234,19 @@ class ChromAnalyzer(BaseModel):
 
 
 if __name__ == "__main__":
-    path = "/Users/max/Documents/GitHub/eyring-kinetics/data/hetero/RAU-R503"
+    from chromatopy.units import mM
+    # path = "/Users/max/Documents/GitHub/eyring-kinetics/data/hetero/RAU-R503"
 
-    ana = ChromAnalyzer.read_agilent(path, ph=7.4, temperature=37)
-    for meas in ana.measurements:
-        print(meas.reaction_time)
+    # ana = ChromAnalyzer.read_agilent(path, ph=7.4, temperature=37)
+    # for meas in ana.measurements:
+    #     print(meas.reaction_time)
+
+    ana = ChromAnalyzer(
+        id="test",
+        name="Test",
+        ph=3,
+        temperature=34,
+        temperature_unit=C,
+        concentrations=[1],
+        concentration_unit=mM,
+    )
