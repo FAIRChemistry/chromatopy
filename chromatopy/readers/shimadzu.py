@@ -1,12 +1,11 @@
 import re
 from io import StringIO
 from pathlib import Path
-from typing import Any, ClassVar, Dict, List
+from typing import Any, ClassVar, Dict, List, Optional
 
 import pandas as pd
-from loguru import logger
 
-from chromatopy.model import Measurement, Peak, SignalType
+from chromatopy.model import Data, DataType, Measurement, Peak, SignalType
 from chromatopy.readers.abstractreader import AbstractReader
 from chromatopy.units.predefined import ul
 
@@ -15,12 +14,9 @@ class ShimadzuReader(AbstractReader):
     SECTION_PATTERN: ClassVar[re.Pattern] = re.compile(r"\[(.*)\]")
 
     def model_post_init(self, __context: Any) -> None:
-        if not self.reaction_times or not self.time_unit or not self.file_paths:
-            logger.debug(
-                "Collecting file paths without reaction time and unit parsing."
-            )
+        if not self.file_paths:
             self._get_file_paths()
-        self._detector_id: str | None = None
+        self._detector_id: Optional[str] = None
         self._channel_ids: List[str] = []
 
     def read(self) -> list[Measurement]:
@@ -30,10 +26,11 @@ class ShimadzuReader(AbstractReader):
             Measurement: A Measurement object representing the chromatographic data.
         """
 
-        assert len(self.file_paths) > 0, "No files found. Is the directory empty?"
+        if len(self.file_paths) == 0:
+            raise ValueError("No files found. Is the directory empty?")
 
         measurements = []
-        for file, reaction_time in zip(self.file_paths, self.reaction_times):
+        for i, file in enumerate(sorted(self.file_paths)):
             content = self.open_file(file)
             sections = self.create_sections(content)
             self._get_available_detectors(sections)
@@ -55,10 +52,15 @@ class ShimadzuReader(AbstractReader):
             dilution_factor = sample_dict.get("Dilution Factor", 1)
             injection_volume = sample_dict.get("Injection Volume")
 
+            data = Data(
+                value=self.values[i],
+                unit=self.unit,
+                data_type=self.mode,
+            )
+
             measurement = Measurement(
                 id=str(Path(file).stem),
-                reaction_time=reaction_time,
-                time_unit=self.time_unit,
+                data=data,
                 temperature=self.temperature,
                 temperature_unit=self.temperature_unit,
                 ph=self.ph,
@@ -232,15 +234,13 @@ class ShimadzuReader(AbstractReader):
         configuration = sections.get("Configuration")
         assert configuration, "No configuration section found."
 
-        detector_info = self.get_section_dict(
-            configuration,
-        )
+        detector_info = self.get_detector_info(configuration)
         assert detector_info, "No detector information found."
 
-        detector_id = detector_info.get("Detector ID")
+        detector_id = detector_info.get("Detector ID")[0]
         assert detector_id, "No detector ID found."
 
-        n_channels = detector_info.get("# of Channels")
+        n_channels = detector_info.get("# of Channels")[0]
         assert n_channels, "No number of channels found."
 
         channel_ids = [f"Ch{i}" for i in range(1, int(n_channels) + 1)]
@@ -259,10 +259,33 @@ class ShimadzuReader(AbstractReader):
             files.append(str(file_path.absolute()))
 
         assert (
-            len(files) == len(self.reaction_times)
-        ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.reaction_times)})."
+            len(files) == len(self.values)
+        ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.values)})."
 
         self.file_paths = files
+
+    def get_detector_info(self, section: str) -> dict:
+        """Parse the metadata in a section using regex."""
+        config_dict = {}
+
+        # Regex pattern to match lines like 'Key<TAB>Value(s)'
+        pattern = re.compile(r"^(.*?)\t(.*)$", re.MULTILINE)
+
+        matches = pattern.findall(section.strip())
+
+        for key, values_str in matches:
+            # Split values by tab and strip whitespace
+            values = [v.strip() for v in values_str.strip().split("\t") if v.strip()]
+            key = key.strip()
+            # Store values as list if multiple, or as a single string
+            if len(values) == 1:
+                config_dict[key] = values[0]
+            elif values:
+                config_dict[key] = values
+            else:
+                config_dict[key] = None
+
+        return config_dict
 
 
 def preprocess_to_dict(input_string: str) -> dict:
@@ -295,19 +318,22 @@ def preprocess_to_dict(input_string: str) -> dict:
 if __name__ == "__main__":
     from devtools import pprint
 
+    print(type(DataType.TIMECOURSE))
+
     from chromatopy.units.predefined import C, min
 
-    dirpath = "example_data/shimadzu"
+    dirpath = "docs/examples/data/shimadzu"
 
-    reaction_time = [0, 1, 2, 3, 4, 5.0, 6, 7, 8]
+    values = [0, 1, 2, 3, 4, 5.0, 6, 7, 8]
     reader = ShimadzuReader(
         dirpath=dirpath,
-        reaction_times=reaction_time,
-        time_unit=min,
+        values=values,
+        unit=min,
+        mode=DataType.TIMECOURSE,
         ph=7.4,
         temperature=25.0,
         temperature_unit=C,
     )
     paths = reader.read()
 
-    pprint(paths[0].chromatograms[0].peaks[0].__dict__)
+    pprint(paths[1].data)

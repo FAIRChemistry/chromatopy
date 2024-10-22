@@ -5,7 +5,7 @@ import json
 import multiprocessing as mp
 import time
 from pathlib import Path
-from typing import Literal
+from typing import Literal, Optional
 
 import numpy as np
 import plotly.colors as pc
@@ -21,6 +21,7 @@ from rich.progress import Progress
 
 from chromatopy.model import (
     Chromatogram,
+    DataType,
     Measurement,
     UnitDefinition,
 )
@@ -39,33 +40,27 @@ class ChromAnalyzer(BaseModel):
         description="Name of the ChromAnalyzer object.",
     )
 
-    mode: Literal["timecourse", "calibration"] = Field(
+    mode: Optional[Literal["timecourse", "calibration"]] = Field(
         description="Mode of the ChromAnalyzer: 'timecourse' or 'calibration'."
     )
 
-    # Common attributes
-    ph: float = Field(..., description="pH value of the measurement.")
-    temperature: float = Field(..., description="Temperature of the measurement.")
-    temperature_unit: UnitDefinition = Field(
-        default=C, description="Unit of the temperature."
-    )
-
     # Attributes for timecourse mode
-    reaction_times: list[float] | None = Field(
+    reaction_times: Optional[list[float]] = Field(
         None, description="List of reaction times."
     )
-    time_unit: UnitDefinition | None = Field(
+
+    time_unit: Optional[UnitDefinition] = Field(
         None, description="Unit of the reaction times."
     )
 
     # Attributes for calibration mode
-    concentrations: list[float] | None = Field(
+    concentrations: Optional[list[float]] = Field(
         None, description="List of concentrations."
     )
-    concentration_unit: UnitDefinition | None = Field(
+
+    concentration_unit: Optional[UnitDefinition] = Field(
         None, description="Unit of the concentrations."
     )
-
     # Data attributes
     molecules: list[Molecule] = Field(
         description="List of species present in the measurements.",
@@ -88,12 +83,12 @@ class ChromAnalyzer(BaseModel):
     )
 
     @model_validator(mode="before")
-    def infer_mode_and_check_fields(self):
-        mode = self.mode
-        reaction_times = self.reaction_times
-        time_unit = self.time_unit
-        concentrations = self.concentrations
-        concentration_unit = self.concentration_unit
+    def infer_mode_and_check_fields(cls, values):
+        mode = values.get("mode")
+        reaction_times = values.get("reaction_times")
+        time_unit = values.get("time_unit")
+        concentrations = values.get("concentrations")
+        concentration_unit = values.get("concentration_unit")
 
         # Infer mode if not specified
         if mode is None:
@@ -106,7 +101,7 @@ class ChromAnalyzer(BaseModel):
                     "Cannot infer 'mode'. Provide either 'reaction_times' and 'time_unit', "
                     "or 'concentrations' and 'concentration_unit'."
                 )
-            self.mode = mode
+            values["mode"] = mode
 
         # Validate fields based on mode
         if mode == "timecourse":
@@ -134,7 +129,7 @@ class ChromAnalyzer(BaseModel):
                 f"Invalid mode '{mode}'. Mode must be 'timecourse' or 'calibration'."
             )
 
-        return self
+        return values
 
     def __repr__(self):
         return (
@@ -458,10 +453,13 @@ class ChromAnalyzer(BaseModel):
         path: str,
         ph: float,
         temperature: float,
+        mode: Optional[Literal["timecourse", "calibration"]] = None,
         id: str | None = None,
         name: str = "Chromatographic measurement",
-        reaction_times: list[float] | None = None,
-        time_unit: UnitDefinition | None = None,
+        reaction_times: Optional[list[float]] = None,
+        time_unit: Optional[UnitDefinition] = None,
+        concentrations: Optional[list[float]] = None,
+        concentration_unit: Optional[UnitDefinition] = None,
         temperature_unit: UnitDefinition = C,
         silent: bool = False,
     ) -> ChromAnalyzer:
@@ -472,13 +470,15 @@ class ChromAnalyzer(BaseModel):
             path (str): Path to the directory containing the Shimadzu files.
             ph (float): pH value of the measurement.
             temperature (float): Temperature of the measurement.
+            mode (Optional[Literal["timecourse", "calibration"]], optional): Mode of the data. Defaults to None.
             id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
             name (str): Name the measurement. Defaults to "Chromatographic measurement".
             reaction_times (list[float], optional): List of reaction times, corresponding to each measurement in the directory.
             time_unit (UnitDefinition, optional): Unit of the time values. If the reaction times are part of the file name, this argument can be omitted.
+            concentrations (list[float], optional): List of concentrations for calibration mode.
+            concentration_unit (UnitDefinition, optional): Unit of the concentration values.
             temperature_unit (UnitDefinition, optional): Unit of the temperature. Defaults to Celsius (C).
             silent (bool, optional): If True, no success message is printed. Defaults to False.
-
 
         Returns:
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
@@ -487,25 +487,32 @@ class ChromAnalyzer(BaseModel):
 
         data = {
             "dirpath": path,
-            "reaction_times": reaction_times,
-            "time_unit": time_unit,
+            "values": concentrations,
+            "unit": time_unit,
             "ph": ph,
             "temperature": temperature,
             "temperature_unit": temperature_unit,
             "silent": silent,
+            "mode": mode,
         }
 
-        if data["time_unit"] is None:
-            data.pop("time_unit")
-        if data["reaction_times"] is None:
-            data.pop("reaction_times")
+        # Remove keys with None values to avoid passing unwanted parameters
+        data = {k: v for k, v in data.items() if v is not None}
 
-        measurements = ShimadzuReader(**data).read()  # type: ignore
+        reader = ShimadzuReader(**data)
+        measurements = reader.read()  # type: ignore
 
         if id is None:
             id = path
 
-        return cls(id=id, name=name, measurements=measurements)
+        print(reader.mode)
+
+        return cls(
+            id=id,
+            name=name,
+            measurements=measurements,
+            mode=reader.mode,
+        )
 
     @classmethod
     def read_agilent(
@@ -630,9 +637,10 @@ class ChromAnalyzer(BaseModel):
         if id is None:
             id = path
 
-        measurements = ChromeleonReader(**data).read()  # type: ignore
+        reader = ChromeleonReader(**data)
+        measurements = reader.read()  # type: ignore
 
-        return cls(id=path, name=name, measurements=measurements)
+        return cls(id=path, name=name, measurements=measurements, mode=reader.mode)
 
     def to_json(self, path):
         """
@@ -1232,21 +1240,37 @@ class ChromAnalyzer(BaseModel):
 
         return fig
 
+    @staticmethod
+    def _get_mode(_dict: dict) -> str:
+        """Returns the mode of the data based on the keys of the data dictionary.
+
+        Args:
+            keys (list[str]): List of keys of the data dictionary.
+
+        Returns:
+            str: The mode of the data.
+        """
+        if (
+            _dict["concentrations"] is not None
+            and _dict["concentration_unit"] is not None
+        ):
+            return "timecourse"
+        elif (
+            _dict["concentrations"] is not None
+            and _dict["concentration_unit"] is not None
+        ):
+            return "calibration"
+        else:
+            raise ValueError(
+                "Data mode could not be determined wrong arguments passed to the read method."
+            )
+
 
 if __name__ == "__main__":
-    from chromatopy.units import mM
-    # path = "/Users/max/Documents/GitHub/eyring-kinetics/data/hetero/RAU-R503"
-
-    # ana = ChromAnalyzer.read_agilent(path, ph=7.4, temperature=37)
-    # for meas in ana.measurements:
-    #     print(meas.reaction_time)
-
-    ana = ChromAnalyzer(
-        id="test",
-        name="Test",
-        ph=3,
-        temperature=34,
-        temperature_unit=C,
-        concentrations=[1],
-        concentration_unit=mM,
+    data = "/Users/max/Documents/GitHub/martina-aldol-addition/data/calibration"
+    ana = ChromAnalyzer.read_shimadzu(
+        path=data,
+        ph=7.4,
+        temperature=25,
+        mode=DataType.CALIBRATION,
     )

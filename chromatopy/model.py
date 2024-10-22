@@ -78,8 +78,7 @@ class Measurement(BaseModel):
     )  # type: ignore
 
     id: str
-    reaction_time: float
-    time_unit: UnitDefinition
+    data: Data
     temperature: float
     temperature_unit: UnitDefinition
     ph: float
@@ -210,6 +209,99 @@ class Measurement(BaseModel):
         self.chromatograms.append(Chromatogram(**params))
 
         return self.chromatograms[-1]
+
+
+class Data(BaseModel):
+    model_config: ConfigDict = ConfigDict(  # type: ignore
+        validate_assigment=True,
+    )  # type: ignore
+
+    value: Optional[float] = Field(default=None)
+    unit: Optional[UnitDefinition] = Field(default=None)
+    data_type: Optional[DataType] = Field(default=None)
+
+    # JSON-LD fields
+    ld_id: str = Field(
+        serialization_alias="@id",
+        default_factory=lambda: "chromatopy:Data/" + str(uuid4()),
+    )
+    ld_type: list[str] = Field(
+        serialization_alias="@type",
+        default_factory=lambda: [
+            "chromatopy:Data",
+        ],
+    )
+    ld_context: dict[str, str | dict] = Field(
+        serialization_alias="@context",
+        default_factory=lambda: {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy",
+        },
+    )
+
+    def set_attr_term(
+        self,
+        attr: str,
+        term: str | dict,
+        prefix: str | None = None,
+        iri: str | None = None,
+    ):
+        """Sets the term for a given attribute in the JSON-LD object
+
+        Example:
+            # Using an IRI term
+            >> obj.set_attr_term("name", "http://schema.org/givenName")
+
+            # Using a prefix and term
+            >> obj.set_attr_term("name", "schema:givenName", "schema", "http://schema.org")
+
+            # Usinng a dictionary term
+            >> obj.set_attr_term("name", {"@id": "http://schema.org/givenName", "@type": "@id"})
+
+        Args:
+            attr (str): The attribute to set the term for
+            term (str | dict): The term to set for the attribute
+
+        Raises:
+            AssertionError: If the attribute is not found in the model
+        """
+
+        assert (
+            attr in self.model_fields
+        ), f"Attribute {attr} not found in {self.__class__.__name__}"
+
+        if prefix:
+            validate_prefix(term, prefix)
+
+        add_namespace(self, prefix, iri)
+        self.ld_context[attr] = term
+
+    def add_type_term(
+        self, term: str, prefix: str | None = None, iri: str | None = None
+    ):
+        """Adds a term to the @type field of the JSON-LD object
+
+        Example:
+            # Using a term
+            >> obj.add_type_term("https://schema.org/Person")
+
+            # Using a prefixed term
+            >> obj.add_type_term("schema:Person", "schema", "https://schema.org/Person")
+
+        Args:
+            term (str): The term to add to the @type field
+            prefix (str, optional): The prefix to use for the term. Defaults to None.
+            iri (str, optional): The IRI to use for the term prefix. Defaults to None.
+
+        Raises:
+            ValueError: If prefix is provided but iri is not
+            ValueError: If iri is provided but prefix is not
+        """
+
+        if prefix:
+            validate_prefix(term, prefix)
+
+        add_namespace(self, prefix, iri)
+        self.ld_type.append(term)
 
 
 class Chromatogram(BaseModel):
@@ -593,7 +685,6 @@ class UnitDefinition(BaseModel):
 class BaseUnit(BaseModel):
     model_config: ConfigDict = ConfigDict(  # type: ignore
         validate_assigment=True,
-        use_enum_values=True,
     )  # type: ignore
 
     kind: UnitType
@@ -694,6 +785,11 @@ class SignalType(Enum):
     RID = "refractive index detector"
     TCD = "thermal conductivity detector"
     UV = "uv/visible absorbance detector"
+
+
+class DataType(Enum):
+    CALIBRATION = "calibration"
+    TIMECOURSE = "timecourse"
 
 
 class UnitType(Enum):
