@@ -5,7 +5,7 @@ from typing import Any, ClassVar, Dict, List, Optional
 
 import pandas as pd
 
-from chromatopy.model import Data, DataType, Measurement, Peak, SignalType
+from chromatopy.model import Data, Measurement, Peak, SignalType
 from chromatopy.readers.abstractreader import AbstractReader
 from chromatopy.units.predefined import ul
 
@@ -114,6 +114,10 @@ class ShimadzuReader(AbstractReader):
         lines = table_string.split("\n")
         header = lines[0]
         data = lines[1:]
+        if "\t" in table_string:
+            separator = "\t"
+        else:
+            separator = ","
 
         if not header.count(",") == data[0].count(","):
             data = "\n".join(data)
@@ -122,7 +126,7 @@ class ShimadzuReader(AbstractReader):
         else:
             data = "\n".join(data)
 
-        table = pd.read_csv(StringIO(header + "\n" + data), sep=",", header=0)
+        table = pd.read_csv(StringIO(header + "\n" + data), sep=separator, header=0)
 
         return table
 
@@ -150,13 +154,19 @@ class ShimadzuReader(AbstractReader):
     def get_section_dict(self, section: str, nrows: int | None = None) -> dict:
         """Parse the metadata in a section as keys-values."""
 
+        if "\t" in section:
+            seperator = "\t"
+        else:
+            seperator = ","
+
         try:
             meta_table = (
                 pd.read_table(
                     StringIO(section),
                     nrows=nrows,
                     header=None,
-                    sep=",",
+                    names=range(3),
+                    sep=seperator,
                 )
                 .set_index(0)[1]
                 .to_dict()
@@ -174,7 +184,7 @@ class ShimadzuReader(AbstractReader):
                         StringIO(section),
                         nrows=nrows,
                         header=None,
-                        sep=",",
+                        sep=seperator,
                     )
                     .set_index(0)[1]
                     .to_dict()
@@ -225,7 +235,11 @@ class ShimadzuReader(AbstractReader):
             data = "\n".join(data)
 
         section = header + "\n" + data
-        table = pd.read_csv(StringIO(section), sep=",", header=0)
+        if "\t" in section:
+            separator = "\t"
+        else:
+            separator = ","
+        table = pd.read_csv(StringIO(section), sep=separator, header=0)
         peaks = self._map_peak_table(table)
 
         return peaks
@@ -234,7 +248,7 @@ class ShimadzuReader(AbstractReader):
         configuration = sections.get("Configuration")
         assert configuration, "No configuration section found."
 
-        detector_info = self.get_detector_info(configuration)
+        detector_info = self.get_section_dict(configuration)
         assert detector_info, "No detector information found."
 
         detector_id = detector_info.get("Detector ID")[0]
@@ -318,8 +332,6 @@ def preprocess_to_dict(input_string: str) -> dict:
 if __name__ == "__main__":
     from devtools import pprint
 
-    print(type(DataType.TIMECOURSE))
-
     from chromatopy.units.predefined import C, min
 
     dirpath = "docs/examples/data/shimadzu"
@@ -329,7 +341,7 @@ if __name__ == "__main__":
         dirpath=dirpath,
         values=values,
         unit=min,
-        mode=DataType.TIMECOURSE,
+        mode="timecourse",
         ph=7.4,
         temperature=25.0,
         temperature_unit=C,

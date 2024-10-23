@@ -45,13 +45,13 @@ prefix: "chromatopy"
 
 ### Data
 
-- value
+- __value__
   - Type: float
   - Description: Timecourse data.
-- unit
+- __unit__
   - Type: UnitDefinition
   - Description: Unit of the data.
-- data_type
+- __data_type__
   - Type: DataType
   - Description: Type of data. Eighter timecourse or calibration.
 

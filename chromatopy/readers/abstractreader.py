@@ -3,10 +3,10 @@ from __future__ import annotations
 import re
 from abc import abstractmethod
 from pathlib import Path
-from typing import Any, Literal, Optional
+from typing import Any, Optional
 
 from loguru import logger
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 from chromatopy.model import DataType, Measurement, UnitDefinition
 from chromatopy.units import C
@@ -39,7 +39,7 @@ class AbstractReader(BaseModel):
 
     Attributes:
         dirpath (str): Path to the directory containing chromatographic data files.
-        mode (DataType): Mode of data processing, either 'calibration' or 'timecourse'.
+        mode (str): Mode of data processing, either 'calibration' or 'timecourse'.
         values (Optional[List[float]]): List of reaction times or concentrations based on the mode.
         unit (Optional[UnitDefinition]): Unit of the values (time unit for timecourse, concentration unit for calibration).
         ph (float): pH value of the measurement.
@@ -53,7 +53,7 @@ class AbstractReader(BaseModel):
         ..., description="Path to the directory containing chromatographic data files."
     )
 
-    mode: Literal[DataType.CALIBRATION, DataType.TIMECOURSE] = Field(
+    mode: str = Field(
         ..., description="Mode of data processing: 'calibration' or 'timecourse'."
     )
 
@@ -87,11 +87,18 @@ class AbstractReader(BaseModel):
         default_factory=list, description="List of file paths to process."
     )
 
+    @field_validator("mode", mode="before")
+    def validate_mode(cls, value):
+        value = value.lower()
+        if value not in {DataType.CALIBRATION.value, DataType.TIMECOURSE.value}:
+            raise ValueError("Invalid mode. Must be 'calibration' or 'timecourse'.")
+        return value
+
     @model_validator(mode="before")
     @classmethod
     def infer_fields_based_on_mode(cls, values: dict[str, Any]) -> dict[str, Any]:
         mode = values.get("mode")
-        if mode == DataType.TIMECOURSE:
+        if mode == DataType.TIMECOURSE.value:
             # Ensure 'values' (reaction times) and 'unit' are provided or parsed
             if not values.get("values"):
                 try:
@@ -105,7 +112,7 @@ class AbstractReader(BaseModel):
                 except UnitConsistencyError as e:
                     logger.debug(e)
                     raise UnitConsistencyError(str(e))
-        elif mode == DataType.CALIBRATION:
+        elif mode == DataType.CALIBRATION.value:
             # Ensure 'values' (concentrations) and 'unit' are provided or parsed
             if not values.get("values"):
                 try:
@@ -130,7 +137,7 @@ class AbstractReader(BaseModel):
                 f"No files found in the directory {self.dirpath}."
             )
 
-        if self.mode == DataType.TIMECOURSE:
+        if self.mode == DataType.TIMECOURSE.value:
             if not self.values:
                 raise ValueError("No reaction times provided for timecourse mode.")
             if not self.unit:
@@ -139,7 +146,7 @@ class AbstractReader(BaseModel):
                 raise ValueError(
                     f"Number of files ({len(self.file_paths)}) does not match the number of reaction times ({len(self.values)})."
                 )
-        elif self.mode == DataType.CALIBRATION:
+        elif self.mode == DataType.CALIBRATION.value:
             if not self.values:
                 raise ValueError("No concentrations provided for calibration mode.")
             if not self.unit:
@@ -151,9 +158,7 @@ class AbstractReader(BaseModel):
         return self
 
     @classmethod
-    def _parse_data_and_unit(
-        cls, data: dict[str, Any], mode: DataType
-    ) -> dict[str, Any]:
+    def _parse_data_and_unit(cls, data: dict[str, Any], mode: str) -> dict[str, Any]:
         """Parse data and unit from filenames based on the mode."""
 
         try:
@@ -173,12 +178,13 @@ class AbstractReader(BaseModel):
             filenames = [f for f in path.iterdir() if not f.name.startswith(".")]
 
         # Define patterns based on the mode
-        if mode == DataType.TIMECOURSE:
+        if mode == DataType.TIMECOURSE.value:
             # Pattern to extract reaction times and units
-            pattern = r".*?(\d+(\.\d+)?)\s*[_-]?\s*(min|minutes?|sec|seconds?|hours?)"
-        elif mode == DataType.CALIBRATION:
+            pattern = r".*?(\d+(\.\d+)?)\s*[_-]?\s*(min|minutes?|sec|seconds?|hours?).*"
+        elif mode == DataType.CALIBRATION.value:
             # Pattern to extract concentrations and units
-            pattern = r".*?(\d+(\.\d+)?)\s*[_-]?\s*(mM|µM|uM|nM|mol|mmol|umol|nmol)"
+            pattern = r".*?(\d+(\.\d+)?)\s*[_-]?\s*(mM|µM|uM|nM|mol|mmol|umol|nmol).*"
+
         else:
             raise ValueError("Invalid mode.")
 
@@ -194,7 +200,7 @@ class AbstractReader(BaseModel):
                 value = float(match_obj.group(1))
                 unit_str = match_obj.group(3)
                 if value in data_dict:
-                    logger.debug(
+                    logger.warning(
                         f"Duplicate value '{value}' found in directory '{data['dirpath']}'."
                     )
                     raise MetadataExtractionError(
@@ -203,8 +209,10 @@ class AbstractReader(BaseModel):
                 data_dict[value] = str(file.absolute())
                 units.append(unit_str)
             else:
-                logger.debug(f"Could not parse value from '{file}'.")
-                raise MetadataExtractionError(f"Could not parse value from '{file}'.")
+                logger.debug(f"Could not parse value from '{file.name}'.")
+                raise MetadataExtractionError(
+                    f"Could not parse value from '{file.name}'."
+                )
 
         # Check if all units are the same
         if not all(unit == units[0] for unit in units):
@@ -231,20 +239,20 @@ class AbstractReader(BaseModel):
         file_paths = [item[1] for item in sorted_items]
 
         data["file_paths"] = file_paths
-        data["values"] = data_values  # Changed from 'data' to 'values'
+        data["values"] = data_values
         data["unit"] = unit_definition
 
-        return data  # Return the updated data dictionary
+        return data
 
     @staticmethod
     def _map_unit_str_to_UnitDefinition(
         unit_str: str,
-        mode: DataType,
+        mode: str,
     ) -> UnitDefinition:
         """Maps a string representation of a unit to a `UnitDefinition` object based on the mode."""
 
         unit_str = unit_str.lower()
-        if mode == DataType.TIMECOURSE:
+        if mode == DataType.TIMECOURSE.value:
             # Time units
             from chromatopy.units import hour, minute, second
 
@@ -257,7 +265,7 @@ class AbstractReader(BaseModel):
                     return hour
                 case _:
                     raise ValueError(f"Time unit '{unit_str}' not recognized.")
-        elif mode == DataType.CALIBRATION:
+        elif mode == DataType.CALIBRATION.value:
             # Concentration units
             from chromatopy.units import M, mM, nM, uM
 

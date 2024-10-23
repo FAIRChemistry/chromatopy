@@ -15,7 +15,7 @@ import scipy.stats
 from calipytion.model import Standard
 from calipytion.tools.utility import pubchem_request_molecule_name
 from loguru import logger
-from pydantic import BaseModel, Field, model_validator
+from pydantic import BaseModel, Field, field_validator
 from pyenzyme import EnzymeMLDocument
 from rich.progress import Progress
 
@@ -40,28 +40,10 @@ class ChromAnalyzer(BaseModel):
         description="Name of the ChromAnalyzer object.",
     )
 
-    mode: Optional[Literal["timecourse", "calibration"]] = Field(
-        description="Mode of the ChromAnalyzer: 'timecourse' or 'calibration'."
+    mode: str = Field(
+        ..., description="Mode of data processing: 'calibration' or 'timecourse'."
     )
 
-    # Attributes for timecourse mode
-    reaction_times: Optional[list[float]] = Field(
-        None, description="List of reaction times."
-    )
-
-    time_unit: Optional[UnitDefinition] = Field(
-        None, description="Unit of the reaction times."
-    )
-
-    # Attributes for calibration mode
-    concentrations: Optional[list[float]] = Field(
-        None, description="List of concentrations."
-    )
-
-    concentration_unit: Optional[UnitDefinition] = Field(
-        None, description="Unit of the concentrations."
-    )
-    # Data attributes
     molecules: list[Molecule] = Field(
         description="List of species present in the measurements.",
         default_factory=list,
@@ -82,54 +64,12 @@ class ChromAnalyzer(BaseModel):
         default=None,
     )
 
-    @model_validator(mode="before")
-    def infer_mode_and_check_fields(cls, values):
-        mode = values.get("mode")
-        reaction_times = values.get("reaction_times")
-        time_unit = values.get("time_unit")
-        concentrations = values.get("concentrations")
-        concentration_unit = values.get("concentration_unit")
-
-        # Infer mode if not specified
-        if mode is None:
-            if reaction_times is not None and time_unit is not None:
-                mode = "timecourse"
-            elif concentrations is not None and concentration_unit is not None:
-                mode = "calibration"
-            else:
-                raise ValueError(
-                    "Cannot infer 'mode'. Provide either 'reaction_times' and 'time_unit', "
-                    "or 'concentrations' and 'concentration_unit'."
-                )
-            values["mode"] = mode
-
-        # Validate fields based on mode
-        if mode == "timecourse":
-            if reaction_times is None or time_unit is None:
-                raise ValueError(
-                    "For 'timecourse' mode, 'reaction_times' and 'time_unit' must be provided."
-                )
-            # Ensure calibration fields are not set
-            if concentrations is not None or concentration_unit is not None:
-                raise ValueError(
-                    "For 'timecourse' mode, 'concentrations' and 'concentration_unit' should not be provided."
-                )
-        elif mode == "calibration":
-            if concentrations is None or concentration_unit is None:
-                raise ValueError(
-                    "For 'calibration' mode, 'concentrations' and 'concentration_unit' must be provided."
-                )
-            # Ensure timecourse fields are not set
-            if reaction_times is not None or time_unit is not None:
-                raise ValueError(
-                    "For 'calibration' mode, 'reaction_times' and 'time_unit' should not be provided."
-                )
-        else:
-            raise ValueError(
-                f"Invalid mode '{mode}'. Mode must be 'timecourse' or 'calibration'."
-            )
-
-        return values
+    @field_validator("mode", mode="before")
+    def validate_mode(cls, value):
+        value = value.lower()
+        if value not in {DataType.CALIBRATION.value, DataType.TIMECOURSE.value}:
+            raise ValueError("Invalid mode. Must be 'calibration' or 'timecourse'.")
+        return value
 
     def __repr__(self):
         return (
@@ -173,9 +113,7 @@ class ChromAnalyzer(BaseModel):
         new_mol = copy.deepcopy(molecule)
 
         if init_conc is not None:
-            print("init_conc", init_conc)
             new_mol.init_conc = init_conc
-            print("new_mol.init_conc", new_mol.init_conc)
 
         if conc_unit is not None:
             new_mol.conc_unit = conc_unit
@@ -504,8 +442,6 @@ class ChromAnalyzer(BaseModel):
 
         if id is None:
             id = path
-
-        print(reader.mode)
 
         return cls(
             id=id,
@@ -1086,8 +1022,6 @@ class ChromAnalyzer(BaseModel):
     def add_standard(
         self,
         molecule: Molecule,
-        concs: list[float],
-        conc_unit: UnitDefinition,
         wavelength: float | None = None,
         visualize: bool = True,
     ):
@@ -1095,8 +1029,6 @@ class ChromAnalyzer(BaseModel):
 
         Args:
             molecule (Molecule): The molecule for which the standard curve should be created.
-            concs (list[float]): List of concentrations of the molecule matching the order of the `measurements` in the `ChromAnalyzer`.
-            conc_unit (UnitDefinition): _description_
             wavelength (float | None, optional): The wavelength of the detector. Defaults to None.
             visualize (bool, optional): If True, the standard curve is visualized. Defaults to True.
         """
@@ -1123,6 +1055,9 @@ class ChromAnalyzer(BaseModel):
         peak_areas = [
             peak.area for chrom in chroms for peak in chrom.peaks if peak.molecule_id
         ]
+
+        concs = [meas.data.value for meas in self.measurements]
+        conc_unit = self.measurements[0].data.unit
 
         assert (
             len(peak_areas) == len(concs)
@@ -1240,37 +1175,28 @@ class ChromAnalyzer(BaseModel):
 
         return fig
 
-    @staticmethod
-    def _get_mode(_dict: dict) -> str:
-        """Returns the mode of the data based on the keys of the data dictionary.
-
-        Args:
-            keys (list[str]): List of keys of the data dictionary.
-
-        Returns:
-            str: The mode of the data.
-        """
-        if (
-            _dict["concentrations"] is not None
-            and _dict["concentration_unit"] is not None
-        ):
-            return "timecourse"
-        elif (
-            _dict["concentrations"] is not None
-            and _dict["concentration_unit"] is not None
-        ):
-            return "calibration"
-        else:
-            raise ValueError(
-                "Data mode could not be determined wrong arguments passed to the read method."
-            )
-
 
 if __name__ == "__main__":
-    data = "/Users/max/Documents/GitHub/martina-aldol-addition/data/calibration"
-    ana = ChromAnalyzer.read_shimadzu(
-        path=data,
-        ph=7.4,
-        temperature=25,
-        mode=DataType.CALIBRATION,
-    )
+    data = "/Users/max/Documents/GitHub/martina-aldol-addition/data/aldehyde"
+    from pathlib import Path
+
+    exp_paths = Path(data).iterdir()
+
+    for folder_id, folder in enumerate(exp_paths):
+        if folder.is_dir():
+            print(folder.name)
+            concentration = float(folder.name.split(" ")[0])
+
+            analyzer = ChromAnalyzer.read_shimadzu(
+                path=folder, ph=7.0, temperature=25.0, mode="timecourse"
+            )
+
+            # analyzer.add_molecule(aldol, init_conc=concentration, conc_unit=mM)
+
+            if folder_id == 0:
+                print("first")
+                enzmldoc = analyzer.to_enzymeml(
+                    name="varied initial aldehyde concentrations"
+                )
+            else:
+                analyzer.add_to_enzymeml(enzmldoc)

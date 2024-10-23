@@ -240,6 +240,8 @@ def add_measurements_to_enzymeml(
 
     doc.measurements.append(enzml_measurement)
 
+    patch_init_t0(doc)
+
     return doc
 
 
@@ -321,7 +323,7 @@ def add_measurement_to_MeasurementData(
                 add_data(
                     measurement_data=measurement_data_instances[molecule_id],
                     chromatogram=chrom,
-                    reaction_time=measurement.reaction_time,
+                    reaction_time=measurement.data.value,
                     calibrators=calibrators,
                     calibrator_type=strategy,
                     extrapolate=extrapolate,
@@ -513,7 +515,7 @@ def extract_measurement_conditions(
     # extract measurement conditions
     phs = [measurement.ph for measurement in measurements]
     temperatures = [measurement.temperature for measurement in measurements]
-    time_units = [measurement.time_unit.name for measurement in measurements]
+    time_units = [measurement.data.unit.name for measurement in measurements]
     temperature_units = [
         measurement.temperature_unit.name  # type: ignore
         for measurement in measurements  # type: ignore
@@ -534,14 +536,14 @@ def extract_measurement_conditions(
     assert (
         measurements[0].temperature is not None
     ), "The temperature needs to be defined."
-    assert measurements[0].time_unit is not None, "The time unit needs to be defined."
+    assert measurements[0].data.unit is not None, "The time unit needs to be defined."
     assert (
         measurements[0].temperature_unit is not None
     ), "The temperature unit needs to be defined."
 
     ph = measurements[0].ph
     temperature = measurements[0].temperature
-    time_unit = measurements[0].time_unit
+    time_unit = measurements[0].data.unit
     temperature_unit = measurements[0].temperature_unit
 
     return ph, temperature, time_unit, temperature_unit

@@ -109,8 +109,7 @@ class Molecule(BaseModel):
         )
         calibrator.models = []
         model = calibrator.add_model(
-            name="linear",
-            signal_law=f"{self.id} * a",
+            name="linear", signal_law=f"{self.id} * a", upper_bound=1e13
         )
 
         calibrator.fit_models()

@@ -214,11 +214,12 @@ class Measurement(BaseModel):
 class Data(BaseModel):
     model_config: ConfigDict = ConfigDict(  # type: ignore
         validate_assigment=True,
+        use_enum_values=True,
     )  # type: ignore
 
-    value: Optional[float] = Field(default=None)
-    unit: Optional[UnitDefinition] = Field(default=None)
-    data_type: Optional[DataType] = Field(default=None)
+    value: float
+    unit: UnitDefinition
+    data_type: DataType
 
     # JSON-LD fields
     ld_id: str = Field(
@@ -558,6 +559,7 @@ class Peak(BaseModel):
 class UnitDefinition(BaseModel):
     model_config: ConfigDict = ConfigDict(  # type: ignore
         validate_assigment=True,
+        use_enum_values=True,
     )  # type: ignore
 
     id: Optional[str] = Field(default=None)
@@ -685,6 +687,7 @@ class UnitDefinition(BaseModel):
 class BaseUnit(BaseModel):
     model_config: ConfigDict = ConfigDict(  # type: ignore
         validate_assigment=True,
+        use_enum_values=True,
     )  # type: ignore
 
     kind: UnitType
