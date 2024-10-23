@@ -4,14 +4,14 @@ from typing import Any
 
 from loguru import logger
 
-from chromatopy.model import Chromatogram, Measurement, SignalType, UnitDefinition
+from chromatopy.model import Chromatogram, Data, Measurement, SignalType, UnitDefinition
 from chromatopy.readers.abstractreader import AbstractReader
 from chromatopy.units import ul
 
 
 class AgilentTXTReader(AbstractReader):
     def model_post_init(self, __context: Any) -> None:
-        if not self.reaction_times or not self.time_unit or not self.file_paths:
+        if not self.file_paths:
             logger.debug(
                 "Collecting file paths without reaction time and unit parsing."
             )
@@ -23,15 +23,15 @@ class AgilentTXTReader(AbstractReader):
         Returns:
             list[Measurement]: A list of Measurement objects representing the chromatographic data.
         """
-        assert len(self.file_paths) == len(self.reaction_times), f"""
-        The number of reaction times {len(self.reaction_times)} does not match the number of
+        assert len(self.file_paths) == len(self.values), f"""
+        The number of reaction times {len(self.values)} does not match the number of
         'Report.TXT' files {len(self.file_paths)}.
         """
         measurements = []
-        for file, reaction_time in zip(self.file_paths, self.reaction_times):
+        for file, reaction_time in zip(self.file_paths, self.values):
             file_content = self._read_file(file)
             measurement = self._parse_measurement(
-                file_content, reaction_time, self.time_unit
+                file_content, reaction_time, self.unit
             )
             measurements.append(measurement)
 
@@ -75,13 +75,19 @@ class AgilentTXTReader(AbstractReader):
         self, file_content: list[str], reaction_time: float, time_unit: UnitDefinition
     ) -> Measurement:
         """Parses the file content into a Measurement object."""
+
+        data = Data(
+            value=reaction_time,
+            unit=time_unit,
+            data_type=self.mode,
+        )
+
         measurement = Measurement(
             id=file_content[0],
-            reaction_time=reaction_time,
-            time_unit=time_unit,
             ph=self.ph,
             temperature=self.temperature,
             temperature_unit=self.temperature_unit,
+            data=data,
         )
         signal_slices = self._identify_signal_slices(file_content)
 

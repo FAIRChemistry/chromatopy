@@ -94,9 +94,9 @@ class ChromAnalyzer(BaseModel):
     def add_molecule(
         self,
         molecule: Molecule,
-        init_conc: float | None = None,
-        conc_unit: UnitDefinition | None = None,
-        retention_tolerance: float | None = None,
+        init_conc: Optional[float] = None,
+        conc_unit: Optional[UnitDefinition] = None,
+        retention_tolerance: Optional[float] = None,
     ) -> None:
         """
         Adds a molecule to the list of species, allowing to update the initial concentration,
@@ -123,31 +123,38 @@ class ChromAnalyzer(BaseModel):
 
         self._update_molecule(new_mol)
 
-        self._register_peaks(new_mol, new_mol.retention_tolerance, new_mol.wavelength)
+        if new_mol.has_retention_time:
+            self._register_peaks(
+                new_mol, new_mol.retention_tolerance, new_mol.wavelength
+            )
 
     def define_molecule(
         self,
         id: str,
         pubchem_cid: int,
-        retention_time: float,
+        retention_time: Optional[float],
         retention_tolerance: float = 0.1,
-        init_conc: float | None = None,
-        conc_unit: UnitDefinition | None = None,
-        name: str | None = None,
-        wavelength: float | None = None,
+        init_conc: Optional[float] = None,
+        conc_unit: Optional[UnitDefinition] = None,
+        name: Optional[str] = None,
+        wavelength: Optional[float] = None,
     ) -> Molecule:
-        """Defines and adds a molecule to the list of molecules.
+        """
+        Defines and adds a molecule to the list of molecules.
 
         Args:
-            id (str): Internal identifier of the molecule such as `s0` or `asd45`.
-            pubchem_cid (int): PubChem CID of the molecule.
-            retention_time (float): Retention time tolerance for peak annotation in minutes.
-            retention_tolerance (float, optional): Retention time tolerance for peak annotation in minutes. Defaults to 0.1.
-            init_conc (float | None): Initial concentration of the molecule. Defaults to None.
-            conc_unit (UnitDefinition | None): Unit of the concentration. Defaults to None.
-            name (str | None, optional): Name of the molecule.
-                If not provided, the name is retrieved from the PubChem database. Defaults to None.
-            wavelength (float | None, optional): Wavelength of the detector on which the molecule was detected. Defaults to None.
+            id (str): Internal identifier of the molecule, such as `s0` or `asd45`.
+            pubchem_cid (int): PubChem CID of the molecule, which uniquely identifies the compound.
+            retention_time (Optional[float]): Retention time for peak annotation in minutes. If the molecule is not
+                detected in the chromatograms, this can be set to None.
+            retention_tolerance (float, optional): Tolerance in minutes for retention time used in peak annotation.
+                Defaults to 0.1.
+            init_conc (Optional[float], optional): Initial concentration of the molecule. If not provided, it defaults to None.
+            conc_unit (Optional[UnitDefinition], optional): Unit of the initial concentration. If not provided, it defaults to None.
+            name (Optional[str], optional): Name of the molecule. If not provided, the name is fetched from the PubChem
+                database. Defaults to None.
+            wavelength (Optional[float], optional): Wavelength of the detector where the molecule was detected. If not provided,
+                it defaults to None.
 
         Returns:
             Molecule: The molecule object that was added to the list of species.
@@ -176,7 +183,8 @@ class ChromAnalyzer(BaseModel):
 
         self._update_molecule(molecule)
 
-        self._register_peaks(molecule, retention_tolerance, wavelength)
+        if molecule.has_retention_time:
+            self._register_peaks(molecule, retention_tolerance, wavelength)
 
         return molecule
 
@@ -329,33 +337,31 @@ class ChromAnalyzer(BaseModel):
         path: str,
         ph: float,
         temperature: float,
+        temperature_unit: UnitDefinition = C,
+        mode: Optional[Literal["timecourse", "calibration"]] = None,
+        values: Optional[list[float]] = None,
+        unit: Optional[UnitDefinition] = None,
         id: str | None = None,
         name: str = "Chromatographic measurement",
-        reaction_times: list[float] | None = None,
-        time_unit: UnitDefinition | None = None,
-        temperature_unit: UnitDefinition = C,
         silent: bool = False,
     ) -> ChromAnalyzer:
-        """Reads chromatographic from a directory, containing Allotrope Simple Model (ASM) files.
+        """Reads chromatographic data from a directory containing Allotrope Simple Model (ASM) json files.
         Measurements are assumed to be named alphabetically, allowing sorting by file name.
-
-        !!! tip
-            The reaction time ad the corresponding unit can be part of the file name of each individual ASM file.
-            In this case, the `reaction_times` and `time_unit` arguments can be omitted.
-            units can be defined as `sec`, `second`, `min`, `minute`, or `hour`.
-            Examples for valid file names are `m0 12.5 min.json`, `m0 12 min`, `m0 12.5 minutes`, `m0 12.5min`,
-            `m0 50mins.json`, `m0 50.12 seconds.json`, `m0_50sec.json`.
-
 
         Args:
             path (str): Path to the directory containing the ASM files.
             ph (float): pH value of the measurement.
             temperature (float): Temperature of the measurement.
+            temperature_unit (UnitDefinition, optional): Unit of the temperature. Defaults to Celsius (C).
+            mode (Optional[Literal["timecourse", "calibration"]], optional): Mode of the data. If "timecourse",
+                `values` should be a list of reaction times. If "calibration", `values` should be a list of concentrations.
+                Defaults to None.
+            values (list[float], optional): A list of reaction times (for "timecourse" mode) or concentrations
+                (for "calibration" mode), corresponding to each measurement in the directory.
+            unit (UnitDefinition, optional): Unit of the `values` provided. It can be the time unit for reaction times or
+                the concentration unit for calibration mode, depending on the mode.
             id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
-            name (str): Name the measurement. Defaults to "Chromatographic measurement".
-            reaction_times (list[float]): List of reaction times, corresponding to each measurement in the directory.
-            time_unit (UnitDefinition): Unit of the time values.
-            temperature_unit (UnitDefinition, optional): _description_. Defaults to C.
+            name (str, optional): Name of the measurement. Defaults to "Chromatographic measurement".
             silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
@@ -365,25 +371,22 @@ class ChromAnalyzer(BaseModel):
 
         data = {
             "dirpath": path,
-            "reaction_times": reaction_times,
-            "time_unit": time_unit,
+            "values": values,
+            "unit": unit,
             "ph": ph,
             "temperature": temperature,
             "temperature_unit": temperature_unit,
             "silent": silent,
+            "mode": mode,
         }
 
-        if data["time_unit"] is None:
-            data.pop("time_unit")
-        if data["reaction_times"] is None:
-            data.pop("reaction_times")
-
-        measurements = ASMReader(**data).read()  # type: ignore
+        reader = ASMReader(**data)
+        measurements = reader.read()  # type: ignore
 
         if id is None:
             id = path
 
-        return cls(id=id, name=name, measurements=measurements)
+        return cls(id=id, name=name, measurements=measurements, mode=reader.mode)
 
     @classmethod
     def read_shimadzu(
@@ -391,14 +394,12 @@ class ChromAnalyzer(BaseModel):
         path: str,
         ph: float,
         temperature: float,
+        temperature_unit: UnitDefinition = C,
         mode: Optional[Literal["timecourse", "calibration"]] = None,
+        values: Optional[list[float]] = None,
+        unit: Optional[UnitDefinition] = None,
         id: str | None = None,
         name: str = "Chromatographic measurement",
-        reaction_times: Optional[list[float]] = None,
-        time_unit: Optional[UnitDefinition] = None,
-        concentrations: Optional[list[float]] = None,
-        concentration_unit: Optional[UnitDefinition] = None,
-        temperature_unit: UnitDefinition = C,
         silent: bool = False,
     ) -> ChromAnalyzer:
         """Reads chromatographic data from a directory containing Shimadzu files.
@@ -408,14 +409,16 @@ class ChromAnalyzer(BaseModel):
             path (str): Path to the directory containing the Shimadzu files.
             ph (float): pH value of the measurement.
             temperature (float): Temperature of the measurement.
-            mode (Optional[Literal["timecourse", "calibration"]], optional): Mode of the data. Defaults to None.
-            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
-            name (str): Name the measurement. Defaults to "Chromatographic measurement".
-            reaction_times (list[float], optional): List of reaction times, corresponding to each measurement in the directory.
-            time_unit (UnitDefinition, optional): Unit of the time values. If the reaction times are part of the file name, this argument can be omitted.
-            concentrations (list[float], optional): List of concentrations for calibration mode.
-            concentration_unit (UnitDefinition, optional): Unit of the concentration values.
             temperature_unit (UnitDefinition, optional): Unit of the temperature. Defaults to Celsius (C).
+            mode (Optional[Literal["timecourse", "calibration"]], optional): Mode of the data. If "timecourse",
+                `values` should be a list of reaction times. If "calibration", `values` should be a list of concentrations.
+                Defaults to None.
+            values (list[float], optional): A list of reaction times (for "timecourse" mode) or concentrations
+                (for "calibration" mode), corresponding to each measurement in the directory.
+            unit (UnitDefinition, optional): Unit of the `values` provided. It can be the time unit for reaction times or
+                the concentration unit for calibration mode, depending on the mode.
+            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            name (str, optional): Name of the measurement. Defaults to "Chromatographic measurement".
             silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
@@ -425,17 +428,14 @@ class ChromAnalyzer(BaseModel):
 
         data = {
             "dirpath": path,
-            "values": concentrations,
-            "unit": time_unit,
+            "values": values,
+            "unit": unit,
             "ph": ph,
             "temperature": temperature,
             "temperature_unit": temperature_unit,
             "silent": silent,
             "mode": mode,
         }
-
-        # Remove keys with None values to avoid passing unwanted parameters
-        data = {k: v for k, v in data.items() if v is not None}
 
         reader = ShimadzuReader(**data)
         measurements = reader.read()  # type: ignore
@@ -456,24 +456,30 @@ class ChromAnalyzer(BaseModel):
         path: str,
         ph: float,
         temperature: float,
+        temperature_unit: UnitDefinition = C,
+        mode: Optional[Literal["timecourse", "calibration"]] = None,
+        values: Optional[list[float]] = None,
+        unit: Optional[UnitDefinition] = None,
         id: str | None = None,
         name: str = "Chromatographic measurement",
-        reaction_times: list[float] | None = None,
-        time_unit: UnitDefinition | None = None,
-        temperature_unit: UnitDefinition = C,
         silent: bool = False,
     ) -> ChromAnalyzer:
-        """Reads chromatographic data from an Agilent *.csv or *.txt file.
+        """Reads Agilent `Report.txt` or `RESULTS.csv` files within a `*.D` directories within the specified path.
 
         Args:
-            path (str): Path to the directory containing the Agilent files.
+            path (str): Path to the directory containing the Shimadzu files.
             ph (float): pH value of the measurement.
             temperature (float): Temperature of the measurement.
-            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
-            name (str): Name the measurement. Defaults to "Chromatographic measurement".
-            reaction_times (list[float], optional): List of reaction times, corresponding to each measurement. If not provided, reaction times must be part of the file names.
-            time_unit (UnitDefinition, optional): Unit of the time values. If the reaction times are part of the file name, this argument can be omitted.
             temperature_unit (UnitDefinition, optional): Unit of the temperature. Defaults to Celsius (C).
+            mode (Optional[Literal["timecourse", "calibration"]], optional): Mode of the data. If "timecourse",
+                `values` should be a list of reaction times. If "calibration", `values` should be a list of concentrations.
+                Defaults to None.
+            values (list[float], optional): A list of reaction times (for "timecourse" mode) or concentrations
+                (for "calibration" mode), corresponding to each measurement in the directory.
+            unit (UnitDefinition, optional): Unit of the `values` provided. It can be the time unit for reaction times or
+                the concentration unit for calibration mode, depending on the mode.
+            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            name (str, optional): Name of the measurement. Defaults to "Chromatographic measurement".
             silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
@@ -497,24 +503,22 @@ class ChromAnalyzer(BaseModel):
 
         data = {
             "dirpath": path,
-            "reaction_times": reaction_times,
-            "time_unit": time_unit,
+            "values": values,
+            "unit": unit,
             "ph": ph,
             "temperature": temperature,
             "temperature_unit": temperature_unit,
             "silent": silent,
+            "mode": mode,
         }
-
-        if data["time_unit"] is None:
-            data.pop("time_unit")
-        if data["reaction_times"] is None:
-            data.pop("reaction_times")
 
         if not csv_paths and txt_paths:
             data["file_paths"] = txt_paths  # type: ignore
-            measurements = AgilentTXTReader(**data).read()  # type: ignore
+            reader = AgilentTXTReader(**data)
+            measurements = reader.read()  # type: ignore
         elif csv_paths and not txt_paths:
             data["file_paths"] = csv_paths  # type: ignore
+            reader = AgilentCSVReader(**data)  # type: ignore
             measurements = AgilentCSVReader(**data).read()  # type: ignore
         else:
             raise IOError(f"No 'REPORT.TXT' or 'RESULTS.CSV' files found in '{path}'.")
@@ -522,7 +526,7 @@ class ChromAnalyzer(BaseModel):
         if id is None:
             id = path
 
-        return cls(id=id, name=name, measurements=measurements)
+        return cls(id=id, name=name, measurements=measurements, mode=reader.mode)
 
     @classmethod
     def read_chromeleon(
@@ -530,24 +534,31 @@ class ChromAnalyzer(BaseModel):
         path: str,
         ph: float,
         temperature: float,
+        temperature_unit: UnitDefinition = C,
+        mode: Optional[Literal["timecourse", "calibration"]] = None,
+        values: Optional[list[float]] = None,
+        unit: Optional[UnitDefinition] = None,
         id: str | None = None,
         name: str = "Chromatographic measurement",
-        reaction_times: list[float] | None = None,
-        time_unit: UnitDefinition | None = None,
-        temperature_unit: UnitDefinition = C,
         silent: bool = False,
     ) -> ChromAnalyzer:
-        """Reads chromatographic data from an Agilent *.csv or *.txt file.
+        """Reads Chromeleon txt files from a directory. The files in the directory are assumed to be of
+        one calibration or timecourse measurement series.
 
         Args:
-            path (str): Path to the directory containing the Agilent files.
+            path (str): Path to the directory containing the Shimadzu files.
             ph (float): pH value of the measurement.
             temperature (float): Temperature of the measurement.
-            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
-            name (str): Name the measurement. Defaults to "Chromatographic measurement".
-            reaction_times (list[float], optional): List of reaction times, corresponding to each measurement. If not provided, reaction times must be part of the file names.
-            time_unit (UnitDefinition, optional): Unit of the time values. If the reaction times are part of the file name, this argument can be omitted.
             temperature_unit (UnitDefinition, optional): Unit of the temperature. Defaults to Celsius (C).
+            mode (Optional[Literal["timecourse", "calibration"]], optional): Mode of the data. If "timecourse",
+                `values` should be a list of reaction times. If "calibration", `values` should be a list of concentrations.
+                Defaults to None.
+            values (list[float], optional): A list of reaction times (for "timecourse" mode) or concentrations
+                (for "calibration" mode), corresponding to each measurement in the directory.
+            unit (UnitDefinition, optional): Unit of the `values` provided. It can be the time unit for reaction times or
+                the concentration unit for calibration mode, depending on the mode.
+            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            name (str, optional): Name of the measurement. Defaults to "Chromatographic measurement".
             silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
@@ -557,18 +568,14 @@ class ChromAnalyzer(BaseModel):
 
         data = {
             "dirpath": path,
-            "reaction_times": reaction_times,
-            "time_unit": time_unit,
+            "values": values,
+            "unit": unit,
             "ph": ph,
             "temperature": temperature,
             "temperature_unit": temperature_unit,
             "silent": silent,
+            "mode": mode,
         }
-
-        if data["time_unit"] is None:
-            data.pop("time_unit")
-        if data["reaction_times"] is None:
-            data.pop("reaction_times")
 
         if id is None:
             id = path
@@ -971,7 +978,16 @@ class ChromAnalyzer(BaseModel):
                 else:
                     processed_signal_exist = False
 
-        n_peaks_in_first_chrom = len(self.measurements[0].chromatograms[0].peaks)
+        if assigned_only:
+            n_peaks_in_first_chrom = len(
+                [
+                    peak
+                    for peak in self.measurements[0].chromatograms[0].peaks
+                    if peak.molecule_id
+                ]
+            )
+        else:
+            n_peaks_in_first_chrom = len(self.measurements[0].chromatograms[0].peaks)
 
         if peak_vis_mode == "gaussian":
             logger.info(

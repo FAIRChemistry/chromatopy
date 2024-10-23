@@ -5,14 +5,14 @@ from typing import Any
 import pandas as pd
 from loguru import logger
 
-from chromatopy.model import Chromatogram, Measurement, UnitDefinition
+from chromatopy.model import Chromatogram, Data, Measurement, UnitDefinition
 from chromatopy.readers.abstractreader import AbstractReader
 from chromatopy.units import h, min, ul
 
 
 class ChromeleonReader(AbstractReader):
     def model_post_init(self, __context: Any) -> None:
-        if not self.reaction_times or not self.time_unit or not self.file_paths:
+        if not self.file_paths:
             logger.debug(
                 "Collecting file paths without reaction time and unit parsing."
             )
@@ -26,9 +26,11 @@ class ChromeleonReader(AbstractReader):
         """
 
         measurements = []
-        for file, reaction_time in zip(self.file_paths, self.reaction_times):
+        for file_id, file in enumerate(self.file_paths):
             content = self._read_chromeleon_file(file)
-            measurement = self._map_measurement(content, reaction_time, self.time_unit)
+            measurement = self._map_measurement(
+                content, self.values[file_id], self.unit
+            )
             measurements.append(measurement)
 
         if not self.silent:
@@ -72,6 +74,12 @@ class ChromeleonReader(AbstractReader):
 
         # reaction_time, unit = self._extract_reaction_time(file_name)
 
+        data = Data(
+            value=reaction_time,
+            unit=time_unit,
+            data_type=self.mode,
+        )
+
         return Measurement(
             id=content["Sample Information"][5][1],
             chromatograms=[chromatogram],
@@ -82,11 +90,10 @@ class ChromeleonReader(AbstractReader):
             dilution_factor=float(
                 content["Sample Information"][14][1].replace(",", ".")
             ),
-            reaction_time=reaction_time,
-            time_unit=time_unit,
             ph=self.ph,
             temperature=self.temperature,
             temperature_unit=self.temperature_unit,
+            data=data,
         )
 
     def _extract_reaction_time(self, file_name: str) -> tuple[float, UnitDefinition]:
@@ -143,20 +150,25 @@ class ChromeleonReader(AbstractReader):
             files.append(str(file_path.absolute()))
 
         assert (
-            len(files) == len(self.reaction_times)
+            len(files) == len(self.values)
         ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.reaction_times)})."
 
         self.file_paths = sorted(files)
 
 
 if __name__ == "__main__":
-    from chromatopy.units.predefined import min
+    from chromatopy.units.predefined import mM
 
     dir_path = "/Users/max/Documents/jan-niklas/MjNK/adenosine_std"
-    reaction_times = [0, 1, 2, 3, 4, 5.0]
+    values = [0, 1, 2, 3, 4, 5.0]
 
     reader = ChromeleonReader(
-        dir_path, reaction_times, min, ph=7.4, temperature=25.0, temperature_unit=min
+        dirpath=dir_path,
+        values=values,
+        unit=mM,
+        ph=7.4,
+        temperature=25.0,
+        mode="calibration",
     )
     measurements = reader.read()
 

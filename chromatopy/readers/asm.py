@@ -4,13 +4,13 @@ from typing import Any
 
 from loguru import logger
 
-from chromatopy.model import Chromatogram, Measurement, Peak
+from chromatopy.model import Chromatogram, Data, Measurement, Peak
 from chromatopy.readers.abstractreader import AbstractReader
 
 
 class ASMReader(AbstractReader):
     def model_post_init(self, __context: Any) -> None:
-        if not self.reaction_times or not self.time_unit or not self.file_paths:
+        if not self.file_paths:
             logger.debug(
                 "Collecting file paths without reaction time and unit parsing."
             )
@@ -24,9 +24,9 @@ class ASMReader(AbstractReader):
         """
 
         measurements = []
-        for file, reaction_time in zip(self.file_paths, self.reaction_times):
+        for i, file in enumerate(sorted(self.file_paths)):
             content = self._read_asm_file(file)
-            measurement = self._map_measurement(content, reaction_time, file)
+            measurement = self._map_measurement(content, self.values[i], file)
             measurements.append(measurement)
 
         if not self.silent:
@@ -54,8 +54,8 @@ class ASMReader(AbstractReader):
             files.append(str(file_path.absolute()))
 
         assert (
-            len(files) == len(self.reaction_times)
-        ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.reaction_times)})."
+            len(files) == len(self.values)
+        ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.values)})."
 
         self.file_paths = sorted(files)
 
@@ -70,7 +70,7 @@ class ASMReader(AbstractReader):
         content: dict,
         reaction_time: float,
         path: str,
-    ) -> str:
+    ) -> Measurement:
         if "liquid chromatography aggregate document" in content:
             return self._map_lc_measurement(content, reaction_time, path)
         elif "gas chromatography aggregate document" in content:
@@ -148,15 +148,20 @@ class ASMReader(AbstractReader):
             times=time,
         )
 
+        data = Data(
+            value=reaction_time,
+            unit=self.unit,
+            data_type=self.mode,
+        )
+
         return Measurement(
             id=sample_id,
             sample_name=name,
-            reaction_time=reaction_time,
-            time_unit=self.time_unit,
             temperature=self.temperature,
             temperature_unit=self.temperature_unit,
             ph=self.ph,
             chromatograms=[chrom],
+            data=data,
         )
 
     def _map_gc_measurement(
@@ -212,111 +217,21 @@ class ASMReader(AbstractReader):
             times=time,
         )
 
+        data = Data(
+            value=reaction_time,
+            unit=self.unit,
+            data_type=self.mode,
+        )
+
         return Measurement(
             id=sample_id,
             sample_name=name,
-            reaction_time=reaction_time,
-            time_unit=self.time_unit,
             temperature=self.temperature,
             temperature_unit=self.temperature_unit,
             ph=self.ph,
             chromatograms=[chrom],
+            data=data,
         )
-
-    # def _map_measurement(
-    #     self,
-    #     content: dict,
-    #     reaction_time: float,
-    #     path: str,
-    # ):
-    #     try:
-    #         doc = content["liquid chromatography aggregate document"][
-    #             "liquid chromatography document"
-    #         ]
-    #     except KeyError:
-    #         doc = content["gas chromatography aggregate document"][
-    #             "gas chromatography document"
-    #         ]
-
-    #     if len(doc) > 1:
-    #         logger.warning(
-    #             f"More than one chromatogram found in file '{path}'. Using the first chromatogram only."
-    #         )
-
-    #     try:
-    #         sample_document = doc[0]["sample document"]
-    #         meas_document = doc[0]["measurement document"]
-    #     except KeyError:
-    #         sample_document = doc[0]["measurement aggregate document"][
-    #             "measurement document"
-    #         ][0]["sample document"]
-    #         meas_document = doc[0]["measurement aggregate document"][
-    #             "measurement document"
-    #         ]
-
-    #     # sample info
-    #     name = sample_document.get("written name")
-    #     sample_id = sample_document.get("sample identifier")
-    #     if not sample_id and name:
-    #         sample_id = name
-
-    #     if isinstance(meas_document, list):
-    #         meas_document = meas_document[0]
-
-    #     # signal and time
-    #     signal = meas_document["chromatogram data cube"]["data"]["measures"][0]
-    #     time = meas_document["chromatogram data cube"]["data"]["dimensions"][0]
-    #     time_unit = meas_document["chromatogram data cube"]["cube-structure"][
-    #         "dimensions"
-    #     ][0]["unit"]
-
-    #     if time_unit == "s":
-    #         # to min
-    #         time = [t / 60 for t in time]
-    #     elif time_unit == "min":
-    #         pass
-    #     else:
-    #         raise ValueError(f"Unit '{time_unit}' not recognized")
-
-    #     try:
-    #         peak_list = meas_document["peak list"]["peak"]
-    #     except KeyError:
-    #         try:
-    #             analyte_document = doc[0]["analyte aggregate document"][
-    #                 "analyteDocument"
-    #             ]
-
-    #             if len(analyte_document) > 1:
-    #                 logger.warning(
-    #                     f"More than one analyte document found in '{path}'. Using the first analyte document only."
-    #                 )
-    #             peak_list = analyte_document[0]["peak list"]["peak"]
-    #         except KeyError:
-    #             try:
-    #                 peak_list = meas_document["processed data document"]["peak list"][
-    #                     "peak"
-    #                 ]
-    #             except KeyError:
-    #                 peak_list = []
-
-    #     peaks = [self.map_peaks(peak) for peak in peak_list]
-
-    #     chrom = Chromatogram(
-    #         peaks=peaks,
-    #         signals=signal,
-    #         times=time,
-    #     )
-
-    #     return Measurement(
-    #         id=sample_id,
-    #         sample_name=name,
-    #         reaction_time=reaction_time,
-    #         time_unit=self.time_unit,
-    #         temperature=self.temperature,
-    #         temperature_unit=self.temperature_unit,
-    #         ph=self.ph,
-    #         chromatograms=[chrom],
-    #     )
 
     def map_peaks(self, peak_dict: dict) -> Peak:
         area = peak_dict["peak area"]
@@ -388,7 +303,6 @@ class ASMReader(AbstractReader):
 
 if __name__ == "__main__":
     from chromatopy.units import C
-    from chromatopy.units.predefined import minute
 
     first = "/Users/max/Documents/GitHub/chromatopy/docs/examples/data/asm"
     second = "/Users/max/Documents/GitHub/chromatopy/docs/examples/data/asm_2"
@@ -396,12 +310,11 @@ if __name__ == "__main__":
 
     reader = ASMReader(
         dirpath=second,
-        reaction_times=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        time_unit=minute,
         ph=7.4,
         temperature=37,
         temperature_unit=C,
         silent=False,
+        mode="timecourse",
     )
     measurements = reader.read()
     # print(reader.reaction_times)

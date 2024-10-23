@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 from abc import abstractmethod
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from loguru import logger
 from pydantic import BaseModel, Field, field_validator, model_validator
@@ -57,15 +57,15 @@ class AbstractReader(BaseModel):
         ..., description="Mode of data processing: 'calibration' or 'timecourse'."
     )
 
-    values: Optional[list[float]] = Field(
-        None,
+    values: list[float] = Field(
+        ...,
         description=(
             "List of reaction times for 'timecourse' mode or concentrations for 'calibration' mode."
         ),
     )
 
-    unit: Optional[UnitDefinition] = Field(
-        None,
+    unit: UnitDefinition = Field(
+        ...,
         description=(
             "Unit of the values: "
             "Use time units (e.g., 'minute', 'second') for 'timecourse' mode and concentration units (e.g., 'mM', 'uM') for 'calibration' mode."

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from calipytion.model import Standard
 from calipytion.model import UnitDefinition as CalUnit
 from calipytion.tools.calibrator import Calibrator
@@ -29,7 +31,7 @@ class Molecule(BaseModel):
     conc_unit: UnitDefinition | None = Field(
         description="Unit of the concentration", default=None
     )
-    retention_time: float = Field(
+    retention_time: Optional[float] = Field(
         description="Retention time of the molecule in minutes"
     )
     wavelength: float | None = Field(
@@ -109,7 +111,9 @@ class Molecule(BaseModel):
         )
         calibrator.models = []
         model = calibrator.add_model(
-            name="linear", signal_law=f"{self.id} * a", upper_bound=1e13
+            name="linear",
+            signal_law=f"{self.id} * a",
+            upper_bound=1e13,
         )
 
         calibrator.fit_models()
@@ -148,6 +152,14 @@ class Molecule(BaseModel):
         self.standard = standard
 
         return standard
+
+    @property
+    def has_retention_time(self):
+        """
+        Checks if the molecule has a retention time defined. And if so,
+        it is assumed that the molecule is present in the chromatogram.
+        """
+        return self.retention_time is not None
 
 
 class Protein(BaseModel):
