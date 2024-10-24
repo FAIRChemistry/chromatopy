@@ -12,7 +12,7 @@ __Required parameters__:
 
 - `id`: Internal identifier of the molecule, such as `s0`, `ABTS` or `A0_34S`.
 - `pubchem_cid`: PubChem CID of the molecule.
-- `retention_time`: Retention time for peak annotation in minutes.
+- `retention_time`: Retention time for peak annotation in minutes. If the molecule is not detected in the chromatogram, the retention time can be set to `None`.
 
 __Optional parameters__:
 
@@ -80,9 +80,7 @@ The `ChromAnalyzer` allows for the annotation of peaks corresponding to these re
     # Read the data
     data_dir = "data/asm"
     cascade_analyzer = ChromAnalyzer.read_asm(
-        path=data_dir,
-        ph=7.4,
-        temperature=25,
+        path=data_dir, ph=7.4, temperature=25, mode="timecourse"
     )
 
     # Define N6-benzyl-ATP
@@ -210,7 +208,15 @@ __Optional parameters__:
     ```python
     from chromatopy import ChromAnalyzer
 
-    calib_analyzer = ChromAnalyzer.from_json("data/instances/adenosine_analyzer.json")
+    # Read the data in calibration mode
+    calib_analyzer = ChromAnalyzer.read_chromeleon(
+        path="data/chromeleon",
+        ph=7.4,
+        temperature=25,
+        mode="calibration",
+    )
+    # Integrate the chromatograms (only necessary if not done in previous step)
+    calib_analyzer.process_chromatograms()
 
     # Define adenosine
     adenosine = calib_analyzer.define_molecule(
@@ -221,13 +227,9 @@ __Optional parameters__:
         retention_tolerance=0.5,
     )
 
-    # create a standard curve
-    concs = [0.5, 1, 1.5, 2, 2.5, 3]
-
+    # create a standard
     standard = calib_analyzer.add_standard(
         molecule=adenosine,
-        concs=concs,
-        conc_unit=mM,
         visualize=True,
     )
     ```
@@ -1572,10 +1574,19 @@ Once a standard is defined, it can be transferred to another `ChromAnalyzer` obj
 
     ```python
     from chromatopy import ChromAnalyzer
-    from chromatopy.units import mM
+    from chromatopy.units import mM, hour
 
-    data_path = "data/instances/time_course_adenosine.json"
-    time_course_analyzer = ChromAnalyzer.from_json(data_path)
+    data_path = "data/chromeleon_kinetic/"
+    time_course_analyzer = ChromAnalyzer.read_chromeleon(
+        path=data_path,
+        ph=7.4,
+        temperature=25,
+        mode="timecourse",
+        values=[0, 0, 0, 24, 24, 24],
+        unit=hour,
+    )
+
+    time_course_analyzer.process_chromatograms()
 
     # add adenosine with standard to the time course analyzer
     time_course_analyzer.add_molecule(
@@ -1641,13 +1652,20 @@ The following example shows how an internal standard molecule is added to the `c
 
     ```python
     from chromatopy import ChromAnalyzer
-    from chromatopy.units import M
+    from chromatopy.units import M, minute
 
-    path = "data/instances/analyzer_is.json"
+    path = "data/agilent_csv"
+    time = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 45, 60]
 
     # Read the data
-    analyzer_is = ChromAnalyzer.from_json(path=path)
-
+    analyzer_is = ChromAnalyzer.read_agilent(
+        path=path,
+        ph=7.4,
+        temperature=25,
+        mode="timecourse",
+        values=time,
+        unit=minute,
+    )
 
     # add molecules
     analyzer_is.define_molecule(

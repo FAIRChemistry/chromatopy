@@ -11,15 +11,16 @@ The `visualize_spectra` method plots all spectra in a single interactive plot. T
 
 !!! example
     ```python
-    # Initialize the ChromAnalyzer
     from chromatopy import ChromAnalyzer
 
     data_dir = "data/asm"
 
+    # Initialize the ChromAnalyzer
     analyzer = ChromAnalyzer.read_asm(
         path=data_dir,
         ph=7.4,
         temperature=25,
+        mode="timecourse",
     )
 
     # and visualize the spectra
