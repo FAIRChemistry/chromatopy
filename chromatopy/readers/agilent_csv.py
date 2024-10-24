@@ -1,6 +1,8 @@
+from pathlib import Path
+
 import pandas as pd
 
-from chromatopy.model import Chromatogram, Measurement, Peak
+from chromatopy.model import Chromatogram, Data, Measurement, Peak
 from chromatopy.readers.abstractreader import AbstractReader
 
 
@@ -12,27 +14,34 @@ class AgilentCSVReader(AbstractReader):
             list[Measurement]: A list of Measurement objects representing the chromatographic data.
         """
 
-        assert len(self.reaction_times) == len(self.file_paths), f"""
-        The number of reaction times {len(self.reaction_times)} does not match the number of
+        self.file_paths = self.sort_paths_by_last_parent(self.file_paths)
+
+        assert len(self.values) == len(self.file_paths), f"""
+        The number of reaction times {len(self.values)} does not match the number of
         'RESULTS.CSV' files {len(self.file_paths)}.
         """
 
+        print(self.file_paths)
+
         measurements = []
-        for path_idx, (csv_path, reaction_time) in enumerate(
-            zip(self.file_paths, self.reaction_times)
-        ):
+        for path_idx, csv_path in enumerate(self.file_paths):
             peaks = self._read_peaks_from_csv(csv_path)
             chromatogram = Chromatogram(peaks=peaks)
+
+            data = Data(
+                value=self.values[path_idx],
+                unit=self.unit,
+                data_type=self.mode,
+            )
 
             measurements.append(
                 Measurement(
                     id=f"m{path_idx}",
                     chromatograms=[chromatogram],
-                    reaction_time=reaction_time,
-                    time_unit=self.time_unit,
                     temperature=self.temperature,
                     temperature_unit=self.temperature_unit,
                     ph=self.ph,
+                    data=data,
                 )
             )
 
@@ -58,3 +67,20 @@ class AgilentCSVReader(AbstractReader):
             )
 
         return peaks
+
+    @staticmethod
+    def sort_paths_by_last_parent(paths: list[str]) -> list[str]:
+        """
+        Sorts a list of file paths by the name of the last parent directory.
+
+        Args:
+            paths (List[str]): A list of file paths as strings.
+
+        Returns:
+            List[str]: A list of sorted file paths by the last parent directory.
+        """
+        # Sort paths by their last parent directory and return them as strings
+        sorted_paths = sorted(paths, key=lambda p: Path(p).parent.name)
+
+        # Return the sorted paths as strings
+        return [str(path) for path in sorted_paths]

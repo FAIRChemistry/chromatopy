@@ -3,6 +3,7 @@ import os
 import pytest
 
 from chromatopy.readers.abstractreader import AbstractReader, UnitConsistencyError
+from chromatopy.units import minute
 
 
 class TestAbstractReader(AbstractReader):
@@ -27,23 +28,23 @@ def inconsistent_units_dir():
 
 
 def test_parse_time_and_unit_success(working_data_dir):
-    from chromatopy.units import C, minute
+    from chromatopy.units import C
 
     reader = TestAbstractReader(
         dirpath=working_data_dir,
-        reaction_times=[],
-        time_unit=None,
         ph=7.0,
         temperature=25.0,
         temperature_unit=C,
         silent=False,
+        mode="timecourse",
     )
 
     # Extract only the filenames
     file_names = [os.path.basename(file) for file in reader.file_paths]
 
-    assert reader.reaction_times == [0.0, 0.33, 3.4, 10]
-    assert reader.time_unit == minute
+    assert reader.values == [0.0, 0.33, 3.4, 10]
+    assert reader.unit == minute
+    assert reader.mode == "timecourse"
     assert file_names == [
         "0min.json",
         "m3 0.33 min.txt",
@@ -60,9 +61,10 @@ def test_parse_time_and_unit_inconsistent_units(inconsistent_units_dir):
     ):
         TestAbstractReader(
             dirpath=inconsistent_units_dir,
-            reaction_times=[],
-            time_unit=None,
+            values=None,
+            unit=None,
             ph=7.0,
             temperature=25.0,
             temperature_unit=C,
+            mode="timecourse",
         )

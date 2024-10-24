@@ -12,12 +12,9 @@ prefix: "chromatopy"
 - __id__
   - Type: string
   - Description: Unique identifier of the measurement.
-- __reaction_time__
-  - Type: float
-  - Description: Reaction time when the sample was injected.
-- __time_unit__
-  - Type: UnitDefinition
-  - Description: Unit of time.
+- __data__
+  - Type: Data
+  - Description: Data of the measurement.
 - __chromatograms__
   - Type: Chromatogram[]
   - Description: Measured chromatogram and peaks.
@@ -45,6 +42,19 @@ prefix: "chromatopy"
 - injection_volume_unit
   - Type: UnitDefinition
   - Description: Unit of injection volume.
+
+### Data
+
+- __value__
+  - Type: float
+  - Description: Timecourse data.
+- __unit__
+  - Type: UnitDefinition
+  - Description: Unit of the data.
+- __data_type__
+  - Type: DataType
+  - Description: Type of data. Eighter timecourse or calibration.
+
 
 ### Chromatogram
 
@@ -120,4 +130,11 @@ RID = "refractive index detector"
 ELSD = "evaporative light scattering detector"
 MS = "mass spectrometry"
 DAD = "diode array detector"
+```
+
+### DataType
+
+```python
+TIMECOURSE = "timecourse"
+CALIBRATION = "calibration"
 ```

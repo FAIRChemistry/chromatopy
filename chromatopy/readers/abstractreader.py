@@ -1,12 +1,15 @@
+from __future__ import annotations
+
 import re
 from abc import abstractmethod
 from pathlib import Path
 from typing import Any
 
 from loguru import logger
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
-from chromatopy.model import Measurement, UnitDefinition
+from chromatopy.model import DataType, Measurement, UnitDefinition
+from chromatopy.units import C
 
 
 class MetadataExtractionError(Exception):
@@ -31,66 +34,136 @@ class FileNotFoundInDirectoryError(Exception):
 
 
 class AbstractReader(BaseModel):
-    """Abstract class for reading chromatographic data from files."""
+    """
+    Abstract class for reading chromatographic data from files.
 
-    dirpath: str
-    reaction_times: list[float]
-    time_unit: UnitDefinition
-    ph: float
-    temperature: float
-    temperature_unit: UnitDefinition
-    silent: bool
+    Attributes:
+        dirpath (str): Path to the directory containing chromatographic data files.
+        mode (str): Mode of data processing, either 'calibration' or 'timecourse'.
+        values (Optional[List[float]]): List of reaction times or concentrations based on the mode.
+        unit (Optional[UnitDefinition]): Unit of the values (time unit for timecourse, concentration unit for calibration).
+        ph (float): pH value of the measurement.
+        temperature (float): Temperature of the measurement.
+        temperature_unit (UnitDefinition): Unit of the temperature.
+        silent (bool): If True, suppresses output messages.
+        file_paths (List[str]): List of file paths to process.
+    """
 
-    file_paths: list[str] = []
+    dirpath: str = Field(
+        ..., description="Path to the directory containing chromatographic data files."
+    )
+
+    mode: str = Field(
+        ..., description="Mode of data processing: 'calibration' or 'timecourse'."
+    )
+
+    values: list[float] = Field(
+        ...,
+        description=(
+            "List of reaction times for 'timecourse' mode or concentrations for 'calibration' mode."
+        ),
+    )
+
+    unit: UnitDefinition = Field(
+        ...,
+        description=(
+            "Unit of the values: "
+            "Use time units (e.g., 'minute', 'second') for 'timecourse' mode and concentration units (e.g., 'mM', 'uM') for 'calibration' mode."
+        ),
+    )
+
+    ph: float = Field(..., description="pH value of the measurement.")
+
+    temperature: float = Field(..., description="Temperature of the measurement.")
+
+    temperature_unit: UnitDefinition = Field(
+        default=C,  # Assuming 'C' is a member of UnitDefinition
+        description="Unit of the temperature. Defaults to Celsius.",
+    )
+
+    silent: bool = Field(False, description="If True, suppresses output messages.")
+
+    file_paths: list[str] = Field(
+        default_factory=list, description="List of file paths to process."
+    )
+
+    @field_validator("mode", mode="before")
+    def validate_mode(cls, value):
+        value = value.lower()
+        if value not in {DataType.CALIBRATION.value, DataType.TIMECOURSE.value}:
+            raise ValueError("Invalid mode. Must be 'calibration' or 'timecourse'.")
+        return value
 
     @model_validator(mode="before")
     @classmethod
-    def try_parse_time_and_unit_from_paths(cls, data: Any):
-        """Go through the data and try to parse the reaction times and unit from the paths."""
-        if not data.get("reaction_times"):
-            try:
-                cls._parse_time_and_unit(data)
-            except MetadataExtractionError as e:
-                logger.debug(e)
-                raise MetadataExtractionError(
-                    str(e),
-                    suggestion="Alternatively, provide the reaction times and unit manually.",
-                )
-            except UnitConsistencyError as e:
-                logger.debug(e)
-                raise UnitConsistencyError(
-                    str(e),
-                )
-        return data
+    def infer_fields_based_on_mode(cls, values: dict[str, Any]) -> dict[str, Any]:
+        mode = values.get("mode")
+        if mode == DataType.TIMECOURSE.value:
+            # Ensure 'values' (reaction times) and 'unit' are provided or parsed
+            if not values.get("values"):
+                try:
+                    values = cls._parse_data_and_unit(values, mode)
+                except MetadataExtractionError as e:
+                    logger.debug(e)
+                    raise MetadataExtractionError(
+                        str(e),
+                        suggestion="Alternatively, provide the reaction times and unit manually, using the `values` attribute.",
+                    )
+                except UnitConsistencyError as e:
+                    logger.debug(e)
+                    raise UnitConsistencyError(str(e))
+        elif mode == DataType.CALIBRATION.value:
+            # Ensure 'values' (concentrations) and 'unit' are provided or parsed
+            if not values.get("values"):
+                try:
+                    values = cls._parse_data_and_unit(values, mode)
+                except MetadataExtractionError as e:
+                    logger.debug(e)
+                    raise MetadataExtractionError(
+                        str(e),
+                        suggestion="Alternatively, provide the concentrations and unit manually.",
+                    )
+                except UnitConsistencyError as e:
+                    logger.debug(e)
+                    raise UnitConsistencyError(str(e))
+        else:
+            raise ValueError("Invalid mode. Must be 'timecourse' or 'calibration'.")
+        return values
 
     @model_validator(mode="after")
-    def validate_data_consistency(self):
-        """Validate the data consistency."""
+    def validate_data_consistency(self) -> AbstractReader:
         if not self.file_paths:
             raise FileNotFoundInDirectoryError(
                 f"No files found in the directory {self.dirpath}."
             )
-        if not self.reaction_times:
-            raise ValueError("No reaction times provided.")
-        if not self.time_unit:
-            raise ValueError("No time unit provided.")
-        if len(self.file_paths) != len(self.reaction_times):
-            raise ValueError(
-                f"Number of files in {self.dirpath} ({len(self.file_paths)}) does not match the number of reaction times ({len(self.reaction_times)})."
-            )
 
+        if self.mode == DataType.TIMECOURSE.value:
+            if not self.values:
+                raise ValueError("No reaction times provided for timecourse mode.")
+            if not self.unit:
+                raise ValueError("No time unit provided for timecourse mode.")
+            if len(self.file_paths) != len(self.values):
+                raise ValueError(
+                    f"Number of files ({len(self.file_paths)}) does not match the number of reaction times ({len(self.values)})."
+                )
+        elif self.mode == DataType.CALIBRATION.value:
+            if not self.values:
+                raise ValueError("No concentrations provided for calibration mode.")
+            if not self.unit:
+                raise ValueError("No concentration unit provided for calibration mode.")
+            if len(self.file_paths) != len(self.values):
+                raise ValueError(
+                    f"Number of files ({len(self.file_paths)}) does not match the number of concentrations ({len(self.values)})."
+                )
         return self
 
     @classmethod
-    def _parse_time_and_unit(
-        cls,
-        data: dict[str, Any],
-    ) -> None:
-        """Check if reaction time and unit can be parsed from filenames in the directory."""
+    def _parse_data_and_unit(cls, data: dict[str, Any], mode: str) -> dict[str, Any]:
+        """Parse data and unit from filenames based on the mode."""
 
         try:
-            filenames = [Path(f) for f in data["file_paths"]]
-            if len(filenames) == 0:
+            filenames = [Path(f) for f in data.get("file_paths", [])]
+            if not filenames:
                 raise KeyError
         except KeyError:
             path = Path(data["dirpath"])
@@ -101,49 +174,57 @@ class AbstractReader(BaseModel):
             if not path.is_dir():
                 raise NotADirectoryError(f"'{data['dirpath']}' is not a directory.")
 
-            # get all filnames of normal files in the directory. exclude hidden files
-
+            # Get all filenames of normal files in the directory, exclude hidden files
             filenames = [f for f in path.iterdir() if not f.name.startswith(".")]
 
-        pattern = r".*?(\d+(\.\d+)?)\s*[_-]?\s*(min|minutes?|sec|seconds?|hours?)"
+        # Define patterns based on the mode
+        if mode == DataType.TIMECOURSE.value:
+            # Pattern to extract reaction times and units
+            pattern = r".*?(\d+(\.\d+)?)\s*[_-]?\s*(min|minutes?|sec|seconds?|hours?).*"
+        elif mode == DataType.CALIBRATION.value:
+            # Pattern to extract concentrations and units
+            pattern = r".*?(\d+(\.\d+)?)\s*[_-]?\s*(mM|µM|uM|nM|mol|mmol|umol|nmol).*"
 
-        # extract all reaction times and units from the filenames or parent directories
-        rctn_time_path_dict: dict[float, str] = {}
+        else:
+            raise ValueError("Invalid mode.")
+
+        # Extract data and units from filenames
+        data_dict: dict[float, str] = {}
         units = []
 
         for file in filenames:
-            match = re.search(pattern, file.name)
-            if not match:
-                match = re.search(pattern, file.parent.name)
-            if match:
-                reaction_time = float(match.group(1))
-                unit = match.group(3)
-                if reaction_time in rctn_time_path_dict:
-                    logger.debug(
-                        f"Duplicate reaction time '{reaction_time}' found in directory '{data['dirpath']}'."
+            match_obj = re.search(pattern, file.name)
+            if not match_obj:
+                match_obj = re.search(pattern, file.parent.name)
+            if match_obj:
+                value = float(match_obj.group(1))
+                unit_str = match_obj.group(3)
+                if value in data_dict:
+                    logger.warning(
+                        f"Duplicate value '{value}' found in directory '{data['dirpath']}'."
                     )
                     raise MetadataExtractionError(
-                        f"Reaction times in directory '{data['dirpath']}' are not unique."
+                        f"Values in directory '{data['dirpath']}' are not unique."
                     )
-                rctn_time_path_dict[reaction_time] = str(file.absolute())
-                units.append(unit)
+                data_dict[value] = str(file.absolute())
+                units.append(unit_str)
             else:
-                logger.debug(f"Could not parse reaction time from '{file}'.")
+                logger.debug(f"Could not parse value from '{file.name}'.")
                 raise MetadataExtractionError(
-                    f"Could not parse reaction time from '{file}'."
+                    f"Could not parse value from '{file.name}'."
                 )
 
-        # check if all units are the same
+        # Check if all units are the same
         if not all(unit == units[0] for unit in units):
             logger.debug(
-                f"Units of reaction times in directory '{data['dirpath']}' are not consistent: {units}"
+                f"Units in directory '{data['dirpath']}' are not consistent: {units}"
             )
             raise UnitConsistencyError(
-                f"Units of reaction times in directory '{data['dirpath']}' are not consistent: {units}"
+                f"Units in directory '{data['dirpath']}' are not consistent: {units}"
             )
 
         try:
-            unit_definition = AbstractReader._map_unit_str_to_UnitDefinition(units[0])
+            unit_definition = cls._map_unit_str_to_UnitDefinition(units[0], mode)
         except ValueError:
             logger.debug(
                 f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
@@ -152,41 +233,55 @@ class AbstractReader(BaseModel):
                 f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
             )
 
-        data["file_paths"] = []
-        data["reaction_times"] = []
-        for time, full_path in sorted(rctn_time_path_dict.items()):
-            data["reaction_times"].append(time)
-            data["file_paths"].append(full_path)
-        data["time_unit"] = unit_definition
+        # Sort the data and file paths
+        sorted_items = sorted(data_dict.items())
+        data_values = [item[0] for item in sorted_items]
+        file_paths = [item[1] for item in sorted_items]
+
+        data["file_paths"] = file_paths
+        data["values"] = data_values
+        data["unit"] = unit_definition
+
+        return data
 
     @staticmethod
     def _map_unit_str_to_UnitDefinition(
         unit_str: str,
+        mode: str,
     ) -> UnitDefinition:
-        """Maps a string representation of a unit to a `UnitDefinition` object.
-
-        Parameters:
-            unit_str (str): The string representation of the unit.
-
-        Returns:
-            UnitDefinition: The `UnitDefinition` object.
-
-        Raises:
-            ValueError: If the unit string is not recognized.
-        """
-
-        from chromatopy.units import hour, minute, second
+        """Maps a string representation of a unit to a `UnitDefinition` object based on the mode."""
 
         unit_str = unit_str.lower()
-        match unit_str:
-            case "min" | "mins" | "minutes":
-                return minute
-            case "sec" | "secs" | "seconds":
-                return second
-            case "hour" | "hours":
-                return hour
-            case _:
-                raise ValueError(f"Unit '{unit_str}' not recognized.")
+        if mode == DataType.TIMECOURSE.value:
+            # Time units
+            from chromatopy.units import hour, minute, second
+
+            match unit_str:
+                case "min" | "mins" | "minute" | "minutes":
+                    return minute
+                case "sec" | "secs" | "second" | "seconds":
+                    return second
+                case "hour" | "hours":
+                    return hour
+                case _:
+                    raise ValueError(f"Time unit '{unit_str}' not recognized.")
+        elif mode == DataType.CALIBRATION.value:
+            # Concentration units
+            from chromatopy.units import M, mM, nM, uM
+
+            match unit_str:
+                case "m" | "M":
+                    return M
+                case "mm" | "mM":
+                    return mM
+                case "um" | "uM" | "µM":
+                    return uM
+                case "nm" | "nM":
+                    return nM
+                case _:
+                    raise ValueError(f"Concentration unit '{unit_str}' not recognized.")
+        else:
+            raise ValueError(f"Invalid mode '{mode}'.")
 
     @abstractmethod
     def read(self) -> list[Measurement]:
@@ -196,3 +291,13 @@ class AbstractReader(BaseModel):
     def print_success(self, n_measurement_objects: int) -> None:
         """Prints a success message."""
         print(f"✅ Loaded {n_measurement_objects} chromatograms.")
+
+
+if __name__ == "__main__":
+    path = "docs/examples/data/asm"
+
+    class AbsImpl(AbstractReader):
+        def read(self):
+            pass
+
+    reader = AbsImpl(dirpath=path, mode=DataType.TIMECOURSE, ph=7.0, temperature=25.0)

@@ -9,33 +9,36 @@ The `chromatopy` library provides a set of reader functions designed to read and
 ## General Syntax
 Each of the [supported file formats](../../supported_formats/#supported-formats) has a corresponding reader function, namely `read_asm`, `read_agilent`, `read_chromeleon`, and `read_shimadzu`. Following arguments are common to all reader functions:
 
-__Required Parameters__:
+__Required Parameters__:  
+
 - `path`: The path to the directory containing the chromatographic files.
 - `ph`: The pH value of the measurement.
 - `temperature`: The temperature of the measurement.
+- `mode`: The mode of the measurement, either `calibration` or `timecourse`.
 
-__Optional Parameters__:
+__Optional Parameters__:  
 
 - `id`: A unique identifier for the `ChromAnalyzer` object. If not provided, the `path` is used as the ID.
 - `name`: The name of the measurement. Defaults to "Chromatographic measurement".
-- `reaction_times`: A list of reaction times corresponding to each measurement in the directory. This parameter is optional if the reaction times are embedded in the file names. **For calibration data**, specify this as a list of zeros, with the length equal to the number of measurements.
-- `time_unit`: The unit of the time values `second`, `minute`, and `hour`, which can directly be imported from `chromatopy`. This is also optional if the unit is embedded in the file names. **For calibration data**, any time unit can be used, as it does not affect the calibration process.
+- `values`: A list of reaction times corresponding to each file in the directory for timecourse measurements or concentrations for calibration measurements. If not provided, the reaction times are extracted from the file names if possible.
+- `time_unit`: The unit of the time values `second`, `minute`, and `hour`, which can directly be imported from `chromatopy`. This is also optional if the unit is embedded in the file names.
 - `temperature_unit`: The unit of the temperature. The default is Celsius (C).
 
 
-__Returns__:
+__Returns__:  
+
 The function returns a `ChromAnalyzer` object, which can be used to further analyze and manipulate the chromatographic data within the `chromatopy` framework.
 
 !!! tip "Automatic extraction of reaction time and unit from file names"
 
-    `chromatopy` can automatically extract the reaction time and time unit directly from the file names. This is particularly useful when files are named in a way that includes this information (e.g., `sample_10min.txt`, `a11 3.45 hours.json`, or `B02_35_sec.json`). However, this requires the file names to follow a specific format that `chromatopy` can recognize: It is assumed that the reaction time is the first numerical value which might have a decimal separator, followed by the name of the unit `sec`, `second`, `min`, `minute`, or `hour`. If the file names do not follow this format, you will need to provide the reaction times and time units manually.
+    `chromatopy` can automatically extract the reaction time and time unit or cocentration values and concentration unit directly from the file names. This is particularly useful when files are named in a way that includes this information (e.g., `sample_10min.txt`, `a11 3.45 hours.json`, or `B02_35_sec.json`). However, this requires the file names to follow a specific format that `chromatopy` can recognize: It is assumed that the reaction time is the first numerical value which might have a decimal separator, followed by the name of the unit `sec`, `second`, `min`, `minute`, or `hour`. For concentration values, the first numerical value is assumed to be the concentration, followed by the name of the unit `mM`, `uM`, `nM`. If the file names do not follow this format, values and units need to be provided manually.
 
-### Specification of Reaction Times and Time Units
+### Specification of Reaction Times and Time Unit / Concentrations and Concentration Unit
 
 If the reader function cannot automatically extract this information, you will need to provide it manually:
 
-- **`reaction_times`**: Provide a list of reaction times corresponding to each file in the directory. Make sure that the file names are sorted alphabetically, so the order of reaction times in the list matches the order in which the files are processed.
-- **`time_unit`**: Specify the unit of the time values (e.g., `sec`, `minute`, `hour`). Like `reaction_times`, ensure that this information matches the order of files based on how they are sorted.
+- **`values`**: Provide a list of reaction times or concentrations corresponding to each file in the directory. Make sure that the file names are sorted alphabetically, so the order of values in the list matches the file order.
+- **`unit`**: Specify the unit of the time values (e.g., `sec`, `minute`, `hour`, `nM`, `uM`, `mM`, `M`).
 
 ## Allotrope Simple Model (ASM) Format
 
@@ -49,9 +52,7 @@ from chromatopy import ChromAnalyzer
 data_dir = "data/asm"
 
 analyzer = ChromAnalyzer.read_asm(
-    path=data_dir,
-    ph=7.4,
-    temperature=25,
+    path=data_dir, ph=7.4, temperature=25, mode="timecourse"
 )
 ```
 ```
@@ -77,8 +78,9 @@ analyzer = ChromAnalyzer.read_agilent(
     path=data_dir,
     ph=7.4,
     temperature=25,
-    reaction_times=reaction_times,
-    time_unit=minute,
+    values=reaction_times,
+    unit=minute,
+    mode="timecourse",
 )
 ```
 ```
@@ -93,14 +95,12 @@ Chromeleon files can be read in with the `read_chromeleon` function. Please note
 from chromatopy import ChromAnalyzer, minute
 
 data_dir = "data/chromeleon"
-reaction_times = [0, 0, 0, 0, 0, 0]
 
 analyzer = ChromAnalyzer.read_chromeleon(
     path=data_dir,
     ph=7.4,
     temperature=25,
-    reaction_times=reaction_times,
-    time_unit=minute,
+    mode="calibration",
 )
 ```
 ```
@@ -121,8 +121,9 @@ analyzer = ChromAnalyzer.read_shimadzu(
     path=data_dir,
     ph=7.4,
     temperature=25,
-    reaction_times=[0, 5, 10, 15, 20, 25, 30, 35, 40],
-    time_unit=minute,
+    values=[0, 5, 10, 15, 20, 25, 30, 35, 40],
+    unit=minute,
+    mode="timecourse",
 )
 ```
 ```

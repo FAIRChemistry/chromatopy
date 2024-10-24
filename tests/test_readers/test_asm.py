@@ -8,12 +8,13 @@ from chromatopy.units import C, minute
 def asm_lc_1():
     reader = ASMReader(
         dirpath="docs/examples/data/asm",
-        reaction_times=[0.0, 0.33, 3.4, 10],
-        time_unit=minute,
+        values=[0.0, 0.33, 3.4, 10],
+        unit=minute,
         ph=7.0,
         temperature=25.0,
         temperature_unit=C,
         silent=False,
+        mode="timecourse",
     )
     return reader
 
@@ -22,12 +23,13 @@ def asm_lc_1():
 def asm_lc_2():
     reader = ASMReader(
         dirpath="docs/examples/data/asm_2",
-        reaction_times=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
-        time_unit=minute,
+        values=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+        unit=minute,
         ph=7.0,
         temperature=25.0,
         temperature_unit=C,
         silent=False,
+        mode="timecourse",
     )
     return reader
 
@@ -36,12 +38,13 @@ def asm_lc_2():
 def asm_gc_1():
     reader = ASMReader(
         dirpath="docs/examples/data/asm_3",
-        reaction_times=[0.0, 0.33, 3.4, 10, 11],
-        time_unit=minute,
+        values=[0.0, 0.33, 3.4, 10, 11],
+        unit=minute,
         ph=7.0,
         temperature=25.0,
         temperature_unit=C,
         silent=False,
+        mode="timecourse",
     )
     return reader
 
@@ -58,8 +61,8 @@ def asm_gc_1():
 def test_read_asm_lc(asm_lc_1):
     measurements = asm_lc_1.read()
     assert len(measurements) == 4
-    assert measurements[0].reaction_time == 0.0
-    assert measurements[-1].reaction_time == 10.0
+    assert measurements[0].data.value == 0.0
+    assert measurements[-1].data.value == 10.0
     assert measurements[0].chromatograms[0].peaks[0].peak_start == pytest.approx(
         81.962 / 60, rel=1e-3
     )
@@ -83,8 +86,8 @@ def test_read_asm_lc(asm_lc_1):
 def test_read_asm_lc_2(asm_lc_2):
     measurements = asm_lc_2.read()
     assert len(measurements) == 10
-    assert measurements[0].reaction_time == 0.0
-    assert measurements[-1].reaction_time == 9.0
+    assert measurements[0].data.value == 0.0
+    assert measurements[-1].data.value == 9.0
     assert measurements[0].chromatograms[0].peaks[0].peak_start == pytest.approx(
         70.777 / 60, rel=1e-3
     )
@@ -108,8 +111,8 @@ def test_read_asm_lc_2(asm_lc_2):
 def test_read_asm_gc(asm_gc_1):
     measurements = asm_gc_1.read()
     assert len(measurements) == 5
-    assert measurements[0].reaction_time == 0.0
-    assert measurements[-1].reaction_time == 11.0
+    assert measurements[0].data.value == 0.0
+    assert measurements[-1].data.value == 11.0
     assert measurements[0].chromatograms[0].peaks[0].peak_start == pytest.approx(
         1.76 / 60, rel=1e-3
     )
