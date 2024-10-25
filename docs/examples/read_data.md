@@ -87,6 +87,24 @@ analyzer = ChromAnalyzer.read_agilent(
 ✅ Loaded 4 chromatograms.
 ```
 
+The `read_agilent` method also reads rdl formatted *.txt files.
+
+```python
+from chromatopy import ChromAnalyzer, minute
+
+data_dir = "data/agilent_rdl"
+
+analyzer = ChromAnalyzer.read_agilent(
+    path=data_dir,
+    ph=7.4,
+    temperature=25,
+    mode="timecourse",
+)
+```
+```
+✅ Loaded 1 chromatograms.
+```
+
 ### Chromeleon
 
 Chromeleon files can be read in with the `read_chromeleon` function. Please note that this function relies on the existence of a `*.txt` file in the directory. If applicable use OpenChrom to preproces and convert your files from Thermo Fisher Scientific to the ASM format.

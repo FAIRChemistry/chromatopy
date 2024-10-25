@@ -486,9 +486,14 @@ class ChromAnalyzer(BaseModel):
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
         """
         from chromatopy.readers.agilent_csv import AgilentCSVReader
+        from chromatopy.readers.agilent_rdl import AgilentRDLReader
         from chromatopy.readers.agilent_txt import AgilentTXTReader
 
         directory = Path(path)
+
+        txt_paths = []
+        csv_paths = []
+        rdl_paths = []
 
         txt_paths = [
             str(f.absolute())
@@ -500,6 +505,15 @@ class ChromAnalyzer(BaseModel):
             for f in directory.rglob("RESULTS.CSV")
             if f.parent.parent == directory
         ]
+        rdl_paths = []
+
+        try:
+            txt_path = next(directory.rglob("*.txt"))
+            lines = AgilentRDLReader.read_file(str(txt_path))
+            if lines[0].startswith("┌─────"):
+                rdl_paths = [str(f.absolute()) for f in directory.rglob("*.txt")]
+        except StopIteration:
+            txt_paths = txt_paths
 
         data = {
             "dirpath": path,
@@ -511,10 +525,13 @@ class ChromAnalyzer(BaseModel):
             "silent": silent,
             "mode": mode,
         }
-
-        if not csv_paths and txt_paths:
+        if rdl_paths:
+            data["file_paths"] = rdl_paths  # type: ignore
+            reader = AgilentRDLReader(**data)
+            measurements = reader.read()  # type: ignore
+        elif not csv_paths and txt_paths:
             data["file_paths"] = txt_paths  # type: ignore
-            reader = AgilentTXTReader(**data)
+            reader = AgilentTXTReader(**data)  # type: ignore
             measurements = reader.read()  # type: ignore
         elif csv_paths and not txt_paths:
             data["file_paths"] = csv_paths  # type: ignore
