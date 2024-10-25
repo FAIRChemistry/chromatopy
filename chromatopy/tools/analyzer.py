@@ -507,9 +507,6 @@ class ChromAnalyzer(BaseModel):
         ]
         rdl_paths = []
 
-        error = "no error"
-        found_lines = "no found lines"
-
         try:
             txt_path = next(directory.rglob("*.txt"))
             print("sole path: ", txt_path, flush=True)
@@ -519,15 +516,12 @@ class ChromAnalyzer(BaseModel):
                 lines = AgilentRDLReader.read_file(str(txt_path))
                 if lines[0].startswith("┌─────"):
                     rdl_paths = [str(f.absolute()) for f in directory.rglob("*.txt")]
-                    found_lines = "found lines"
                 else:
                     txt_paths = txt_paths
-                    found_lines = "found no lines"
             except UnicodeDecodeError:
-                error = "UnicodeDecodeError"
+                raise IOError(f"Could not read file '{txt_path}'.")
 
         except StopIteration:
-            error = "StopIteration"
             txt_paths = txt_paths
 
         data = {
@@ -540,12 +534,6 @@ class ChromAnalyzer(BaseModel):
             "silent": silent,
             "mode": mode,
         }
-
-        print("txt_paths: ", txt_paths, flush=True)
-        print("csv_paths: ", csv_paths, flush=True)
-        print("rdl_paths: ", rdl_paths, flush=True)
-        print(found_lines, flush=True)
-        print(error, flush=True)
 
         if rdl_paths:
             data["file_paths"] = rdl_paths  # type: ignore
