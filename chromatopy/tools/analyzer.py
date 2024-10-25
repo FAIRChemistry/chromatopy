@@ -514,18 +514,18 @@ class ChromAnalyzer(BaseModel):
             print(f"everything: {directory.rglob('*')}", flush=True)
             try:
                 lines = AgilentRDLReader.read_file(str(txt_path))
-                print("lines: ", lines, flush=True)
+                read = "found lines: " + str(lines)
                 if lines[0].startswith("┌─────"):
                     rdl_paths = [str(f.absolute()) for f in directory.rglob("*.txt")]
-                    print("rdl paths: ", rdl_paths, flush=True)
+                    found_lines = "found startswith ┌─────"
                 else:
                     txt_paths = txt_paths
-                    print("not rdl, txr_paths: ", txt_paths, flush=True)
+                    found_lines = "found no startswith ┌─────"
             except UnicodeDecodeError:
-                print("UnicodeDecodeError", flush=True)
+                error = "UnicodeDecodeError"
                 txt_paths = txt_paths
         except StopIteration:
-            print("StopIteration", flush=True)
+            error = "StopIteration"
             txt_paths = txt_paths
 
         data = {
@@ -542,6 +542,9 @@ class ChromAnalyzer(BaseModel):
         print("txt_paths: ", txt_paths, flush=True)
         print("csv_paths: ", csv_paths, flush=True)
         print("rdl_paths: ", rdl_paths, flush=True)
+        print(read, flush=True)
+        print(found_lines, flush=True)
+        print(error, flush=True)
 
         if rdl_paths:
             data["file_paths"] = rdl_paths  # type: ignore
