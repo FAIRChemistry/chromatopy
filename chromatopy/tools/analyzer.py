@@ -527,7 +527,7 @@ class ChromAnalyzer(BaseModel):
                     found_lines = "found no startswith ┌─────"
             except UnicodeDecodeError:
                 error = "UnicodeDecodeError"
-                txt_paths = txt_paths
+
         except StopIteration:
             error = "StopIteration"
             txt_paths = txt_paths
