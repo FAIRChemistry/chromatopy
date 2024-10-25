@@ -510,7 +510,7 @@ class ChromAnalyzer(BaseModel):
         try:
             txt_path = next(directory.rglob("*.txt"))
             print("sole path: ", txt_path)
-            print(f"all txt paths: {list(directory.rglob("*.txt"))}")
+            print(f"all txt paths: {list(directory.rglob('*.txt'))}")
             print(f"everything: {directory.rglob('*')}")
             try:
                 lines = AgilentRDLReader.read_file(str(txt_path))
