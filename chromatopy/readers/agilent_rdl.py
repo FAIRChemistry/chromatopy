@@ -74,7 +74,6 @@ class AgilentRDLReader(AbstractReader):
                     sample_name.append(lines[i + 1])
                 else:
                     sample_name.append("")
-                    print("")
 
             if "│Signal:│" in line:
                 signal = line

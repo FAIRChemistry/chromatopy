@@ -509,9 +509,12 @@ class ChromAnalyzer(BaseModel):
 
         try:
             txt_path = next(directory.rglob("*.txt"))
-            lines = AgilentRDLReader.read_file(str(txt_path))
-            if lines[0].startswith("┌─────"):
-                rdl_paths = [str(f.absolute()) for f in directory.rglob("*.txt")]
+            try:
+                lines = AgilentRDLReader.read_file(str(txt_path))
+                if lines[0].startswith("┌─────"):
+                    rdl_paths = [str(f.absolute()) for f in directory.rglob("*.txt")]
+            except UnicodeDecodeError:
+                txt_paths = txt_paths
         except StopIteration:
             txt_paths = txt_paths
 

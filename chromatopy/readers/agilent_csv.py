@@ -21,8 +21,6 @@ class AgilentCSVReader(AbstractReader):
         'RESULTS.CSV' files {len(self.file_paths)}.
         """
 
-        print(self.file_paths)
-
         measurements = []
         for path_idx, csv_path in enumerate(self.file_paths):
             peaks = self._read_peaks_from_csv(csv_path)
