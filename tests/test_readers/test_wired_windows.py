@@ -18,4 +18,4 @@ def test_windows():
         mode="timecourse",
     )
 
-    assert len(ana.measurements) == 1
+    assert len(ana.measurements) == 2

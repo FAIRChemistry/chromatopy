@@ -123,7 +123,7 @@ The `ChromAnalyzer` allows for the annotation of peaks corresponding to these re
     )
     ```
     ```
-    ✅ Loaded 4 chromatograms.
+     Loaded 4 chromatograms.
     🎯 Assigned N6-benzyl-ATP to 4 peaks
     🎯 Assigned ortho-nitrobenzyl-DL-homocysteine to 4 peaks
     🎯 Assigned DHBAL to 3 peaks
@@ -235,7 +235,7 @@ __Optional parameters__:
     ```
     ```
     🎯 Assigned adenosine to 6 peaks
-    ✅ Models have been successfully fitted.
+     Models have been successfully fitted.
     ```
 
 

@@ -56,7 +56,7 @@ analyzer = ChromAnalyzer.read_asm(
 )
 ```
 ```
-✅ Loaded 4 chromatograms.
+ Loaded 4 chromatograms.
 ```
 
 ## Other Supported Formats
@@ -84,7 +84,7 @@ analyzer = ChromAnalyzer.read_agilent(
 )
 ```
 ```
-✅ Loaded 4 chromatograms.
+ Loaded 4 chromatograms.
 ```
 
 The `read_agilent` method also reads rdl formatted *.txt files.
@@ -102,7 +102,7 @@ analyzer = ChromAnalyzer.read_agilent(
 )
 ```
 ```
-✅ Loaded 1 chromatograms.
+ Loaded 1 chromatograms.
 ```
 
 ### Chromeleon
@@ -122,7 +122,7 @@ analyzer = ChromAnalyzer.read_chromeleon(
 )
 ```
 ```
-✅ Loaded 6 chromatograms.
+ Loaded 6 chromatograms.
 ```
 
 ### Shimadzu
@@ -145,7 +145,7 @@ analyzer = ChromAnalyzer.read_shimadzu(
 )
 ```
 ```
-✅ Loaded 9 chromatograms.
+ Loaded 9 chromatograms.
 ```
 
 ## Saving the `ChromAnalyzer` Object
