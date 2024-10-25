@@ -519,10 +519,10 @@ class ChromAnalyzer(BaseModel):
                 lines = AgilentRDLReader.read_file(str(txt_path))
                 if lines[0].startswith("┌─────"):
                     rdl_paths = [str(f.absolute()) for f in directory.rglob("*.txt")]
-                    found_lines = "found startswith ┌─────"
+                    found_lines = "found lines"
                 else:
                     txt_paths = txt_paths
-                    found_lines = "found no startswith ┌─────"
+                    found_lines = "found no lines"
             except UnicodeDecodeError:
                 error = "UnicodeDecodeError"
 
