@@ -538,6 +538,11 @@ class ChromAnalyzer(BaseModel):
             "silent": silent,
             "mode": mode,
         }
+
+        print("txt_paths: ", txt_paths, flush=True)
+        print("csv_paths: ", csv_paths, flush=True)
+        print("rdl_paths: ", rdl_paths, flush=True)
+
         if rdl_paths:
             data["file_paths"] = rdl_paths  # type: ignore
             reader = AgilentRDLReader(**data)
