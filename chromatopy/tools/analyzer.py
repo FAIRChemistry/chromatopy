@@ -508,7 +508,6 @@ class ChromAnalyzer(BaseModel):
         rdl_paths = []
 
         error = "no error"
-        read = "no read"
         found_lines = "no found lines"
 
         try:
@@ -518,7 +517,6 @@ class ChromAnalyzer(BaseModel):
             print(f"everything: {directory.rglob('*')}", flush=True)
             try:
                 lines = AgilentRDLReader.read_file(str(txt_path))
-                read = "found lines: " + str(lines)
                 if lines[0].startswith("┌─────"):
                     rdl_paths = [str(f.absolute()) for f in directory.rglob("*.txt")]
                     found_lines = "found startswith ┌─────"
@@ -546,7 +544,6 @@ class ChromAnalyzer(BaseModel):
         print("txt_paths: ", txt_paths, flush=True)
         print("csv_paths: ", csv_paths, flush=True)
         print("rdl_paths: ", rdl_paths, flush=True)
-        print(read, flush=True)
         print(found_lines, flush=True)
         print(error, flush=True)
 
