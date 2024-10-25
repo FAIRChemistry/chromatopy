@@ -509,13 +509,23 @@ class ChromAnalyzer(BaseModel):
 
         try:
             txt_path = next(directory.rglob("*.txt"))
+            print("sole path: ", txt_path)
+            print(f"all txt paths: {list(directory.rglob("*.txt"))}")
+            print(f"everything: {directory.rglob('*')}")
             try:
                 lines = AgilentRDLReader.read_file(str(txt_path))
+                print("lines: ", lines)
                 if lines[0].startswith("┌─────"):
                     rdl_paths = [str(f.absolute()) for f in directory.rglob("*.txt")]
+                    print("rdl paths: ", rdl_paths)
+                else:
+                    txt_paths = txt_paths
+                    print("not rdl, txr_paths: ", txt_paths)
             except UnicodeDecodeError:
+                print("UnicodeDecodeError")
                 txt_paths = txt_paths
         except StopIteration:
+            print("StopIteration")
             txt_paths = txt_paths
 
         data = {
