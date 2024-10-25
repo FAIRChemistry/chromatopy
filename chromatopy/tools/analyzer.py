@@ -519,7 +519,7 @@ class ChromAnalyzer(BaseModel):
                 else:
                     txt_paths = txt_paths
             except UnicodeDecodeError:
-                raise IOError(f"Could not read file '{txt_path}'.")
+                txt_paths = txt_paths
 
         except StopIteration:
             txt_paths = txt_paths
