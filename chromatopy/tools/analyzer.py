@@ -507,6 +507,10 @@ class ChromAnalyzer(BaseModel):
         ]
         rdl_paths = []
 
+        error = "no error"
+        read = "no read"
+        found_lines = "no found lines"
+
         try:
             txt_path = next(directory.rglob("*.txt"))
             print("sole path: ", txt_path, flush=True)
