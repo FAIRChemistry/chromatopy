@@ -290,7 +290,7 @@ class AbstractReader(BaseModel):
 
     def print_success(self, n_measurement_objects: int) -> None:
         """Prints a success message."""
-        print(f"✅ Loaded {n_measurement_objects} chromatograms.")
+        print(f" Loaded {n_measurement_objects} chromatograms.")
 
 
 if __name__ == "__main__":
