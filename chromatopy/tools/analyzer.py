@@ -509,9 +509,6 @@ class ChromAnalyzer(BaseModel):
 
         try:
             txt_path = next(directory.rglob("*.txt"))
-            print("sole path: ", txt_path, flush=True)
-            print(f"all txt paths: {list(directory.rglob('*.txt'))}", flush=True)
-            print(f"everything: {directory.rglob('*')}", flush=True)
             try:
                 lines = AgilentRDLReader.read_file(str(txt_path))
                 if lines[0].startswith("┌─────"):
@@ -853,7 +850,7 @@ class ChromAnalyzer(BaseModel):
             )
 
     def visualize_all(
-        self, assigned_only: bool = False, dark_mode: bool = False
+        self, assigned_only: bool = False, dark_mode: bool = False, show: bool = False
     ) -> go.Figure:
         """Plots the fitted peaks of the chromatograms in an interactive figure.
 
@@ -1060,7 +1057,10 @@ class ChromAnalyzer(BaseModel):
             template=theme,
         )
 
-        return fig
+        if show:
+            fig.show()
+        else:
+            return fig
 
     def add_standard(
         self,
@@ -1220,26 +1220,11 @@ class ChromAnalyzer(BaseModel):
 
 
 if __name__ == "__main__":
-    data = "/Users/max/Documents/GitHub/martina-aldol-addition/data/aldehyde"
-    from pathlib import Path
+    path = "/Users/max/Documents/GitHub/jan-niklas/MjNK/Standard/Ado 60961"
 
-    exp_paths = Path(data).iterdir()
-
-    for folder_id, folder in enumerate(exp_paths):
-        if folder.is_dir():
-            print(folder.name)
-            concentration = float(folder.name.split(" ")[0])
-
-            analyzer = ChromAnalyzer.read_shimadzu(
-                path=folder, ph=7.0, temperature=25.0, mode="timecourse"
-            )
-
-            # analyzer.add_molecule(aldol, init_conc=concentration, conc_unit=mM)
-
-            if folder_id == 0:
-                print("first")
-                enzmldoc = analyzer.to_enzymeml(
-                    name="varied initial aldehyde concentrations"
-                )
-            else:
-                analyzer.add_to_enzymeml(enzmldoc)
+    reader = ChromAnalyzer.read_agilent(
+        path=path,
+        mode="calibration",
+        ph=7,
+        temperature=25,
+    )

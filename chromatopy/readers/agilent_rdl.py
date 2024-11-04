@@ -97,11 +97,14 @@ class AgilentRDLReader(AbstractReader):
         row2_columns = [col.strip() for col in re.split(r"│", row2) if col]
 
         # Concatenate aligned columns
-        aligned_columns = [
-            f"{col1}{col2}".strip() for col1, col2 in zip(row1_columns, row2_columns)
-        ]
+        if row2_columns:
+            aligned_columns = [
+                f"{col1}{col2}".strip()
+                for col1, col2 in zip(row1_columns, row2_columns)
+            ]
+            return aligned_columns[1:-1]
 
-        return aligned_columns[1:-1]
+        return row1_columns[1:-1]
 
     @staticmethod
     def map_peak(peak_list: list[str]) -> Peak:
