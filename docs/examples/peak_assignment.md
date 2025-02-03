@@ -1742,18 +1742,3 @@ Time-course measurements can be converted into the EnzymeML format by using the 
     visualize_enzymeml(adenosine_enzymeml)
     ```
     ![Maleimide catalysis](plots/is_enzymeml.png)
-
-
-## Peak detection and integration
-
-In all previous examples, the peaks were already integrated by OpenChrom or other chromatographic software. It is also possible to use the `ChromAnalyzer` to detect and integrate peaks in chromatograms using the [`hplc-py`](https://cremerlab.github.io/hplc-py/index.html) library. Depending on the chromatographic data, the method showed to be unreliable and fails from time to time. Therefore, it is recommended to use the [batch processing with OpenChrom](../../supported_formats/#batch-processing)
-
-The following code shows how the integrated peak processing is done:
-
-!!! example
-
-    ```python
-    calib_analyzer.process_chromatograms(
-        prominence=0.03,
-    )   
-    ```
