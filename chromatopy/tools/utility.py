@@ -4,7 +4,8 @@ import numpy as np
 import plotly.graph_objects as go
 from loguru import logger
 from matplotlib import pyplot as plt
-from pyenzyme import DataTypes, EnzymeMLDocument
+from matplotlib.figure import Figure
+from pyenzyme import DataTypes, EnzymeMLDocument, SmallMolecule
 
 from chromatopy.model import Chromatogram, UnitDefinition
 
@@ -12,16 +13,12 @@ logger.remove()
 logger.add(sys.stderr, level="INFO")
 
 
-def _resolve_chromatogram(
-    chromatograms: list[Chromatogram], wavelength: float | None
-) -> Chromatogram:
+def _resolve_chromatogram(chromatograms: list[Chromatogram], wavelength: float | None) -> Chromatogram:
     if len(chromatograms) == 1:
         return chromatograms[0]
 
     if len(chromatograms) > 1:
-        assert (
-            wavelength is not None
-        ), "Multiple chromatograms found, but no wavelength is specified."
+        assert wavelength is not None, "Multiple chromatograms found, but no wavelength is specified."
 
         # check that any of the chromatograms has the specified wavelength
         assert any(
@@ -33,19 +30,17 @@ def _resolve_chromatogram(
     raise ValueError("No chromatogram found.")
 
 
-def pick_peak(
-    chromatograms: list[Chromatogram], retention_time: float, tolerance: float
-):
-    current_retention = retention_time
-    peaks = []
+# def pick_peak(chromatograms: list[Chromatogram], retention_time: float, tolerance: float) -> list[Peak]:
+#     current_retention = retention_time
+#     peaks = []
 
-    for chrom in chromatograms:
-        for peak in chrom.peaks:
-            if abs(peak.retention_time - current_retention) < tolerance:
-                peaks.append(peak)
-                current_retention = peak.retention_time
-        else:
-            pass
+#     for chrom in chromatograms:
+#         for peak in chrom.peaks:
+#             if abs(peak.retention_time - current_retention) < tolerance:
+#                 peaks.append(peak)
+#                 current_retention = peak.retention_time
+#         else:
+#             pass
 
 
 def generate_visibility(hover_text: str, fig: go.Figure) -> list[bool]:
@@ -59,8 +54,13 @@ def generate_visibility(hover_text: str, fig: go.Figure) -> list[bool]:
 
 
 def generate_gaussian_data(
-    amplitude, center, half_height_diameter, start, end, num_points=100
-):
+    amplitude: float,
+    center: float,
+    half_height_diameter: float,
+    start: float,
+    end: float,
+    num_points: int = 100,
+) -> tuple[list[float], list[float]]:
     """
     Generate x and y data for a Gaussian curve.
 
@@ -73,8 +73,8 @@ def generate_gaussian_data(
     - num_points: Number of points to generate (default is 100).
 
     Returns:
-    - x_values: Array of x-values.
-    - y_values: Array of y-values corresponding to the Gaussian curve.
+    - x_values: List of x-values.
+    - y_values: List of y-values corresponding to the Gaussian curve.
     """
     # Calculate sigma from the half-height diameter (FWHM)
     sigma = half_height_diameter / (2 * np.sqrt(2 * np.log(2)))
@@ -85,10 +85,10 @@ def generate_gaussian_data(
     # Generate y values using the Gaussian function
     y_values = amplitude * np.exp(-((x_values - center) ** 2) / (2 * sigma**2))
 
-    return x_values, y_values
+    return x_values.tolist(), y_values.tolist()
 
 
-def visualize_enzymeml(enzymeml_doc: EnzymeMLDocument, return_fig: bool = False):
+def visualize_enzymeml(enzymeml_doc: EnzymeMLDocument, return_fig: bool = False) -> Figure | None:
     """visualize the data in the EnzymeML document
 
     Args:
@@ -113,18 +113,19 @@ def visualize_enzymeml(enzymeml_doc: EnzymeMLDocument, return_fig: bool = False)
 
     plt.show()
     if return_fig:
-        return plt
+        return plt.gcf()
     return None
 
 
-def get_species_by_id(enzymeml_doc: EnzymeMLDocument, species_id: str):
+def get_species_by_id(enzymeml_doc: EnzymeMLDocument, species_id: str) -> SmallMolecule:
     for species in enzymeml_doc.small_molecules:
         if species.id == species_id:
             return species
+    raise ValueError(f"Species with ID {species_id} not found.")
 
 
 def unit_to_str(unit: UnitDefinition) -> str:
-    magnitude_dict = {
+    magnitude_dict: dict[int, str] = {
         1: "",
         -1: "",
         -3: "m",
@@ -153,48 +154,11 @@ def unit_to_str(unit: UnitDefinition) -> str:
     elif len(unit.base_units) == 2:
         u1, u2 = unit.base_units
         if u1.kind.value == "mole" and u2.kind.value == "litre" and u2.exponent == -1:
-            return f"{magnitude_dict[u1.scale]}M"
+            if u1.scale is None:
+                return "M"
+            return f"{magnitude_dict[int(u1.scale)]}M"
         else:
             return unit.name or ""
 
     # Default return for other cases
     return unit.name or ""
-
-
-###########
-
-# def _apply_calibrators(calibrators = list[Calibrator]):
-#     if not self.calibrators:
-#         raise ValueError("No calibrators provided. Define calibrators first.")
-
-#     if not self.molecules:
-#         raise ValueError("No species provided. Define species first.")
-
-#     for calibrator in self.calibrators:
-#         calib_species = self.get_molecule(calibrator.name)
-#         if not calib_species.peaks:
-#             continue
-
-#         calib_species.concentrations = calibrator.calculate(species=calib_species)
-
-###########
-# def apply_standards(self, tolerance: float = 1):
-#     data = defaultdict(list)
-
-#     for standard in self.molecules:
-#         lower_ret = standard.retention_time - tolerance
-#         upper_ret = standard.retention_time + tolerance
-#         calibrator = Calibrator.from_standard(standard)
-#         model = calibrator.models[0]
-
-#         for meas in self.measurements:
-#             for chrom in meas.chromatograms:
-#                 for peak in chrom.peaks:
-#                     if lower_ret < peak.retention_time < upper_ret:
-#                         data[standard.name].append(
-#                             calibrator.calculate_concentrations(
-#                                 model=model, signals=[peak.area]
-#                             )[0]
-#                         )
-
-#     return data
