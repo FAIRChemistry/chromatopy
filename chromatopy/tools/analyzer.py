@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import copy
 import json
+import multiprocessing as mp
+import time
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
 import numpy as np
 import plotly.colors as pc
@@ -15,6 +17,7 @@ from calipytion.tools.utility import pubchem_request_molecule_name
 from loguru import logger
 from pydantic import BaseModel, Field, field_validator
 from pyenzyme import EnzymeMLDocument
+from rich.progress import Progress
 
 from chromatopy.model import (
     Chromatogram,
@@ -24,6 +27,7 @@ from chromatopy.model import (
     UnitDefinition,
 )
 from chromatopy.tools.molecule import Molecule, Protein
+from chromatopy.tools.peak_utils import SpectrumProcessor
 from chromatopy.tools.utility import _resolve_chromatogram
 from chromatopy.units import C
 
@@ -320,6 +324,128 @@ class ChromAnalyzer(BaseModel):
             nu_prot.conc_unit = conc_unit
 
         self._update_protein(nu_prot)
+
+    def process_chromatograms(
+        self,
+        prominence: float = 0.03,
+        min_retention_time: float | None = None,
+        max_retention_time: float | None = None,
+        **hplc_py_kwargs: dict[str, Any],
+    ) -> None:
+        """
+        Processes the chromatograms using the [`hplc-py`](https://cremerlab.github.io/hplc-py/index.html) library.
+        !!! info
+            Please consider using OpenChrom or other chromatography software to calculate peak areas.
+            Especially for complex chromatograms, the results may be more accurate.
+
+        Args:
+            prominence: The prominence of the peaks to be detected. Defaults to 0.03.
+            min_retention_time: The minimum retention time to be considered in the peak detection.
+                Defaults to None.
+            max_retention_time: The maximum retention time to be considered in the peak detection.
+                Defaults to None.
+            hplc_py_kwargs: Keyword arguments to be passed to the `fit_peaks` method of the
+                `hplc-py` library. For more information, visit the [HPLC-Py Documentation](https://cremerlab.github.io/hplc-py/quant.html#hplc.quant.Chromatogram.fit_peaks).
+        """
+
+        hplc_py_kwargs["prominence"] = prominence  # type: ignore
+        hplc_py_kwargs["approx_peak_width"] = 0.6  # type: ignore
+        processors = []
+
+        for meas in self.measurements:
+            for chrom in meas.chromatograms:
+                if min_retention_time is not None:
+                    # get index of first retention time greater than min_retention_time
+                    idx_min = int(np.argmax(np.array(chrom.times) > min_retention_time))
+                    times = chrom.times[idx_min:]
+                    signals = chrom.signals[idx_min:]
+                else:
+                    times = chrom.times
+                    signals = chrom.signals
+                    idx_min = 0
+
+                if max_retention_time is not None:
+                    # filter out retention times greater than max_retention_time
+                    idx_max = int(np.argmax(np.array(times) > max_retention_time))
+                    times = times[:idx_max]
+                    signals = signals[:idx_max]
+                else:
+                    idx_max = len(chrom.times)
+
+                processors.append(
+                    SpectrumProcessor(
+                        time=times,
+                        raw_data=signals,
+                        silent=True,
+                    )
+                )
+
+        with Progress() as progress:
+            task = progress.add_task("Processing chromatograms...", total=len(self.measurements))
+
+            with mp.Pool(processes=mp.cpu_count()) as pool:
+                result_objects = [
+                    pool.apply_async(self.process_task, args=(processor,), kwds=hplc_py_kwargs)
+                    for processor in processors
+                ]
+
+                results = []
+                for result in result_objects:
+                    processor_result = result.get()  # Retrieve the actual result
+                    results.append(processor_result)
+                    progress.update(task, advance=1)
+            time.sleep(0.1)
+            progress.update(task, refresh=True)
+
+        processor_idx = 0
+        no_peaks = False
+        for meas in self.measurements:
+            for chrom in meas.chromatograms:
+                chrom.peaks = []
+                if not hasattr(results[processor_idx], "peaks"):
+                    no_peaks = True
+                    logger.warning(f"No peaks found in chromatogram {meas.id} at {chrom.wavelength} nm.")
+                    processor_idx += 1
+                    continue
+                # pad the processed signal with zeros to match the length of the raw signal accounting for the cropping of the retention time
+                nans_laft = idx_min
+                nans_right = len(chrom.signals) - len(times)
+
+                chrom.processed_signal = np.concatenate(
+                    [
+                        np.full(nans_laft, float(0)),
+                        results[processor_idx].processed_signal,
+                        np.full(nans_right, float(0)),
+                    ]
+                ).tolist()
+
+                # replace nan values and nones with 0
+                # self.processed_signal = [
+                #     0 if np.isnan(d) or d is None else d for d in self.processed_signal
+                # ]
+
+                chrom.peaks = results[processor_idx].peaks
+                processor_idx += 1
+
+        for molecule in self.molecules:
+            self._register_peaks(molecule, molecule.retention_tolerance, molecule.wavelength)
+
+        if no_peaks:
+            print(
+                "No peaks found in one of the chromatograms, try to reduce the `prominence` in the `hplc_py_kwargs` of the `process_chromatograms` method."
+            )
+
+    @staticmethod
+    def process_task(processor: SpectrumProcessor, **kwargs: Any) -> Chromatogram:
+        try:
+            return processor.silent_fit(**kwargs)
+        except KeyError as e:
+            if "retention_time" in str(e):
+                # check if retention time is in kwargs and halve it
+                if "retention_time" in kwargs:
+                    kwargs["retention_time"] /= 2
+                    return processor.silent_fit(**kwargs)
+            raise  # re-raise the exception if we can't handle it
 
     @classmethod
     def read_asm(
