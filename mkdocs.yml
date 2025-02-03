@@ -18,6 +18,7 @@ nav:
 plugins:
   - plotly
   - mkdocstrings
+  - search
 
 
 theme:

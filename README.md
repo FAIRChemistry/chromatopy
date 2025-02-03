@@ -2,7 +2,6 @@
 
 [![Documentation](https://img.shields.io/badge/Documentation-Online-blue.svg)](https://fairchemistry.github.io/chromatopy/)
 [![Tests](https://github.com/FAIRChemistry/chromatopy/actions/workflows/run_tests.yaml/badge.svg)](https://github.com/FAIRChemistry/chromatopy/actions/workflows/run_tests.yaml)
-[![PyPI version](https://badge.fury.io/py/chromatopy.svg)](https://badge.fury.io/py/chromatopy)
 
 
 ## ℹ️ Overview
@@ -51,24 +50,18 @@ graph LR
 
 ## ⭐ Key Features
 
-- **🌱 Low friction data processing**   
+**🌱 Low friction data processing**   
 Leave behind data processing in spreadsheet applications and directly start with data analysis based on raw data.
-- **🧪 Enrich reaction data with metadata**  
+**🧪 Enrich reaction data with metadata**  
 Assign metadata like initial concentrations of reactants, temperature, pH, etc. to reaction data to yield modeling-ready data.
-- **📈 Create and apply calibration curves**  
+**📈 Create and apply calibration curves**  
 Create calibrators for your analytes and use them throughout your data analysis for seamless concentration calculation.
-- **📂 FAIR data**  
+**📂 FAIR data**  
 Transform your data into EnzymeML format for subsequent analysis pipelines.
 
 ## 🛠️ Installation
 
 Install `chromatopy` using `pip`:
-
-```bash
-pip install chromatopy # 🚧 not released yet
-```
-
-or from source:
 
 ```bash
 pip install git+https://github.com/FAIRChemistry/chromatopy.git

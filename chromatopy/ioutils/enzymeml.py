@@ -593,6 +593,6 @@ def patch_init_t0(doc: EnzymeMLDocument):
     for meas in doc.measurements:
         for species_data in meas.species_data:
             if species_data.data:
+                species_data.prepared = species_data.data[0]
                 if not species_data.initial == species_data.data[0]:
-                    species_data.prepared = species_data.initial
                     species_data.initial = species_data.data[0]

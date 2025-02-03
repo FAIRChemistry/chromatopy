@@ -148,6 +148,37 @@ analyzer = ChromAnalyzer.read_shimadzu(
  Loaded 9 chromatograms.
 ```
 
+### Thermo Scientific
+
+Thermo Scientific `*.TX0` files can be read in with the `read_thermo` function. This function reads chromatographic data from files that use comma as decimal separator.
+
+```python
+from chromatopy import ChromAnalyzer
+from chromatopy.units import C, minute
+
+data_dir = "data/thermo"
+
+analyzer = ChromAnalyzer.read_thermo(
+    path=data_dir,
+    values=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
+    unit=minute,
+    ph=7.4,
+    temperature=25.0,
+    temperature_unit=C,
+    silent=True,
+    mode="timecourse",
+)
+```
+```
+ Loaded 8 chromatograms.
+```
+
+The reader will automatically:
+- Handle decimal comma format (e.g., "0,038" becomes 0.038)
+- Extract metadata like sample name and acquisition time
+- Parse peak information including retention time, area, height, and percent area
+- Sort files alphabetically to match with the provided time values
+
 ## Saving the `ChromAnalyzer` Object
 
 It is possible to save the current state of the `ChromAnalyzer` object to a file using the `to_json` method. This method saves the object as a JSON file, which can be loaded back into the `chromatopy` framework using the `from_json` function.

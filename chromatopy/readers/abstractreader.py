@@ -13,21 +13,21 @@ from chromatopy.units import C
 
 
 class MetadataExtractionError(Exception):
-    def __init__(self, message, suggestion=None):
+    def __init__(self, message: str, suggestion: str | None = None) -> None:
         if suggestion:
             message += f"\n{str(suggestion)}"
         super().__init__(message)
 
 
 class UnitConsistencyError(Exception):
-    def __init__(self, message, suggestion=None):
+    def __init__(self, message: str, suggestion: str | None = None) -> None:
         if suggestion:
             message += f"\n{str(suggestion)}"
         super().__init__(message)
 
 
 class FileNotFoundInDirectoryError(Exception):
-    def __init__(self, message, suggestion=None):
+    def __init__(self, message: str, suggestion: str | None = None) -> None:
         if suggestion:
             message += f"\n{str(suggestion)}"
         super().__init__(message)
@@ -49,19 +49,13 @@ class AbstractReader(BaseModel):
         file_paths (List[str]): List of file paths to process.
     """
 
-    dirpath: str = Field(
-        ..., description="Path to the directory containing chromatographic data files."
-    )
+    dirpath: str = Field(..., description="Path to the directory containing chromatographic data files.")
 
-    mode: str = Field(
-        ..., description="Mode of data processing: 'calibration' or 'timecourse'."
-    )
+    mode: str = Field(..., description="Mode of data processing: 'calibration' or 'timecourse'.")
 
     values: list[float] = Field(
         ...,
-        description=(
-            "List of reaction times for 'timecourse' mode or concentrations for 'calibration' mode."
-        ),
+        description=("List of reaction times for 'timecourse' mode or concentrations for 'calibration' mode."),
     )
 
     unit: UnitDefinition = Field(
@@ -83,12 +77,10 @@ class AbstractReader(BaseModel):
 
     silent: bool = Field(False, description="If True, suppresses output messages.")
 
-    file_paths: list[str] = Field(
-        default_factory=list, description="List of file paths to process."
-    )
+    file_paths: list[str] = Field(default_factory=list, description="List of file paths to process.")
 
     @field_validator("mode", mode="before")
-    def validate_mode(cls, value):
+    def validate_mode(cls, value: str) -> str:
         value = value.lower()
         if value not in {DataType.CALIBRATION.value, DataType.TIMECOURSE.value}:
             raise ValueError("Invalid mode. Must be 'calibration' or 'timecourse'.")
@@ -133,9 +125,7 @@ class AbstractReader(BaseModel):
     @model_validator(mode="after")
     def validate_data_consistency(self) -> AbstractReader:
         if not self.file_paths:
-            raise FileNotFoundInDirectoryError(
-                f"No files found in the directory {self.dirpath}."
-            )
+            raise FileNotFoundInDirectoryError(f"No files found in the directory {self.dirpath}.")
 
         if self.mode == DataType.TIMECOURSE.value:
             if not self.values:
@@ -168,9 +158,7 @@ class AbstractReader(BaseModel):
         except KeyError:
             path = Path(data["dirpath"])
             if not path.exists():
-                raise FileNotFoundError(
-                    f"Directory '{data['dirpath']}' does not exist."
-                )
+                raise FileNotFoundError(f"Directory '{data['dirpath']}' does not exist.")
             if not path.is_dir():
                 raise NotADirectoryError(f"'{data['dirpath']}' is not a directory.")
 
@@ -200,38 +188,24 @@ class AbstractReader(BaseModel):
                 value = float(match_obj.group(1))
                 unit_str = match_obj.group(3)
                 if value in data_dict:
-                    logger.warning(
-                        f"Duplicate value '{value}' found in directory '{data['dirpath']}'."
-                    )
-                    raise MetadataExtractionError(
-                        f"Values in directory '{data['dirpath']}' are not unique."
-                    )
+                    logger.warning(f"Duplicate value '{value}' found in directory '{data['dirpath']}'.")
+                    raise MetadataExtractionError(f"Values in directory '{data['dirpath']}' are not unique.")
                 data_dict[value] = str(file.absolute())
                 units.append(unit_str)
             else:
                 logger.debug(f"Could not parse value from '{file.name}'.")
-                raise MetadataExtractionError(
-                    f"Could not parse value from '{file.name}'."
-                )
+                raise MetadataExtractionError(f"Could not parse value from '{file.name}'.")
 
         # Check if all units are the same
         if not all(unit == units[0] for unit in units):
-            logger.debug(
-                f"Units in directory '{data['dirpath']}' are not consistent: {units}"
-            )
-            raise UnitConsistencyError(
-                f"Units in directory '{data['dirpath']}' are not consistent: {units}"
-            )
+            logger.debug(f"Units in directory '{data['dirpath']}' are not consistent: {units}")
+            raise UnitConsistencyError(f"Units in directory '{data['dirpath']}' are not consistent: {units}")
 
         try:
             unit_definition = cls._map_unit_str_to_UnitDefinition(units[0], mode)
         except ValueError:
-            logger.debug(
-                f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
-            )
-            raise MetadataExtractionError(
-                f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
-            )
+            logger.debug(f"Unit {units[0]} from directory '{data['dirpath']}' not recognized.")
+            raise MetadataExtractionError(f"Unit {units[0]} from directory '{data['dirpath']}' not recognized.")
 
         # Sort the data and file paths
         sorted_items = sorted(data_dict.items())
@@ -258,11 +232,11 @@ class AbstractReader(BaseModel):
 
             match unit_str:
                 case "min" | "mins" | "minute" | "minutes":
-                    return minute
+                    return minute  # type: ignore
                 case "sec" | "secs" | "second" | "seconds":
-                    return second
+                    return second  # type: ignore
                 case "hour" | "hours":
-                    return hour
+                    return hour  # type: ignore
                 case _:
                     raise ValueError(f"Time unit '{unit_str}' not recognized.")
         elif mode == DataType.CALIBRATION.value:
@@ -271,13 +245,13 @@ class AbstractReader(BaseModel):
 
             match unit_str:
                 case "m" | "M":
-                    return M
+                    return M  # type: ignore
                 case "mm" | "mM":
-                    return mM
+                    return mM  # type: ignore
                 case "um" | "uM" | "µM":
-                    return uM
+                    return uM  # type: ignore
                 case "nm" | "nM":
-                    return nM
+                    return nM  # type: ignore
                 case _:
                     raise ValueError(f"Concentration unit '{unit_str}' not recognized.")
         else:
@@ -291,13 +265,3 @@ class AbstractReader(BaseModel):
     def print_success(self, n_measurement_objects: int) -> None:
         """Prints a success message."""
         print(f" Loaded {n_measurement_objects} chromatograms.")
-
-
-if __name__ == "__main__":
-    path = "docs/examples/data/asm"
-
-    class AbsImpl(AbstractReader):
-        def read(self):
-            pass
-
-    reader = AbsImpl(dirpath=path, mode=DataType.TIMECOURSE, ph=7.0, temperature=25.0)
