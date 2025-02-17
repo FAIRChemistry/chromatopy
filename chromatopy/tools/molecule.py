@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 
 from calipytion.model import Standard
@@ -12,9 +14,9 @@ from chromatopy.model import UnitDefinition
 
 class Molecule(BaseModel):
     model_config: ConfigDict = ConfigDict(  # type: ignore
-        validate_assigment=True,
+        validate_assignment=True,
         use_enum_values=True,
-    )  # type: ignore
+    )
 
     id: str = Field(
         description="ID of the molecule",
@@ -25,52 +27,37 @@ class Molecule(BaseModel):
     name: str = Field(
         description="Name of the molecule",
     )
-    init_conc: float | None = Field(
-        description="Initial concentration of the molecule at t=0", default=None
+    init_conc: Optional[float] = Field(
+        description="Initial concentration of the molecule at t=0",
+        default=None,
     )
-    conc_unit: UnitDefinition | None = Field(
-        description="Unit of the concentration", default=None
+    conc_unit: Optional[UnitDefinition] = Field(
+        description="Unit of the concentration",
+        default=None,
     )
     retention_time: Optional[float] = Field(
-        description="Retention time of the molecule in minutes"
+        description="Retention time of the molecule in minutes",
+        default=None,
     )
-    wavelength: float | None = Field(
-        description="Wavelength at which the molecule was detected", default=None
+    wavelength: Optional[float] = Field(
+        description="Wavelength at which the molecule was detected",
+        default=None,
     )
-    standard: Standard | None = Field(
-        description="Standard instance associated with the molecule", default=None
+    standard: Optional[Standard] = Field(
+        description="Standard instance associated with the molecule",
+        default=None,
     )
-    retention_tolerance: float = Field(
-        description="Tolerance for the retention time of the molecule", default=0.2
+    retention_tolerance: Optional[float] = Field(
+        description="Tolerance for the retention time of the molecule",
+        default=0.2,
     )
     constant: bool = Field(
         description="Boolean indicating whether the molecule concentration is constant throughout the experiment",
         default=True,
     )
 
-    # @model_validator(mode="before")
-    # @classmethod
-    # def get_molecule_name(cls, data: Any) -> Any:
-    #     """Retrieves the molecule name from the PubChem database based on the PubChem CID."""
-
-    #     if "name" not in data:
-    #         data["molecule_name"] = pubchem_request_molecule_name(data["pubchem_cid"])
-    #     return data
-
-    # # validator that if a standard is provided, the retention time must be defined and vice versa
-
-    # @model_validator(mode="before")
-    # @classmethod
-    # def validate_standard_and_retention_time(cls, data: Any) -> Any:
-    #     if data.get("standard") and data.get("retention_time"):
-    #         assert data["standard"].retention_time == data["retention_time"], """
-    #         The retention time of the standard and the molecule must be the same.
-    #         """
-
     @classmethod
-    def from_standard(
-        cls, standard: Standard, init_conc: float, conc_unit: UnitDefinition
-    ):
+    def from_standard(cls, standard: Standard, init_conc: float, conc_unit: UnitDefinition) -> Molecule:
         """Creates a Molecule instance from a Standard instance."""
 
         assert standard.retention_time, """
@@ -154,81 +141,9 @@ class Molecule(BaseModel):
         return standard
 
     @property
-    def has_retention_time(self):
+    def has_retention_time(self) -> bool:
         """
         Checks if the molecule has a retention time defined. And if so,
         it is assumed that the molecule is present in the chromatogram.
         """
         return self.retention_time is not None
-
-
-class Protein(BaseModel):
-    model_config: ConfigDict = ConfigDict(  # type: ignore
-        validate_assigment=True,
-        use_enum_values=True,
-    )  # type: ignore
-
-    id: str = Field(
-        description="ID of the Protein",
-    )
-    name: str = Field(
-        description="Name of the protein",
-    )
-    init_conc: float = Field(
-        description="Initial concentration of the protein at t=0",
-    )
-    conc_unit: UnitDefinition = Field(
-        description="Unit of the concentration",
-    )
-    sequence: str | None = Field(
-        description="Amino acid sequence of the protein",
-        default=None,
-    )
-    organism: str | None = Field(
-        description="Organism from which the protein originates",
-        default=None,
-    )
-    organism_tax_id: str | None = Field(
-        description="Taxonomic ID of the organism",
-        default=None,
-    )
-    constant: bool = Field(
-        description="Boolean indicating whether the protein concentration is constant",
-        default=True,
-    )
-
-
-if __name__ == "__main__":
-    from calipytion.model import Standard
-    from calipytion.units import C
-
-    from chromatopy.units import mM as chrommM
-
-    standard = Standard(
-        molecule_name="Standard",
-        molecule_id="1",
-        pubchem_cid=123,
-        ph=3,
-        temperature=23,
-        temp_unit=C,
-        retention_time=10.0,
-    )
-
-    print(standard)
-
-    # breaks as soon as units from two different libraries are used
-
-    molecule = Molecule.from_standard(standard, init_conc=1.0, conc_unit=chrommM)
-    print(molecule)
-
-    molecule = Molecule(
-        id="m2",
-        pubchem_cid=456,
-        name="Molecule 2",
-        init_conc=2.0,
-        conc_unit=chrommM,
-        retention_time=20.0,
-        standard=standard,
-    )
-
-    print(molecule)

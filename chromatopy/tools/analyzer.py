@@ -26,8 +26,9 @@ from chromatopy.model import (
     Peak,
     UnitDefinition,
 )
-from chromatopy.tools.molecule import Molecule, Protein
+from chromatopy.tools.molecule import Molecule
 from chromatopy.tools.peak_utils import SpectrumProcessor
+from chromatopy.tools.protein import Protein
 from chromatopy.tools.utility import _resolve_chromatogram
 from chromatopy.units import C
 
@@ -1254,18 +1255,44 @@ class ChromAnalyzer(BaseModel):
 if __name__ == "__main__":
     from devtools import pprint
 
-    from chromatopy.units import C, minute
+    from chromatopy import Molecule, Protein
+    from chromatopy.units import C, mM
 
     path = "/Users/max/Documents/GitHub/chromatopy/docs/examples/data/thermo"
     ana = ChromAnalyzer.read_thermo(
         path=path,
-        values=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
-        unit=minute,
+        # values=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
+        # unit=minute,
         ph=7.4,
         temperature=25.0,
         temperature_unit=C,
         silent=True,
         mode="timecourse",
+    )
+
+    Prot = Protein(
+        id="p1",
+        name="Protein 1",
+        init_conc=1.0,
+        conc_unit=mM,
+    )
+
+    Mol = Molecule(
+        id="m1",
+        pubchem_cid=123,
+        name="Molecule 1",
+        init_conc=1.0,
+        conc_unit=mM,
+        retention_time=10.0,
+    )
+
+    ana.define_molecule(
+        id="m1",
+        pubchem_cid=123,
+        name="Molecule 1",
+        init_conc=1.0,
+        conc_unit=mM,
+        retention_time=10.0,
     )
     ana.visualize_all()
     pprint(ana.measurements[3])
