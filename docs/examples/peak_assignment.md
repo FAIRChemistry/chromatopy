@@ -1,40 +1,16 @@
-# 🏔️ Assign Peaks 
+# Exemplary Workflow
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/FAIRChemistry/chromatopy/blob/main/docs/examples/peak_assignment.ipynb)
+The following examples demonstrate how individual components of `chromatopy` can be used to analyze chromatographic data. While the examples are based on different datasets, they collectively illustrate the logical workflow of the `chromatopy` library, which consists of:
 
----
-
-The `ChromAnalyzer` class in the `chromatopy` library provides several methods for adding and defining molecules, that allow later extraction and processing of the data. Information on a molecule is defined in regards of the intend of the measurement. This means that besides a molecule's name, its retention time, also the initial concentration and the respective unit are added for time-course measurements.
-
-Molecules are defined using the `define_molecule` method. It adds a molecule to the list of molecules within the `ChromAnalyzer` object. This method requires several parameters, including the internal identifier, PubChem CID, and retention time, among others.
-
-__Required parameters__:
-
-- `id`: Internal identifier of the molecule, such as `s0`, `ABTS` or `A0_34S`.
-- `pubchem_cid`: PubChem CID of the molecule.
-- `retention_time`: Retention time for peak annotation in minutes. If the molecule is not detected in the chromatogram, the retention time can be set to `None`.
-
-__Optional parameters__:
-
-- `init_conc`: Initial concentration of the molecule. Defaults to `None`
-- `conc_unit`: Unit of the concentration. Defaults to `None`.
-- `name`: Name of the molecule. If not provided, the name is retrieved from the PubChem database. Defaults to `None`.
-- `retention_tolerance`: Retention time tolerance for peak annotation in minutes. Defaults to `0.1`.
-- `wavelength`: Wavelength of the detector on which the molecule was detected. Defaults to `None`.
-
-__Returns__:
-
-- The method returns a `Molecule` object that is added to the `molecules` list within the `ChromAnalyzer` object.
-
-??? info "How it works"
-
-    Once the molecule is defined, all peaks within the chromatographic data that match the retention time within the specified tolerance are annotated with the molecule's `id`, hence allowing for further analysis and processing of the data. This happens in the background. In the following assignment of a substrate and product molecule of a kinetic measurement is shown.
-
-## Kinetic Measurements
+- Loading chromatographic data
+- Defining molecules and proteins
+- Creating a calibration model
+- Quantifying peak areas
+- Exporting time-course concentration data to EnzymeML
 
 ### Define Molecules
 
-Consider the following cascade reaction, where molecules measurable by chromatography are highlighted in blue:
+Consider the following cascade reaction, where chromatograpgically measurable molecules are highlighted in blue:
 
 ```mermaid
 graph LR
