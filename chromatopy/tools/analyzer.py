@@ -793,6 +793,54 @@ class ChromAnalyzer(BaseModel):
             file.write(self.model_dump_json(indent=2))
 
     @classmethod
+    def read_csv(
+        cls,
+        path: str,
+        mode: Literal["timecourse", "calibration"],
+        values: list[float],
+        unit: UnitDefinition,
+        ph: float,
+        temperature: float,
+        temperature_unit: UnitDefinition,
+        retention_time_col_name: str,
+        peak_area_col_name: str,
+        silent: bool = False,
+    ) -> ChromAnalyzer:
+        """Reads chromatographic data from a CSV file.
+
+        Args:
+            path (str): Path to the CSV file.
+            mode (Literal["timecourse", "calibration"]): Mode of the data.
+            values (list[float]): List of values.
+            unit (UnitDefinition): Unit of the values.
+            ph (float): pH value of the measurement.
+            temperature (float): Temperature of the measurement.
+            temperature_unit (UnitDefinition): Unit of the temperature.
+            retention_time_col_name (str): Name of the retention time column.
+            peak_area_col_name (str): Name of the peak area column.
+            silent (bool, optional): If True, no success message is printed. Defaults to False.
+
+        Returns:
+            ChromAnalyzer: ChromAnalyzer object containing the measurements.
+        """
+        from chromatopy.readers.generic_csv import GenericCSVReader
+
+        reader = GenericCSVReader(
+            dirpath=path,
+            mode=mode,
+            values=values,
+            unit=unit,
+            ph=ph,
+            temperature=temperature,
+            temperature_unit=temperature_unit,
+            silent=silent,
+        )
+        measurements = reader.read_generic_csv(
+            retention_time_col_name=retention_time_col_name, peak_area_col_name=peak_area_col_name
+        )
+        return cls(id=path, name=path, measurements=measurements, mode=reader.mode)
+
+    @classmethod
     def from_json(cls, path: str) -> ChromAnalyzer:
         """
         Load an instance of the class from a JSON file.
@@ -1250,49 +1298,3 @@ class ChromAnalyzer(BaseModel):
         )
 
         return fig
-
-
-if __name__ == "__main__":
-    from devtools import pprint
-
-    from chromatopy import Molecule, Protein
-    from chromatopy.units import C, mM
-
-    path = "/Users/max/Documents/GitHub/chromatopy/docs/examples/data/thermo"
-    ana = ChromAnalyzer.read_thermo(
-        path=path,
-        # values=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
-        # unit=minute,
-        ph=7.4,
-        temperature=25.0,
-        temperature_unit=C,
-        silent=True,
-        mode="timecourse",
-    )
-
-    Prot = Protein(
-        id="p1",
-        name="Protein 1",
-        init_conc=1.0,
-        conc_unit=mM,
-    )
-
-    Mol = Molecule(
-        id="m1",
-        pubchem_cid=123,
-        name="Molecule 1",
-        init_conc=1.0,
-        conc_unit=mM,
-        retention_time=10.0,
-    )
-
-    ana.define_molecule(
-        id="m1",
-        pubchem_cid=123,
-        name="Molecule 1",
-        init_conc=1.0,
-        conc_unit=mM,
-        retention_time=10.0,
-    )
-    ana.visualize_all()
-    pprint(ana.measurements[3])
