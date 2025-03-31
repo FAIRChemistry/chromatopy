@@ -13,9 +13,7 @@ from chromatopy.units import h, min, ul
 class ChromeleonReader(AbstractReader):
     def model_post_init(self, __context: Any) -> None:
         if not self.file_paths:
-            logger.debug(
-                "Collecting file paths without reaction time and unit parsing."
-            )
+            logger.debug("Collecting file paths without reaction time and unit parsing.")
             self._get_file_paths()
 
     def read(self) -> list[Measurement]:
@@ -28,9 +26,7 @@ class ChromeleonReader(AbstractReader):
         measurements = []
         for file_id, file in enumerate(self.file_paths):
             content = self._read_chromeleon_file(file)
-            measurement = self._map_measurement(
-                content, self.values[file_id], self.unit
-            )
+            measurement = self._map_measurement(content, self.values[file_id], self.unit)
             measurements.append(measurement)
 
         if not self.silent:
@@ -61,9 +57,7 @@ class ChromeleonReader(AbstractReader):
 
         return content_dict
 
-    def _map_measurement(
-        self, content: dict, reaction_time: float, time_unit: UnitDefinition
-    ) -> Measurement:
+    def _map_measurement(self, content: dict, reaction_time: float, time_unit: UnitDefinition) -> Measurement:
         """Maps the parsed content to a Measurement object."""
 
         chromatogram = Chromatogram(
@@ -83,13 +77,9 @@ class ChromeleonReader(AbstractReader):
         return Measurement(
             id=content["Sample Information"][5][1],
             chromatograms=[chromatogram],
-            injection_volume=float(
-                content["Sample Information"][13][1].replace(",", ".")
-            ),
+            injection_volume=float(content["Sample Information"][13][1].replace(",", ".")),
             injection_volume_unit=ul,
-            dilution_factor=float(
-                content["Sample Information"][14][1].replace(",", ".")
-            ),
+            dilution_factor=float(content["Sample Information"][14][1].replace(",", ".")),
             ph=self.ph,
             temperature=self.temperature,
             temperature_unit=self.temperature_unit,
@@ -130,7 +120,7 @@ class ChromeleonReader(AbstractReader):
 
         return df
 
-    def _get_file_paths(self):
+    def _get_file_paths(self) -> None:
         """Collects the file paths from the directory."""
 
         files = []
@@ -139,9 +129,7 @@ class ChromeleonReader(AbstractReader):
         # check if directory exists
         assert directory.exists(), f"Directory '{self.dirpath}' does not exist."
         assert directory.is_dir(), f"'{self.dirpath}' is not a directory."
-        assert any(
-            directory.rglob("*.txt")
-        ), f"No .txt files found in '{self.dirpath}'."
+        assert any(directory.rglob("*.txt")), f"No .txt files found in '{self.dirpath}'."
 
         for file_path in directory.iterdir():
             if file_path.name.startswith(".") or not file_path.name.endswith(".txt"):
@@ -149,8 +137,8 @@ class ChromeleonReader(AbstractReader):
 
             files.append(str(file_path.absolute()))
 
-        assert (
-            len(files) == len(self.values)
+        assert len(files) == len(
+            self.values
         ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.reaction_times)})."
 
         self.file_paths = sorted(files)
