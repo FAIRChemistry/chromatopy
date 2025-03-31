@@ -49,9 +49,15 @@ class AbstractReader(BaseModel):
         file_paths (List[str]): List of file paths to process.
     """
 
-    dirpath: str = Field(..., description="Path to the directory containing chromatographic data files.")
+    dirpath: str = Field(
+        ...,
+        description="Path to the directory containing chromatographic data files.",
+    )
 
-    mode: str = Field(..., description="Mode of data processing: 'calibration' or 'timecourse'.")
+    mode: str = Field(
+        ...,
+        description="Mode of data processing: 'calibration' or 'timecourse'.",
+    )
 
     values: list[float] = Field(
         ...,
@@ -66,18 +72,30 @@ class AbstractReader(BaseModel):
         ),
     )
 
-    ph: float = Field(..., description="pH value of the measurement.")
+    ph: float = Field(
+        ...,
+        description="pH value of the measurement.",
+    )
 
-    temperature: float = Field(..., description="Temperature of the measurement.")
+    temperature: float = Field(
+        ...,
+        description="Temperature of the measurement.",
+    )
 
     temperature_unit: UnitDefinition = Field(
-        default=C,  # Assuming 'C' is a member of UnitDefinition
+        default=C,
         description="Unit of the temperature. Defaults to Celsius.",
     )
 
-    silent: bool = Field(False, description="If True, suppresses output messages.")
+    silent: bool = Field(
+        False,
+        description="If True, suppresses output messages.",
+    )
 
-    file_paths: list[str] = Field(default_factory=list, description="List of file paths to process.")
+    file_paths: list[str] = Field(
+        default_factory=list,
+        description="List of file paths to process.",
+    )
 
     @field_validator("mode", mode="before")
     def validate_mode(cls, value: str) -> str:
@@ -265,3 +283,31 @@ class AbstractReader(BaseModel):
     def print_success(self, n_measurement_objects: int) -> None:
         """Prints a success message."""
         print(f" Loaded {n_measurement_objects} chromatograms.")
+
+
+if __name__ == "__main__":
+    import os
+
+    from chromatopy.units import C, ul
+
+    # create a new class inheriting from AbstractReader
+    class TestReader(AbstractReader):
+        def read(self) -> list[Measurement]:
+            return []
+
+    path = "/Users/max/Documents/GitHub/eyring-kinetics/data/R717"
+
+    # string paths
+    paths = [str(Path(path) / f) for f in os.listdir(path) if f.endswith(".csv")]
+
+    reader = TestReader(
+        dirpath=path,
+        values=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
+        unit=ul,
+        mode="timecourse",
+        temperature=20,
+        temperature_unit=C,
+        ph=7,
+        file_paths=paths,
+    )
+    print(reader)
