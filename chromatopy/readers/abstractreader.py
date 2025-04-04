@@ -170,7 +170,7 @@ class AbstractReader(BaseModel):
         """Parse data and unit from filenames based on the mode."""
 
         try:
-            filenames = [Path(f) for f in data.get("file_paths", [])]
+            filenames = sorted([Path(f) for f in data.get("file_paths", [])])
             if not filenames:
                 raise KeyError
         except KeyError:
@@ -181,7 +181,7 @@ class AbstractReader(BaseModel):
                 raise NotADirectoryError(f"'{data['dirpath']}' is not a directory.")
 
             # Get all filenames of normal files in the directory, exclude hidden files
-            filenames = [f for f in path.iterdir() if not f.name.startswith(".")]
+            filenames = sorted([f for f in path.iterdir() if not f.name.startswith(".")])
 
         # Define patterns based on the mode
         if mode == DataType.TIMECOURSE.value:
@@ -195,20 +195,17 @@ class AbstractReader(BaseModel):
             raise ValueError("Invalid mode.")
 
         # Extract data and units from filenames
-        data_dict: dict[float, str] = {}
+        data_dict: dict[str, float] = {}
         units = []
 
         for file in filenames:
-            match_obj = re.search(pattern, file.name)
-            if not match_obj:
-                match_obj = re.search(pattern, file.parent.name)
-            if match_obj:
-                value = float(match_obj.group(1))
-                unit_str = match_obj.group(3)
-                if value in data_dict:
-                    logger.warning(f"Duplicate value '{value}' found in directory '{data['dirpath']}'.")
-                    raise MetadataExtractionError(f"Values in directory '{data['dirpath']}' are not unique.")
-                data_dict[value] = str(file.absolute())
+            match = re.search(pattern, file.name)
+            if not match:
+                match = re.search(pattern, file.parent.name)
+            if match:
+                value = float(match.group(1))
+                unit_str = match.group(3)
+                data_dict[str(file.absolute())] = value
                 units.append(unit_str)
             else:
                 logger.debug(f"Could not parse value from '{file.name}'.")
@@ -226,9 +223,9 @@ class AbstractReader(BaseModel):
             raise MetadataExtractionError(f"Unit {units[0]} from directory '{data['dirpath']}' not recognized.")
 
         # Sort the data and file paths
-        sorted_items = sorted(data_dict.items())
-        data_values = [item[0] for item in sorted_items]
-        file_paths = [item[1] for item in sorted_items]
+        sorted_items = sorted(data_dict.items(), key=lambda x: x[1])
+        file_paths = [item[0] for item in sorted_items]
+        data_values = [item[1] for item in sorted_items]
 
         data["file_paths"] = file_paths
         data["values"] = data_values
