@@ -339,7 +339,7 @@ def add_data(
     calibrators: dict[str, Calibrator | InternalStandard],
     calibrator_type: CalibratorType,
     extrapolate: bool,
-):
+) -> None:
     peak = next(
         (peak for peak in chromatogram.peaks if peak.molecule_id == measurement_data.species_id),
         None,
@@ -498,10 +498,7 @@ def extract_measurement_conditions(
     phs = [measurement.ph for measurement in measurements]
     temperatures = [measurement.temperature for measurement in measurements]
     time_units = [measurement.data.unit.name for measurement in measurements]
-    temperature_units = [
-        measurement.temperature_unit.name  # type: ignore
-        for measurement in measurements  # type: ignore
-    ]
+    temperature_units = [measurement.temperature_unit.name for measurement in measurements]
 
     assert len(set(phs)) == 1, "All measurements need to have the same pH."
     assert len(set(temperatures)) == 1, "All measurements need to have the same temperature."
@@ -542,7 +539,7 @@ def get_measured_once(molecule_ids: list[str], measurements: list[Measurement]) 
     }
 
 
-def _check_molecule_conc_unit_and_init_conc(molecule: Molecule):
+def _check_molecule_conc_unit_and_init_conc(molecule: Molecule) -> None:
     if molecule.init_conc is None:
         raise ValueError(f"""
         No initial concentration is defined for molecule {molecule.name}.
@@ -559,7 +556,7 @@ def _check_molecule_conc_unit_and_init_conc(molecule: Molecule):
             """)
 
 
-def patch_init_t0(doc: EnzymeMLDocument):
+def patch_init_t0(doc: EnzymeMLDocument) -> None:
     for meas in doc.measurements:
         for species_data in meas.species_data:
             if species_data.data:

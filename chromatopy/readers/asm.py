@@ -22,7 +22,7 @@ class ASMReader(AbstractReader):
         """
 
         measurements = []
-        for i, file in enumerate(sorted(self.file_paths)):
+        for i, file in enumerate(self.file_paths):
             content = self._read_asm_file(file)
             measurement = self._map_measurement(content, self.values[i], file)
             measurements.append(measurement)
@@ -279,28 +279,3 @@ class ASMReader(AbstractReader):
             peak_start=peak_dict["peak start"]["value"],
             peak_end=peak_dict["peak end"]["value"],
         )
-
-
-if __name__ == "__main__":
-    from chromatopy.units import C
-
-    first = "/Users/max/Documents/GitHub/chromatopy/docs/examples/data/asm"
-    second = "/Users/max/Documents/GitHub/chromatopy/docs/examples/data/asm_2"
-    other = "docs/examples/data/asm_3/"
-
-    reader = ASMReader(
-        dirpath=second,
-        ph=7.4,
-        temperature=37,
-        temperature_unit=C,
-        silent=False,
-        mode="timecourse",
-    )
-    measurements = reader.read()
-    # print(reader.reaction_times)
-    # print(reader.time_unit.base_units)
-    # print(reader.file_paths)
-
-    from devtools import pprint
-
-    pprint(measurements[0].chromatograms[0].peaks)
