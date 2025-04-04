@@ -173,6 +173,8 @@ class ChromAnalyzer(BaseModel):
             init_conc=init_conc,
             conc_unit=conc_unit,
             retention_time=retention_time,
+            retention_tolerance=retention_tolerance,
+            wavelength=wavelength,
         )
 
         self._update_molecule(molecule)
