@@ -902,7 +902,7 @@ class ChromAnalyzer(BaseModel):
         )
 
         return create_enzymeml(
-            doc_name=name,
+            document_name=name,
             molecules=self.molecules,
             proteins=self.proteins,
             measurement_id=self.id,
