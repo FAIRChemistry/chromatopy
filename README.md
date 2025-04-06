@@ -50,13 +50,13 @@ graph LR
 
 ## ⭐ Key Features
 
-**🌱 Low friction data processing**   
+- **🌱 Low friction data processing**   
 Leave behind data processing in spreadsheet applications and directly start with data analysis based on raw data.
-**🧪 Enrich reaction data with metadata**  
+- **🧪 Enrich reaction data with metadata**  
 Assign metadata like initial concentrations of reactants, temperature, pH, etc. to reaction data to yield modeling-ready data.
-**📈 Create and apply calibration curves**  
+- **📈 Create and apply calibration curves**  
 Create calibrators for your analytes and use them throughout your data analysis for seamless concentration calculation.
-**📂 FAIR data**  
+- **📂 FAIR data**  
 Transform your data into EnzymeML format for subsequent analysis pipelines.
 
 ## 🛠️ Installation
