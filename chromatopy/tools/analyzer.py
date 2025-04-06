@@ -328,6 +328,15 @@ class ChromAnalyzer(BaseModel):
 
         self._update_protein(nu_prot)
 
+    def set_dilution_factor(self, dilution_factor: float) -> None:
+        """Sets the dilution factor for all measurements."""
+
+        if not isinstance(dilution_factor, float | int):
+            raise ValueError("Dilution factor must be a float or integer.")
+
+        for meas in self.measurements:
+            meas.dilution_factor = dilution_factor
+
     def process_chromatograms(
         self,
         prominence: float = 0.03,
@@ -882,44 +891,24 @@ class ChromAnalyzer(BaseModel):
         Returns:
             EnzymeMLDocument: _description_
         """
+        import warnings
+
         from chromatopy.ioutils.enzymeml import create_enzymeml
+
+        warnings.warn(
+            "The to_enzymeml method is deprecated and will be removed in version 1.0.0. Use chromatopy.ioutils.enzymeml.to_enzymeml instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
         return create_enzymeml(
             doc_name=name,
             molecules=self.molecules,
             proteins=self.proteins,
+            measurement_id=self.id,
             measurements=self.measurements,
             calculate_concentration=calculate_concentration,
             internal_standard=self.internal_standard,
-            extrapolate=extrapolate,
-        )
-
-    def add_to_enzymeml(
-        self,
-        enzdoc: EnzymeMLDocument,
-        calculate_concentration: bool = True,
-        extrapolate: bool = False,
-    ) -> EnzymeMLDocument:
-        """Adds the data from the ChromAnalyzer to an existing EnzymeML document.
-
-        Args:
-            enzdoc (EnzymeMLDocument): The EnzymeML document to which the data should be added.
-            calculate_concentration (bool, optional): If True, the concentrations of the species
-                are calculated. Defaults to True.
-            extrapolate (bool, optional): If True, the concentrations are extrapolated to if the
-                measured peak areas are outside the calibration range. Defaults to False.
-
-        Returns:
-            EnzymeMLDocument: The updated EnzymeML document.
-        """
-        from chromatopy.ioutils.enzymeml import add_measurements_to_enzymeml
-
-        return add_measurements_to_enzymeml(
-            doc=enzdoc,
-            new_measurements=self.measurements,
-            molecules=self.molecules,
-            internal_standard=self.internal_standard,
-            calculate_concentration=calculate_concentration,
             extrapolate=extrapolate,
         )
 

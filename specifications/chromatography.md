@@ -39,6 +39,7 @@ prefix: "chromatopy"
 - dilution_factor
   - Type: float
   - Description: Dilution factor.
+  - Default: 1.0
 - injection_volume_unit
   - Type: UnitDefinition
   - Description: Unit of injection volume.
