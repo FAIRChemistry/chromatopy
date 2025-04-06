@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Optional
 
 from calipytion.model import Standard
@@ -47,7 +48,7 @@ class Molecule(BaseModel):
         description="Standard instance associated with the molecule",
         default=None,
     )
-    retention_tolerance: Optional[float] = Field(
+    retention_tolerance: float = Field(
         description="Tolerance for the retention time of the molecule",
         default=0.1,
     )
@@ -139,6 +140,15 @@ class Molecule(BaseModel):
         self.standard = standard
 
         return standard
+
+    @classmethod
+    def read_json(cls, path: str) -> Molecule:
+        """Creates a Molecule instance from a JSON file."""
+
+        with open(path, "r") as f:
+            data = json.load(f)
+
+        return cls(**data)
 
     @property
     def has_retention_time(self) -> bool:

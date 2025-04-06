@@ -22,9 +22,7 @@ class FilterWrapper(Generic[Cls]):
 
     def filter(self) -> list[Cls]:
         for key, value in self.kwargs.items():
-            self.collection = [
-                item for item in self.collection if self._fetch_attr(key, item) == value
-            ]
+            self.collection = [item for item in self.collection if self._fetch_attr(key, item) == value]
         return self.collection
 
     def _fetch_attr(self, name: str, item: Cls):
@@ -82,11 +80,11 @@ class Measurement(BaseModel):
     temperature: float
     temperature_unit: UnitDefinition
     ph: float
+    dilution_factor: float = Field(default=1)
     chromatograms: list[Chromatogram] = Field(default_factory=list)
     sample_name: Optional[str] = Field(default=None)
     timestamp: Optional[str] = Field(default=None)
     injection_volume: Optional[float] = Field(default=None)
-    dilution_factor: Optional[float] = Field(default=None)
     injection_volume_unit: Optional[UnitDefinition] = Field(default=None)
 
     # JSON-LD fields
@@ -146,9 +144,7 @@ class Measurement(BaseModel):
             AssertionError: If the attribute is not found in the model
         """
 
-        assert (
-            attr in self.model_fields
-        ), f"Attribute {attr} not found in {self.__class__.__name__}"
+        assert attr in self.model_fields, f"Attribute {attr} not found in {self.__class__.__name__}"
 
         if prefix:
             validate_prefix(term, prefix)
@@ -156,9 +152,7 @@ class Measurement(BaseModel):
         add_namespace(self, prefix, iri)
         self.ld_context[attr] = term
 
-    def add_type_term(
-        self, term: str, prefix: str | None = None, iri: str | None = None
-    ):
+    def add_type_term(self, term: str, prefix: str | None = None, iri: str | None = None):
         """Adds a term to the @type field of the JSON-LD object
 
         Example:
@@ -266,9 +260,7 @@ class Data(BaseModel):
             AssertionError: If the attribute is not found in the model
         """
 
-        assert (
-            attr in self.model_fields
-        ), f"Attribute {attr} not found in {self.__class__.__name__}"
+        assert attr in self.model_fields, f"Attribute {attr} not found in {self.__class__.__name__}"
 
         if prefix:
             validate_prefix(term, prefix)
@@ -276,9 +268,7 @@ class Data(BaseModel):
         add_namespace(self, prefix, iri)
         self.ld_context[attr] = term
 
-    def add_type_term(
-        self, term: str, prefix: str | None = None, iri: str | None = None
-    ):
+    def add_type_term(self, term: str, prefix: str | None = None, iri: str | None = None):
         """Adds a term to the @type field of the JSON-LD object
 
         Example:
@@ -374,9 +364,7 @@ class Chromatogram(BaseModel):
             AssertionError: If the attribute is not found in the model
         """
 
-        assert (
-            attr in self.model_fields
-        ), f"Attribute {attr} not found in {self.__class__.__name__}"
+        assert attr in self.model_fields, f"Attribute {attr} not found in {self.__class__.__name__}"
 
         if prefix:
             validate_prefix(term, prefix)
@@ -384,9 +372,7 @@ class Chromatogram(BaseModel):
         add_namespace(self, prefix, iri)
         self.ld_context[attr] = term
 
-    def add_type_term(
-        self, term: str, prefix: str | None = None, iri: str | None = None
-    ):
+    def add_type_term(self, term: str, prefix: str | None = None, iri: str | None = None):
         """Adds a term to the @type field of the JSON-LD object
 
         Example:
@@ -517,9 +503,7 @@ class Peak(BaseModel):
             AssertionError: If the attribute is not found in the model
         """
 
-        assert (
-            attr in self.model_fields
-        ), f"Attribute {attr} not found in {self.__class__.__name__}"
+        assert attr in self.model_fields, f"Attribute {attr} not found in {self.__class__.__name__}"
 
         if prefix:
             validate_prefix(term, prefix)
@@ -527,9 +511,7 @@ class Peak(BaseModel):
         add_namespace(self, prefix, iri)
         self.ld_context[attr] = term
 
-    def add_type_term(
-        self, term: str, prefix: str | None = None, iri: str | None = None
-    ):
+    def add_type_term(self, term: str, prefix: str | None = None, iri: str | None = None):
         """Adds a term to the @type field of the JSON-LD object
 
         Example:
@@ -623,9 +605,7 @@ class UnitDefinition(BaseModel):
             AssertionError: If the attribute is not found in the model
         """
 
-        assert (
-            attr in self.model_fields
-        ), f"Attribute {attr} not found in {self.__class__.__name__}"
+        assert attr in self.model_fields, f"Attribute {attr} not found in {self.__class__.__name__}"
 
         if prefix:
             validate_prefix(term, prefix)
@@ -633,9 +613,7 @@ class UnitDefinition(BaseModel):
         add_namespace(self, prefix, iri)
         self.ld_context[attr] = term
 
-    def add_type_term(
-        self, term: str, prefix: str | None = None, iri: str | None = None
-    ):
+    def add_type_term(self, term: str, prefix: str | None = None, iri: str | None = None):
         """Adds a term to the @type field of the JSON-LD object
 
         Example:
@@ -740,9 +718,7 @@ class BaseUnit(BaseModel):
             AssertionError: If the attribute is not found in the model
         """
 
-        assert (
-            attr in self.model_fields
-        ), f"Attribute {attr} not found in {self.__class__.__name__}"
+        assert attr in self.model_fields, f"Attribute {attr} not found in {self.__class__.__name__}"
 
         if prefix:
             validate_prefix(term, prefix)
@@ -750,9 +726,7 @@ class BaseUnit(BaseModel):
         add_namespace(self, prefix, iri)
         self.ld_context[attr] = term
 
-    def add_type_term(
-        self, term: str, prefix: str | None = None, iri: str | None = None
-    ):
+    def add_type_term(self, term: str, prefix: str | None = None, iri: str | None = None):
         """Adds a term to the @type field of the JSON-LD object
 
         Example:

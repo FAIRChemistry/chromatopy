@@ -12,11 +12,12 @@ from pyenzyme import (
 from pyenzyme import Measurement as EnzymeMLMeasurement
 from pyenzyme import UnitDefinition as EnzymeMLUnitDefinition
 
-from chromatopy import Molecule
-from chromatopy import Protein as ChromProtein
-from chromatopy.model import Chromatogram, Measurement
-from chromatopy.model import UnitDefinition as UnitDefinition
-from chromatopy.tools.internal_standard import InternalStandard
+from ..model import Chromatogram, Measurement
+from ..model import UnitDefinition as UnitDefinition
+from ..tools.analyzer import ChromAnalyzer
+from ..tools.internal_standard import InternalStandard
+from ..tools.molecule import Molecule
+from ..tools.protein import Protein as ChromProtein
 
 
 class CalibratorType(Enum):
@@ -25,11 +26,56 @@ class CalibratorType(Enum):
     NONE = "none"
 
 
+def to_enzymeml(
+    document_name: str,
+    analyzers: list[ChromAnalyzer],
+    calculate_concentration: bool,
+    extrapolate: bool,
+    internal_standard: Molecule | None = None,
+) -> EnzymeMLDocument:
+    """Converts a list of Analyzer instances to an EnzymeMLDocument instance.
+
+    Args:
+        document_name (str): Name of the EnzymeMLDocument instance.
+        analyzers (list[Analyzer]): List of ChromAnalyzer objects containing measurement data.
+
+    Returns:
+        EnzymeMLDocument: The created EnzymeML document with all measurements added.
+    """
+
+    if not isinstance(analyzers, list):
+        analyzers = [analyzers]
+
+    for idx, analyzer in enumerate(analyzers):
+        if idx == 0:
+            doc = create_enzymeml(
+                document_name=document_name,
+                molecules=analyzer.molecules,
+                proteins=analyzer.proteins,
+                measurements=analyzer.measurements,
+                measurement_id=analyzer.id,
+                internal_standard=internal_standard,
+                calculate_concentration=calculate_concentration,
+                extrapolate=extrapolate,
+            )
+        else:
+            add_measurements_to_enzymeml(
+                doc=doc,
+                new_measurements=analyzer.measurements,
+                measurement_id=analyzer.id,
+                molecules=analyzer.molecules,
+                calculate_concentration=calculate_concentration,
+                extrapolate=extrapolate,
+            )
+    return doc
+
+
 def create_enzymeml(
-    doc_name: str,
+    document_name: str,
     molecules: list[Molecule],
     proteins: list[ChromProtein],
     measurements: list[Measurement],
+    measurement_id: str,
     internal_standard: Molecule | None,
     calculate_concentration: bool,
     extrapolate: bool,
@@ -37,10 +83,11 @@ def create_enzymeml(
     """Creates an EnzymeMLDocument instance from a list of Molecule and Measurement instances.
 
     Args:
-        doc_name (str): Name of the EnzymeMLDocument instance.
+        document_name (str): Name of the EnzymeMLDocument instance.
         molecules (list[Molecule]): List of Molecule instances.
         proteins (list[Protein]): List of Protein instances.
         measurements (list[Measurement]): List of Measurement instances.
+        measurement_id (str): ID of the measurement.
         calculate_concentration (bool): If True, the concentration of the molecules will be calculated,
             using the internal standard or defined standard.
         extrapolate (bool): If True, the concentration of the molecules will be extrapolated.
@@ -49,7 +96,7 @@ def create_enzymeml(
         EnzymeMLDocument: The EnzymeMLDocument instance.
     """
 
-    doc = EnzymeMLDocument(name=doc_name)
+    doc = EnzymeMLDocument(name=document_name)
     meas_data: dict[str, MeasurementData] = {}
 
     for protein in proteins:
@@ -78,8 +125,8 @@ def create_enzymeml(
         species.time_unit = EnzymeMLUnitDefinition(**time_unit.model_dump())
 
     enzml_measurement = EnzymeMLMeasurement(
-        id="m0",
-        name="m0",
+        id=measurement_id,
+        name=measurement_id,
         temperature=temp,
         temperature_unit=EnzymeMLUnitDefinition(**temp_unit.model_dump()),
         ph=ph,
@@ -175,6 +222,7 @@ def create_MeasurementData_instances(
     meas_data_dict[species.id] = MeasurementData(
         species_id=species.id,
         initial=species.init_conc,
+        prepared=species.init_conc,
         data_unit=EnzymeMLUnitDefinition(**species.conc_unit.model_dump()),
         data_type=data_type,
     )
@@ -186,6 +234,7 @@ def add_measurements_to_enzymeml(
     molecules: list[Molecule],
     calculate_concentration: bool,
     extrapolate: bool,
+    measurement_id: str,
     internal_standard: Molecule | None = None,
 ) -> EnzymeMLDocument:
     """
@@ -210,6 +259,7 @@ def add_measurements_to_enzymeml(
         mol.id: MeasurementData(
             species_id=mol.id,
             initial=mol.init_conc,
+            prepared=mol.init_conc,
             data_unit=EnzymeMLUnitDefinition(**mol.conc_unit.model_dump()),  # type: ignore
             data_type=DataTypes.PEAK_AREA,
             time_unit=EnzymeMLUnitDefinition(**time_unit.model_dump()),
@@ -228,10 +278,9 @@ def add_measurements_to_enzymeml(
     )
 
     # Create new EnzymeMLMeasurement and append to the document
-    new_measurement_id = f"m{len(doc.measurements)}"
     enzml_measurement = EnzymeMLMeasurement(
-        id=new_measurement_id,
-        name=new_measurement_id,
+        id=measurement_id,
+        name=measurement_id,
         temperature=temp,
         temperature_unit=EnzymeMLUnitDefinition(**temp_unit.model_dump()),
         ph=ph,
@@ -327,6 +376,7 @@ def add_measurement_to_MeasurementData(
                     calibrators=calibrators,
                     calibrator_type=strategy,
                     extrapolate=extrapolate,
+                    dilution_factor=measurement.dilution_factor,
                 )
 
     return measurement_data_instances
@@ -339,6 +389,7 @@ def add_data(
     calibrators: dict[str, Calibrator | InternalStandard],
     calibrator_type: CalibratorType,
     extrapolate: bool,
+    dilution_factor: float,
 ) -> None:
     peak = next(
         (peak for peak in chromatogram.peaks if peak.molecule_id == measurement_data.species_id),
@@ -357,6 +408,8 @@ def add_data(
                 signals=[peak.area],
                 extrapolate=extrapolate,
             )[0]
+            # The dilution_factor will always be available with a default of 1
+            conc *= dilution_factor
 
             measurement_data.data.append(conc)
             measurement_data.data_type = DataTypes.CONCENTRATION
@@ -381,6 +434,9 @@ def add_data(
                 """
 
             conc = calibrator.calculate_conc(peak.area, internal_std_peak.area)
+            # The dilution_factor will always be available with a default of 1
+            conc *= dilution_factor
+
             measurement_data.data.append(conc)
             measurement_data.data_type = DataTypes.CONCENTRATION
 
@@ -560,6 +616,6 @@ def patch_init_t0(doc: EnzymeMLDocument) -> None:
     for meas in doc.measurements:
         for species_data in meas.species_data:
             if species_data.data:
-                species_data.prepared = species_data.data[0]
+                # species_data.prepared = species_data.data[0]
                 if not species_data.initial == species_data.data[0]:
                     species_data.initial = species_data.data[0]
