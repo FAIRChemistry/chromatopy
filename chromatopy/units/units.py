@@ -74,9 +74,7 @@ class Prefix(Enum):
         if isinstance(other, _BaseUnit):
             return self.value(other)
 
-        raise TypeError(
-            f"unsupported operand type(s) for *: 'Prefix' and '{type(other)}'"
-        )
+        raise TypeError(f"unsupported operand type(s) for *: 'Prefix' and '{type(other)}'")
 
 
 class UnitDefinition(_UnitDefinition):
@@ -168,9 +166,7 @@ class UnitDefinition(_UnitDefinition):
 
             return self
 
-        raise TypeError(
-            f"unsupported operand type(s) for *: 'UnitDefinition' and '{type(other)}'"
-        )
+        raise TypeError(f"unsupported operand type(s) for *: 'UnitDefinition' and '{type(other)}'")
 
     def _get_name(self):
         """Get the name of the unit based on the base units."""
@@ -189,16 +185,12 @@ class UnitDefinition(_UnitDefinition):
         """
 
         numerator = [
-            self._map_prefix(base.scale)
-            + self._map_name(base.kind)
-            + self._exponent(base.exponent)
+            self._map_prefix(base.scale) + self._map_name(base.kind) + self._exponent(base.exponent)
             for base in self.base_units
             if base.exponent > 0
         ]
         denominator = [
-            self._map_prefix(base.scale)
-            + self._map_name(base.kind)
-            + self._exponent(base.exponent)
+            self._map_prefix(base.scale) + self._map_name(base.kind) + self._exponent(base.exponent)
             for base in self.base_units
             if base.exponent < 0
         ]
@@ -286,9 +278,7 @@ class BaseUnit(_BaseUnit):
             self.exponent = -self.exponent
             return self
 
-        raise TypeError(
-            f"unsupported operand type(s) for /: 'BaseUnit' and '{type(other)}'"
-        )
+        raise TypeError(f"unsupported operand type(s) for /: 'BaseUnit' and '{type(other)}'")
 
     def __truediv__(self, other: object) -> "UnitDefinition":
         """Division operation to handle unit division.
@@ -313,9 +303,7 @@ class BaseUnit(_BaseUnit):
 
             return other
 
-        raise TypeError(
-            f"unsupported operand type(s) for /: 'BaseUnit' and '{type(other)}'"
-        )
+        raise TypeError(f"unsupported operand type(s) for /: 'BaseUnit' and '{type(other)}'")
 
     def __pow__(self, other: int) -> "_BaseUnit":
         """Exponentiation operation to handle unit exponentiation.
@@ -333,9 +321,7 @@ class BaseUnit(_BaseUnit):
             self.exponent = other
             return self
 
-        raise TypeError(
-            f"unsupported operand type(s) for **: 'BaseUnit' and '{type(other)}'"
-        )
+        raise TypeError(f"unsupported operand type(s) for **: 'BaseUnit' and '{type(other)}'")
 
     def __mul__(self, other: object) -> object:
         """Multiplication operation to handle unit multiplication.
@@ -369,6 +355,4 @@ class BaseUnit(_BaseUnit):
                 self.multiplier = other
             return self
 
-        raise TypeError(
-            f"unsupported operand type(s) for *: 'BaseUnit' and '{type(other)}'"
-        )
+        raise TypeError(f"unsupported operand type(s) for *: 'BaseUnit' and '{type(other)}'")

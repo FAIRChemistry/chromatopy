@@ -43,3 +43,7 @@ nl = "OBO:UO_0000102"
 
 metre = "OBO:UO_0000008"
 nm = "OBO:UO_0000018"
+
+[mass_per_volume]
+
+mass_per_volume = "OBO:UO_0000180"
