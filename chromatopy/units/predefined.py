@@ -11,45 +11,45 @@ ONTOMAPS = read_static_file("chromatopy.units", "ontomaps.toml")
 
 class Unit:
     @staticmethod
-    def mol():
+    def mol() -> BaseUnit:
         return BaseUnit(kind=ChromUnitType.MOLE, exponent=1, scale=1)
 
     @staticmethod
-    def litre():
+    def litre() -> BaseUnit:
         return BaseUnit(kind=ChromUnitType.LITRE, exponent=1, scale=1)
 
     @staticmethod
-    def second():
+    def second() -> BaseUnit:
         return BaseUnit(kind=ChromUnitType.SECOND, exponent=1, scale=1)
 
     @staticmethod
-    def minute():
+    def minute() -> BaseUnit:
         return BaseUnit(kind=ChromUnitType.SECOND, exponent=1, scale=1, multiplier=60)
 
     @staticmethod
-    def hour():
+    def hour() -> BaseUnit:
         hour = 60 * 60
         return BaseUnit(kind=ChromUnitType.SECOND, exponent=1, scale=1, multiplier=hour)
 
     @staticmethod
-    def day():
+    def day() -> BaseUnit:
         day = 60**2 * 24
         return BaseUnit(kind=ChromUnitType.SECOND, exponent=1, scale=1, multiplier=day)
 
     @staticmethod
-    def gram():
+    def gram() -> BaseUnit:
         return BaseUnit(kind=ChromUnitType.GRAM, exponent=1, scale=1)
 
     @staticmethod
-    def kelvin():
+    def kelvin() -> BaseUnit:
         return BaseUnit(kind=ChromUnitType.KELVIN, exponent=1, scale=1)
 
     @staticmethod
-    def celsius():
+    def celsius() -> BaseUnit:
         return BaseUnit(kind=ChromUnitType.CELSIUS, exponent=1, scale=1)
 
     @staticmethod
-    def dimensionless():
+    def dimensionless() -> BaseUnit:
         return BaseUnit(kind=ChromUnitType.DIMENSIONLESS, exponent=1, scale=1)
 
 
@@ -76,6 +76,16 @@ M.ld_id = ONTOMAPS["molarity"]["M"]
 mM.ld_id = ONTOMAPS["molarity"]["mM"]
 uM.ld_id = ONTOMAPS["molarity"]["uM"]
 nM.ld_id = ONTOMAPS["molarity"]["nM"]
+
+# Mass Concentration
+g_L = Unit.gram() / Unit.litre()
+mg_L = m * Unit.gram() / Unit.litre()
+ug_L = u * Unit.gram() / Unit.litre()
+
+## Ontology
+g_L.ld_id = ONTOMAPS["mass_per_volume"]["mass_per_volume"]
+mg_L.ld_id = ONTOMAPS["mass_per_volume"]["mass_per_volume"]
+ug_L.ld_id = ONTOMAPS["mass_per_volume"]["mass_per_volume"]
 
 # Substance
 mol = UnitDefinition(base_units=[Unit.mol()])._get_name()
