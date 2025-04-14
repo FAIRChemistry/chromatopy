@@ -38,6 +38,9 @@ def to_enzymeml(
     Args:
         document_name (str): Name of the EnzymeMLDocument instance.
         analyzers (list[Analyzer]): List of ChromAnalyzer objects containing measurement data.
+        calculate_concentration (bool): If True, the concentration of the molecules will be calculated.
+        extrapolate (bool): If True, the concentration of the molecules will be extrapolated.
+        internal_standard (Molecule, optional): The internal standard molecule, if any.
 
     Returns:
         EnzymeMLDocument: The created EnzymeML document with all measurements added.
@@ -64,6 +67,7 @@ def to_enzymeml(
                 new_measurements=analyzer.measurements,
                 measurement_id=analyzer.id,
                 molecules=analyzer.molecules,
+                proteins=analyzer.proteins,
                 calculate_concentration=calculate_concentration,
                 extrapolate=extrapolate,
             )
@@ -182,14 +186,14 @@ def add_molecule(doc: EnzymeMLDocument, molecule: Molecule) -> None:
 
 def create_MeasurementData_instances(
     meas_data_dict: dict[str, MeasurementData],
-    species: Molecule | Protein,
+    species: Molecule | ChromProtein,
 ) -> None:
     """Adds a MeasurementData for a Protein or Molecule instance to a dictionary
     of MeasurementData instances.
 
     Args:
         meas_data_dict (dict[str, MeasurementData]): Dictionary of MeasurementData instances.
-        molecule (Molecule | Protein): Molecule or Protein instance.
+        species (Molecule | ChromProtein): Molecule or Protein instance.
 
     Raises:
         ValueError: If a MeasurementData instance for the molecule or protein already exists.
@@ -204,34 +208,41 @@ def create_MeasurementData_instances(
         A MeasurementData instance for molecule {species.name} already exists.
         """)
 
-    # Determine the data type based on the species type
-    if isinstance(species, Molecule):
-        data_type = DataTypes.PEAK_AREA
-    elif isinstance(species, ChromProtein):
-        data_type = DataTypes.CONCENTRATION
-    else:
-        raise TypeError(f"""
-        The species {species.name} is neither a Molecule nor a Protein instance. {type(species)} was found.
-        """)
-
     assert isinstance(species.conc_unit, UnitDefinition), f"""
     The concentration unit of the molecule {species.name} needs to be defined.
     Please specify the `conc_unit` attribute of {species.name}.
     """
 
-    meas_data_dict[species.id] = MeasurementData(
-        species_id=species.id,
-        initial=species.init_conc,
-        prepared=species.init_conc,
-        data_unit=EnzymeMLUnitDefinition(**species.conc_unit.model_dump()),
-        data_type=data_type,
-    )
+    # Determine the data type based on the species type
+    if isinstance(species, ChromProtein):
+        data_type = DataTypes.CONCENTRATION
+        # For proteins, we create an empty data array since they're not measured
+        meas_data = MeasurementData(
+            species_id=species.id,
+            initial=species.init_conc,
+            prepared=species.init_conc,
+            data_unit=EnzymeMLUnitDefinition(**species.conc_unit.model_dump()),
+            data_type=data_type,
+        )
+    elif isinstance(species, Molecule):
+        data_type = DataTypes.PEAK_AREA
+        meas_data = MeasurementData(
+            species_id=species.id,
+            initial=species.init_conc,
+            prepared=species.init_conc,
+            data_unit=EnzymeMLUnitDefinition(**species.conc_unit.model_dump()),
+            data_type=data_type,
+        )
+
+    meas_data_dict[species.id] = meas_data
+    print(f"created measurementdata instance for species {species.name} with id {species.id}")
 
 
 def add_measurements_to_enzymeml(
     doc: EnzymeMLDocument,
     new_measurements: list[Measurement],
     molecules: list[Molecule],
+    proteins: list[ChromProtein],
     calculate_concentration: bool,
     extrapolate: bool,
     measurement_id: str,
@@ -244,8 +255,11 @@ def add_measurements_to_enzymeml(
         doc (EnzymeMLDocument): The existing EnzymeMLDocument instance.
         new_measurements (list[Measurement]): List of new Measurement instances to be added.
         molecules (list[Molecule]): List of Molecule instances.
+        proteins (list[ChromProtein]): List of Protein instances.
+        calculate_concentration (bool): If True, the concentration of the molecules will be calculated.
+        extrapolate (bool): If True, the concentration of the molecules will be extrapolated.
+        measurement_id (str): ID of the measurement.
         internal_standard (Molecule, optional): The internal standard molecule, if any.
-        calculate_concentration (bool, optional): If True, the concentration of the molecules will be calculated.
 
     Returns:
         EnzymeMLDocument: The updated EnzymeMLDocument instance.
@@ -266,6 +280,18 @@ def add_measurements_to_enzymeml(
         )
         for mol in molecules
     }
+
+    # Add MeasurementData instances for proteins
+    for protein in proteins:
+        if protein.id not in measurement_data_instances:
+            measurement_data_instances[protein.id] = MeasurementData(
+                species_id=protein.id,
+                initial=protein.init_conc,
+                prepared=protein.init_conc,
+                data_unit=EnzymeMLUnitDefinition(**protein.conc_unit.model_dump()),  # type: ignore
+                data_type=DataTypes.CONCENTRATION,
+                time_unit=EnzymeMLUnitDefinition(**time_unit.model_dump()),
+            )
 
     # Convert new measurements to MeasurementData instances
     measurement_data_instances = add_measurement_to_MeasurementData(
@@ -304,29 +330,28 @@ def add_measurement_to_MeasurementData(
 ) -> dict[str, MeasurementData]:
     """Converts a list of chromatographic Measurement instances to
     EnzymeML MeasurementData instances.
-    This method takes into account that not all molecules are measured in each
-    chromatographic measurement.
-    If a peak in any of the measurements is assigned to a molecule, the molecule
-    is considered as a measured molecule. Thus, if in one of the measurements
-    this molecule is not measured, the data array of the MeasurementData instance
-    will be filled with a peak area of 0.
+    This method handles both molecules (with chromatographic data) and proteins
+    (with constant concentration values).
 
     Args:
         measurements (list[Measurement]): List of Measurement instances.
         measurement_data_instances (dict[str, MeasurementData]): Dictionary containing
-            the molecule IDs as keys and MeasurementData instances as values.
+            the species IDs as keys and MeasurementData instances as values.
         calculate_concentration (bool): If True, the concentration of the molecules will be calculated,
             using the internal standard or defined standard.
+        molecules (list[Molecule]): List of Molecule instances.
         internal_standard (Molecule, optional): The internal standard molecule.
+        extrapolate (bool): If True, the concentration of the molecules will be extrapolated.
 
     Returns:
-        dict[str, EnzymeMLMeasurement]: Dictionary containing the molecule IDs as keys
+        dict[str, EnzymeMLMeasurement]: Dictionary containing the species IDs as keys
             and EnzymeMLMeasurement instances as values.
     """
-    all_moecules = {molecule.id: molecule for molecule in molecules}
-    measured_once = get_measured_once(list(all_moecules.keys()), measurements)
+    # Get molecules that have peaks
+    molecule_ids = {molecule.id for molecule in molecules}
+    measured_once = get_measured_once(list(molecule_ids), measurements)
 
-    # exclude internal stanard molecules if there are any
+    # exclude internal standard molecules if there are any
     if internal_standard:
         measured_once.discard(internal_standard.id)
 
@@ -334,7 +359,6 @@ def add_measurement_to_MeasurementData(
     has_external_standard = any([molecule.standard for molecule in molecules])
 
     # decide concentration calculation strategy for each molecule
-
     if calculate_concentration:
         if internal_standard and has_external_standard:
             raise ValueError(
@@ -345,7 +369,6 @@ def add_measurement_to_MeasurementData(
         elif has_external_standard:
             strategy = CalibratorType.EXTERNAL
             calibrators = setup_external_calibrators(molecules)
-
         elif internal_standard is not None:
             strategy = CalibratorType.INTERNAL
             calibrators = setup_internal_calibrators(
@@ -360,24 +383,31 @@ def add_measurement_to_MeasurementData(
             strategy = CalibratorType.NONE
             calibrators = {}
             calculate_concentration = False
-
     else:
         strategy = CalibratorType.NONE
         calibrators = {}
         calculate_concentration = False
 
-    for meas_idx, measurement in enumerate(measurements):
-        for chrom in measurement.chromatograms:
-            for molecule_id in measured_once:
-                add_data(
-                    measurement_data=measurement_data_instances[molecule_id],
-                    chromatogram=chrom,
-                    reaction_time=measurement.data.value,
-                    calibrators=calibrators,
-                    calibrator_type=strategy,
-                    extrapolate=extrapolate,
-                    dilution_factor=measurement.dilution_factor,
-                )
+    # Process all species in measurement_data_instances
+    for species_id, meas_data in measurement_data_instances.items():
+        if species_id in measured_once:
+            # Handle molecules with peaks
+            for measurement in measurements:
+                for chrom in measurement.chromatograms:
+                    add_data(
+                        measurement_data=meas_data,
+                        chromatogram=chrom,
+                        reaction_time=measurement.data.value,
+                        calibrators=calibrators,
+                        calibrator_type=strategy,
+                        extrapolate=extrapolate,
+                        dilution_factor=measurement.dilution_factor,
+                    )
+        else:
+            # Handle proteins or molecules without peaks - use constant concentration
+            for measurement in measurements:
+                if not meas_data.time or measurement.data.value not in meas_data.time:
+                    meas_data.initial = meas_data.initial
 
     return measurement_data_instances
 
@@ -595,7 +625,7 @@ def get_measured_once(molecule_ids: list[str], measurements: list[Measurement]) 
     }
 
 
-def _check_molecule_conc_unit_and_init_conc(molecule: Molecule) -> None:
+def _check_molecule_conc_unit_and_init_conc(molecule: Molecule | Protein) -> None:
     if molecule.init_conc is None:
         raise ValueError(f"""
         No initial concentration is defined for molecule {molecule.name}.
