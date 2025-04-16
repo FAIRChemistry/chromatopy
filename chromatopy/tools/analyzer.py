@@ -136,6 +136,7 @@ class ChromAnalyzer(BaseModel):
         conc_unit: Optional[UnitDefinition] = None,
         name: Optional[str] = None,
         wavelength: Optional[float] = None,
+        is_internal_standard: bool = False,
     ) -> Molecule:
         """
         Defines and adds a molecule to the list of molecules.
@@ -153,6 +154,7 @@ class ChromAnalyzer(BaseModel):
                 database. Defaults to None.
             wavelength (Optional[float], optional): Wavelength of the detector where the molecule was detected. If not provided,
                 it defaults to None.
+            is_internal_standard (bool, optional): If True, the molecule is used as internal standard. Defaults to False.
 
         Returns:
             Molecule: The molecule object that was added to the list of species.
@@ -175,6 +177,7 @@ class ChromAnalyzer(BaseModel):
             retention_time=retention_time,
             retention_tolerance=retention_tolerance,
             wavelength=wavelength,
+            internal_standard=is_internal_standard,
         )
 
         self._update_molecule(molecule)
@@ -183,46 +186,6 @@ class ChromAnalyzer(BaseModel):
             self._register_peaks(molecule, retention_tolerance, wavelength)
 
         return molecule
-
-    def define_internal_standard(
-        self,
-        id: str,
-        pubchem_cid: int,
-        name: str,
-        init_conc: float,
-        conc_unit: UnitDefinition,
-        retention_time: float,
-        retention_tolerance: float = 0.1,
-        wavelength: float | None = None,
-    ) -> None:
-        """Defines an molecule as the internal standard for concentration calculation.
-
-        Args:
-            id (str): Internal identifier of the molecule such as `s0` or `asd45`.
-            pubchem_cid (int): PubChem CID of the molecule.
-            name (str): Name of the internal standard molecule.
-            init_conc (float): Initial concentration of the internal standard.
-            conc_unit (UnitDefinition): Unit of the concentration.
-            retention_time (float): Retention time of the internal standard in minutes.
-            retention_tolerance (float, optional): Retention time tolerance for
-                peak annotation in minutes. Defaults to 0.1.
-            wavelength (float | None, optional): Wavelength of the detector on
-                which the molecule was detected. Defaults to None.
-        """
-        self.internal_standard = Molecule(
-            id=id,
-            pubchem_cid=pubchem_cid,
-            name=name,
-            init_conc=init_conc,
-            conc_unit=conc_unit,
-            retention_time=retention_time,
-        )
-
-        self._register_peaks(
-            molecule=self.internal_standard,
-            ret_tolerance=retention_tolerance,
-            wavelength=wavelength,
-        )
 
     def get_peaks(self, molecule_id: str) -> list[Peak]:
         peaks: list[Peak] = []
@@ -847,7 +810,8 @@ class ChromAnalyzer(BaseModel):
             silent=silent,
         )
         measurements = reader.read_generic_csv(
-            retention_time_col_name=retention_time_col_name, peak_area_col_name=peak_area_col_name
+            retention_time_col_name=retention_time_col_name,
+            peak_area_col_name=peak_area_col_name,
         )
         return cls(id=path, name=path, measurements=measurements, mode=reader.mode)
 
@@ -916,10 +880,6 @@ class ChromAnalyzer(BaseModel):
         for molecule in self.molecules:
             if molecule.id == molecule_id:
                 return molecule
-
-            if self.internal_standard:
-                if self.internal_standard.id == molecule_id:
-                    return self.internal_standard
 
         raise ValueError(f"Molecule with ID {molecule_id} not found.")
 
