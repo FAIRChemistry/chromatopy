@@ -260,7 +260,7 @@ class AbstractReader(BaseModel):
 
             match unit_str:
                 case "m" | "M":
-                    return M  # type: ignore
+                    return M
                 case "mm" | "mM":
                     return mM  # type: ignore
                 case "um" | "uM" | "µM":
@@ -279,7 +279,7 @@ class AbstractReader(BaseModel):
 
     def print_success(self, n_measurement_objects: int) -> None:
         """Prints a success message."""
-        print(f" Loaded {n_measurement_objects} chromatograms.")
+        print(f"Loaded {n_measurement_objects} chromatograms.")
 
 
 if __name__ == "__main__":
