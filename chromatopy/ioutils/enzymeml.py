@@ -64,7 +64,6 @@ def to_enzymeml(
                     molecules=[mol for mol in analyzer.molecules if not mol.internal_standard],
                     first_measurement=analyzer.measurements[0],
                 )
-                print(f" the first measurement is {analyzer.measurements[0]}")
             else:
                 internal_standards = None
 
@@ -94,8 +93,6 @@ def to_enzymeml(
                 )
             else:
                 internal_standards = None
-
-            print(f" the first measurement is {analyzer.measurements[0]}")
 
             add_measurements_to_enzymeml(
                 doc=doc,
@@ -272,7 +269,6 @@ def create_MeasurementData_instances(
         )
 
     meas_data_dict[species.id] = meas_data
-    print(f"created measurementdata instance for species {species.name} with id {species.id}")
 
 
 def add_measurements_to_enzymeml(
@@ -436,10 +432,20 @@ def add_measurement_to_MeasurementData(
                         dilution_factor=measurement.dilution_factor,
                     )
         else:
-            # Handle proteins or molecules without peaks - use constant concentration
+            # Handle proteins or molecules without peaks - add zero values for molecules with retention times
             for measurement in measurements:
+                # Check if we already have this time point
                 if not meas_data.time or measurement.data.value not in meas_data.time:
-                    meas_data.initial = meas_data.initial
+                    # Add the time point
+                    meas_data.time.append(measurement.data.value)
+
+                    # For molecules, add zero values to data array
+                    if species_id in molecule_ids:
+                        meas_data.data.append(float(0))
+                        if calculate_concentration:
+                            meas_data.data_type = DataTypes.CONCENTRATION
+                        else:
+                            meas_data.data_type = DataTypes.PEAK_AREA
 
     return measurement_data_instances
 
@@ -594,8 +600,6 @@ def setup_internal_calibrators(
                 molecule_t0_signal=peak_analyte.area,
                 standard_t0_signal=peak_internal_standard.area,
             )
-
-    print("returning calibrators", calibrators)
 
     return calibrators
 
