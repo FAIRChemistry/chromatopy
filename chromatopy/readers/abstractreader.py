@@ -280,31 +280,3 @@ class AbstractReader(BaseModel):
     def print_success(self, n_measurement_objects: int) -> None:
         """Prints a success message."""
         print(f"Loaded {n_measurement_objects} chromatograms.")
-
-
-if __name__ == "__main__":
-    import os
-
-    from chromatopy.units import C, ul
-
-    # create a new class inheriting from AbstractReader
-    class TestReader(AbstractReader):
-        def read(self) -> list[Measurement]:
-            return []
-
-    path = "/Users/max/Documents/GitHub/eyring-kinetics/data/R717"
-
-    # string paths
-    paths = [str(Path(path) / f) for f in os.listdir(path) if f.endswith(".csv")]
-
-    reader = TestReader(
-        dirpath=path,
-        values=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
-        unit=ul,
-        mode="timecourse",
-        temperature=20,
-        temperature_unit=C,
-        ph=7,
-        file_paths=paths,
-    )
-    print(reader)
