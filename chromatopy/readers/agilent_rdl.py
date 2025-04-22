@@ -6,16 +6,14 @@ from chromatopy.readers.abstractreader import AbstractReader
 
 
 class AgilentRDLReader(AbstractReader):
-    def read(self):
+    def read(self) -> list[Measurement]:
         measurements = []
         for path_id, path in enumerate(self.file_paths):
             lines = self.read_file(path)
 
             peak_data, sample_name, signal = self.extract_information(lines)
 
-            peak_data = [
-                self.align_and_concatenate_columns(*pair) for pair in peak_data
-            ]
+            peak_data = [self.align_and_concatenate_columns(*pair) for pair in peak_data]
             peaks = [self.map_peak(peak) for peak in peak_data]
 
             sample_name = self.align_and_concatenate_columns(*sample_name)[1]
@@ -91,17 +89,14 @@ class AgilentRDLReader(AbstractReader):
             return None
 
     @staticmethod
-    def align_and_concatenate_columns(row1, row2):
+    def align_and_concatenate_columns(row1: str, row2: str) -> list[str]:
         # Split each string by the vertical bar '│' and strip whitespace from each column
         row1_columns = [col.strip() for col in re.split(r"│", row1) if col]
         row2_columns = [col.strip() for col in re.split(r"│", row2) if col]
 
         # Concatenate aligned columns
         if row2_columns:
-            aligned_columns = [
-                f"{col1}{col2}".strip()
-                for col1, col2 in zip(row1_columns, row2_columns)
-            ]
+            aligned_columns = [f"{col1}{col2}".strip() for col1, col2 in zip(row1_columns, row2_columns)]
             return aligned_columns[1:-1]
 
         return row1_columns[1:-1]

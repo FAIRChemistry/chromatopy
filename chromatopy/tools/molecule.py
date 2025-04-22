@@ -56,6 +56,10 @@ class Molecule(BaseModel):
         description="Boolean indicating whether the molecule concentration is constant throughout the experiment",
         default=True,
     )
+    internal_standard: bool = Field(
+        description="Boolean indicating whether the molecule is an internal standard",
+        default=False,
+    )
 
     @classmethod
     def from_standard(cls, standard: Standard, init_conc: float, conc_unit: UnitDefinition) -> Molecule:

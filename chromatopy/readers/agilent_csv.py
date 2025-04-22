@@ -14,8 +14,6 @@ class AgilentCSVReader(AbstractReader):
             list[Measurement]: A list of Measurement objects representing the chromatographic data.
         """
 
-        self.file_paths = self.sort_paths_by_last_parent(self.file_paths)
-
         assert len(self.values) == len(self.file_paths), f"""
         The number of reaction times {len(self.values)} does not match the number of
         'RESULTS.CSV' files {len(self.file_paths)}.
