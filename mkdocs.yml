@@ -1,6 +1,7 @@
 site_name: Chromatopy Documentation
 repo_url: https://github.com/FAIRChemistry/chromatopy
 repo_name: FAIRChemistry/chromatopy
+edit_uri: edit/main/docs/
 site_url: https://FAIRChemistry.github.io/chromatopy/
 site_author: Max Häußler
 
@@ -28,6 +29,8 @@ theme:
   logo: pics/logo.png
   features:
     - navigation.instant
+    - content.action.edit
+    - content.action.view
     - navigation.instant.preview
     - navigation.instant.prefetch
     - navigation.indexes

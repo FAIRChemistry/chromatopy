@@ -272,8 +272,8 @@ class ShimadzuReader(AbstractReader):
 
             files.append(str(file_path.absolute()))
 
-        assert (
-            len(files) == len(self.values)
+        assert len(files) == len(
+            self.values
         ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.values)})."
 
         self.file_paths = files
@@ -327,25 +327,3 @@ def preprocess_to_dict(input_string: str) -> dict:
         result[key] = value
 
     return result
-
-
-if __name__ == "__main__":
-    from devtools import pprint
-
-    from chromatopy.units.predefined import C, min
-
-    dirpath = "docs/examples/data/shimadzu"
-
-    values = [0, 1, 2, 3, 4, 5.0, 6, 7, 8]
-    reader = ShimadzuReader(
-        dirpath=dirpath,
-        values=values,
-        unit=min,
-        mode="timecourse",
-        ph=7.4,
-        temperature=25.0,
-        temperature_unit=C,
-    )
-    paths = reader.read()
-
-    pprint(paths[1].data)

@@ -74,7 +74,6 @@ class GenericCSVReader(AbstractReader):
     def _get_file_paths(self) -> None:
         """Collects the file paths from the directory."""
 
-        print("Collecting file paths...")
         files = []
         directory = Path(self.dirpath)
 

@@ -142,22 +142,3 @@ class ChromeleonReader(AbstractReader):
         ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.reaction_times)})."
 
         self.file_paths = sorted(files)
-
-
-if __name__ == "__main__":
-    from chromatopy.units.predefined import mM
-
-    dir_path = "/Users/max/Documents/jan-niklas/MjNK/adenosine_std"
-    values = [0, 1, 2, 3, 4, 5.0]
-
-    reader = ChromeleonReader(
-        dirpath=dir_path,
-        values=values,
-        unit=mM,
-        ph=7.4,
-        temperature=25.0,
-        mode="calibration",
-    )
-    measurements = reader.read()
-
-    # print(measurements)
