@@ -61,7 +61,9 @@ class AbstractReader(BaseModel):
 
     values: list[float] = Field(
         ...,
-        description=("List of reaction times for 'timecourse' mode or concentrations for 'calibration' mode."),
+        description=(
+            "List of reaction times for 'timecourse' mode or concentrations for 'calibration' mode."
+        ),
     )
 
     unit: UnitDefinition = Field(
@@ -143,7 +145,9 @@ class AbstractReader(BaseModel):
     @model_validator(mode="after")
     def validate_data_consistency(self) -> AbstractReader:
         if not self.file_paths:
-            raise FileNotFoundInDirectoryError(f"No files found in the directory {self.dirpath}.")
+            raise FileNotFoundInDirectoryError(
+                f"No files found in the directory {self.dirpath}."
+            )
 
         if self.mode == DataType.TIMECOURSE.value:
             if not self.values:
@@ -176,12 +180,16 @@ class AbstractReader(BaseModel):
         except KeyError:
             path = Path(data["dirpath"])
             if not path.exists():
-                raise FileNotFoundError(f"Directory '{data['dirpath']}' does not exist.")
+                raise FileNotFoundError(
+                    f"Directory '{data['dirpath']}' does not exist."
+                )
             if not path.is_dir():
                 raise NotADirectoryError(f"'{data['dirpath']}' is not a directory.")
 
             # Get all filenames of normal files in the directory, exclude hidden files
-            filenames = sorted([f for f in path.iterdir() if not f.name.startswith(".")])
+            filenames = sorted(
+                [f for f in path.iterdir() if not f.name.startswith(".")]
+            )
 
         # Define patterns based on the mode
         if mode == DataType.TIMECOURSE.value:
@@ -209,18 +217,28 @@ class AbstractReader(BaseModel):
                 units.append(unit_str)
             else:
                 logger.debug(f"Could not parse value from '{file.name}'.")
-                raise MetadataExtractionError(f"Could not parse value from '{file.name}'.")
+                raise MetadataExtractionError(
+                    f"Could not parse value from '{file.name}'."
+                )
 
         # Check if all units are the same
         if not all(unit == units[0] for unit in units):
-            logger.debug(f"Units in directory '{data['dirpath']}' are not consistent: {units}")
-            raise UnitConsistencyError(f"Units in directory '{data['dirpath']}' are not consistent: {units}")
+            logger.debug(
+                f"Units in directory '{data['dirpath']}' are not consistent: {units}"
+            )
+            raise UnitConsistencyError(
+                f"Units in directory '{data['dirpath']}' are not consistent: {units}"
+            )
 
         try:
             unit_definition = cls._map_unit_str_to_UnitDefinition(units[0], mode)
         except ValueError:
-            logger.debug(f"Unit {units[0]} from directory '{data['dirpath']}' not recognized.")
-            raise MetadataExtractionError(f"Unit {units[0]} from directory '{data['dirpath']}' not recognized.")
+            logger.debug(
+                f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
+            )
+            raise MetadataExtractionError(
+                f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
+            )
 
         # Sort the data and file paths
         sorted_items = sorted(data_dict.items(), key=lambda x: x[1])
