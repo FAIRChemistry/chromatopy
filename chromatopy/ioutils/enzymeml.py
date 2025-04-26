@@ -52,7 +52,9 @@ def to_enzymeml(
     for idx, analyzer in enumerate(analyzers):
         if idx == 0:
             if internal_standard:
-                internal_std_molecules = [mol for mol in analyzer.molecules if mol.internal_standard]
+                internal_std_molecules = [
+                    mol for mol in analyzer.molecules if mol.internal_standard
+                ]
                 if len(internal_std_molecules) != 1:
                     raise ValueError(
                         f"Exaclty one internal standard molecule needs to be defined. Currently {len(internal_std_molecules)} internal standard molecules are defined."
@@ -61,7 +63,9 @@ def to_enzymeml(
                 # setup internal calibrator
                 internal_standards = setup_internal_calibrators(
                     internal_standard=internal_std_molecules[0],
-                    molecules=[mol for mol in analyzer.molecules if not mol.internal_standard],
+                    molecules=[
+                        mol for mol in analyzer.molecules if not mol.internal_standard
+                    ],
                     first_measurement=analyzer.measurements[0],
                 )
             else:
@@ -79,7 +83,9 @@ def to_enzymeml(
             )
         else:
             if internal_standard:
-                internal_std_molecules = [mol for mol in analyzer.molecules if mol.internal_standard]
+                internal_std_molecules = [
+                    mol for mol in analyzer.molecules if mol.internal_standard
+                ]
                 if len(internal_std_molecules) != 1:
                     raise ValueError(
                         f"Exaclty one internal standard molecule needs to be defined. Currently {len(internal_std_molecules)} internal standard molecules are defined."
@@ -88,7 +94,9 @@ def to_enzymeml(
                 # setup internal calibrator
                 internal_standards = setup_internal_calibrators(
                     internal_standard=internal_std_molecules[0],
-                    molecules=[mol for mol in analyzer.molecules if not mol.internal_standard],
+                    molecules=[
+                        mol for mol in analyzer.molecules if not mol.internal_standard
+                    ],
                     first_measurement=analyzer.measurements[0],
                 )
             else:
@@ -384,7 +392,9 @@ def add_measurement_to_MeasurementData(
             and EnzymeMLMeasurement instances as values.
     """
     # Get molecules that have peaks
-    molecule_ids = {molecule.id for molecule in molecules if not molecule.internal_standard}
+    molecule_ids = {
+        molecule.id for molecule in molecules if not molecule.internal_standard
+    }
     measured_once = get_measured_once(list(molecule_ids), measurements)
 
     # check if any molecule has an external standard
@@ -436,11 +446,9 @@ def add_measurement_to_MeasurementData(
             for measurement in measurements:
                 # Check if we already have this time point
                 if not meas_data.time or measurement.data.value not in meas_data.time:
-                    # Add the time point
-                    meas_data.time.append(measurement.data.value)
-
                     # For molecules, add zero values to data array
                     if species_id in molecule_ids:
+                        meas_data.time.append(measurement.data.value)
                         meas_data.data.append(float(0))
                         if calculate_concentration:
                             meas_data.data_type = DataTypes.CONCENTRATION
@@ -460,7 +468,11 @@ def add_data(
     dilution_factor: float,
 ) -> None:
     peak = next(
-        (peak for peak in chromatogram.peaks if peak.molecule_id == measurement_data.species_id),
+        (
+            peak
+            for peak in chromatogram.peaks
+            if peak.molecule_id == measurement_data.species_id
+        ),
         None,
     )
 
@@ -468,7 +480,9 @@ def add_data(
 
     if calibrator_type == CalibratorType.EXTERNAL:
         calibrator = calibrators[measurement_data.species_id]
-        assert isinstance(calibrator, Calibrator), "Calibrator must be of type Calibrator."
+        assert isinstance(
+            calibrator, Calibrator
+        ), "Calibrator must be of type Calibrator."
 
         if peak is not None:
             conc = calibrator.calculate_concentrations(
@@ -488,11 +502,17 @@ def add_data(
 
     elif calibrator_type == CalibratorType.INTERNAL:
         calibrator = calibrators[measurement_data.species_id]
-        assert isinstance(calibrator, InternalStandard), "Calibrator must be of type InternalStandard."
+        assert isinstance(
+            calibrator, InternalStandard
+        ), "Calibrator must be of type InternalStandard."
 
         if peak is not None:
             internal_std_peak = next(
-                (peak for peak in chromatogram.peaks if peak.molecule_id == calibrator.standard_molecule_id),
+                (
+                    peak
+                    for peak in chromatogram.peaks
+                    if peak.molecule_id == calibrator.standard_molecule_id
+                ),
                 None,
             )
 
@@ -545,7 +565,9 @@ def setup_external_calibrators(
         if molecule.standard:
             calibrators[molecule.id] = Calibrator.from_standard(molecule.standard)
 
-    assert calibrators, "No calibrators were created. Please define standards for the molecules."
+    assert (
+        calibrators
+    ), "No calibrators were created. Please define standards for the molecules."
 
     return calibrators
 
@@ -581,12 +603,20 @@ def setup_internal_calibrators(
             """)
 
         peak_analyte = next(
-            (peak for peak in first_measurement.chromatograms[0].peaks if peak.molecule_id == molecule.id),
+            (
+                peak
+                for peak in first_measurement.chromatograms[0].peaks
+                if peak.molecule_id == molecule.id
+            ),
             None,
         )
 
         peak_internal_standard = next(
-            (peak for peak in first_measurement.chromatograms[0].peaks if peak.molecule_id == internal_standard.id),
+            (
+                peak
+                for peak in first_measurement.chromatograms[0].peaks
+                if peak.molecule_id == internal_standard.id
+            ),
             None,
         )
 
@@ -621,17 +651,29 @@ def extract_measurement_conditions(
     phs = [measurement.ph for measurement in measurements]
     temperatures = [measurement.temperature for measurement in measurements]
     time_units = [measurement.data.unit.name for measurement in measurements]
-    temperature_units = [measurement.temperature_unit.name for measurement in measurements]
+    temperature_units = [
+        measurement.temperature_unit.name for measurement in measurements
+    ]
 
     assert len(set(phs)) == 1, "All measurements need to have the same pH."
-    assert len(set(temperatures)) == 1, "All measurements need to have the same temperature."
-    assert len(set(time_units)) == 1, "All measurements need to have the same time unit."
-    assert len(set(temperature_units)) == 1, "All measurements need to have the same temperature unit."
+    assert (
+        len(set(temperatures)) == 1
+    ), "All measurements need to have the same temperature."
+    assert (
+        len(set(time_units)) == 1
+    ), "All measurements need to have the same time unit."
+    assert (
+        len(set(temperature_units)) == 1
+    ), "All measurements need to have the same temperature unit."
 
     assert measurements[0].ph is not None, "The pH needs to be defined."
-    assert measurements[0].temperature is not None, "The temperature needs to be defined."
+    assert (
+        measurements[0].temperature is not None
+    ), "The temperature needs to be defined."
     assert measurements[0].data.unit is not None, "The time unit needs to be defined."
-    assert measurements[0].temperature_unit is not None, "The temperature unit needs to be defined."
+    assert (
+        measurements[0].temperature_unit is not None
+    ), "The temperature unit needs to be defined."
 
     ph = measurements[0].ph
     temperature = measurements[0].temperature
@@ -641,7 +683,9 @@ def extract_measurement_conditions(
     return ph, temperature, time_unit, temperature_unit
 
 
-def get_measured_once(molecule_ids: list[str], measurements: list[Measurement]) -> set[str]:
+def get_measured_once(
+    molecule_ids: list[str], measurements: list[Measurement]
+) -> set[str]:
     """Checks if a molecule is assigned to a peak at least once in the measurements.
 
     Args:
