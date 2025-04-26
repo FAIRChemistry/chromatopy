@@ -42,7 +42,9 @@ class ChromAnalyzer(BaseModel):
         description="Name of the ChromAnalyzer object.",
     )
 
-    mode: str = Field(..., description="Mode of data processing: 'calibration' or 'timecourse'.")
+    mode: str = Field(
+        ..., description="Mode of data processing: 'calibration' or 'timecourse'."
+    )
 
     molecules: list[Molecule] = Field(
         description="List of species present in the measurements.",
@@ -124,7 +126,9 @@ class ChromAnalyzer(BaseModel):
         self._update_molecule(new_mol)
 
         if new_mol.has_retention_time:
-            self._register_peaks(new_mol, new_mol.retention_tolerance, new_mol.wavelength)
+            self._register_peaks(
+                new_mol, new_mol.retention_tolerance, new_mol.wavelength
+            )
 
     def define_molecule(
         self,
@@ -161,9 +165,13 @@ class ChromAnalyzer(BaseModel):
         """
 
         if conc_unit:
-            assert init_conc is not None, "Initial concentration must be provided if concentration unit is given."
+            assert (
+                init_conc is not None
+            ), "Initial concentration must be provided if concentration unit is given."
         if init_conc:
-            assert conc_unit, "Concentration unit must be provided if initial concentration is given."
+            assert (
+                conc_unit
+            ), "Concentration unit must be provided if initial concentration is given."
 
         if name is None:
             name = pubchem_request_molecule_name(pubchem_cid)
@@ -227,7 +235,9 @@ class ChromAnalyzer(BaseModel):
                 ):
                     peak.molecule_id = molecule.id
                     assigned_peak_count += 1
-                    logger.debug(f"{molecule.id} assigned as molecule ID for peak at {peak.retention_time}.")
+                    logger.debug(
+                        f"{molecule.id} assigned as molecule ID for peak at {peak.retention_time}."
+                    )
 
         print(f"🎯 Assigned {molecule.name} to {assigned_peak_count} peaks")
 
@@ -356,11 +366,15 @@ class ChromAnalyzer(BaseModel):
                 )
 
         with Progress() as progress:
-            task = progress.add_task("Processing chromatograms...", total=len(self.measurements))
+            task = progress.add_task(
+                "Processing chromatograms...", total=len(self.measurements)
+            )
 
             with mp.Pool(processes=mp.cpu_count()) as pool:
                 result_objects = [
-                    pool.apply_async(self.process_task, args=(processor,), kwds=hplc_py_kwargs)
+                    pool.apply_async(
+                        self.process_task, args=(processor,), kwds=hplc_py_kwargs
+                    )
                     for processor in processors
                 ]
 
@@ -379,7 +393,9 @@ class ChromAnalyzer(BaseModel):
                 chrom.peaks = []
                 if not hasattr(results[processor_idx], "peaks"):
                     no_peaks = True
-                    logger.warning(f"No peaks found in chromatogram {meas.id} at {chrom.wavelength} nm.")
+                    logger.warning(
+                        f"No peaks found in chromatogram {meas.id} at {chrom.wavelength} nm."
+                    )
                     processor_idx += 1
                     continue
                 # pad the processed signal with zeros to match the length of the raw signal accounting for the cropping of the retention time
@@ -403,7 +419,9 @@ class ChromAnalyzer(BaseModel):
                 processor_idx += 1
 
         for molecule in self.molecules:
-            self._register_peaks(molecule, molecule.retention_tolerance, molecule.wavelength)
+            self._register_peaks(
+                molecule, molecule.retention_tolerance, molecule.wavelength
+            )
 
         if no_peaks:
             print(
@@ -586,8 +604,16 @@ class ChromAnalyzer(BaseModel):
         csv_paths = []
         rdl_paths: list[str] = []
 
-        txt_paths = [str(f.absolute()) for f in directory.rglob("Report.TXT") if f.parent.parent == directory]
-        csv_paths = [str(f.absolute()) for f in directory.rglob("RESULTS.CSV") if f.parent.parent == directory]
+        txt_paths = [
+            str(f.absolute())
+            for f in directory.rglob("Report.TXT")
+            if f.parent.parent == directory
+        ]
+        csv_paths = [
+            str(f.absolute())
+            for f in directory.rglob("RESULTS.CSV")
+            if f.parent.parent == directory
+        ]
         rdl_paths = []
 
         try:
@@ -771,13 +797,13 @@ class ChromAnalyzer(BaseModel):
         cls,
         path: str,
         mode: Literal["timecourse", "calibration"],
-        values: list[float],
-        unit: UnitDefinition,
         ph: float,
         temperature: float,
         temperature_unit: UnitDefinition,
         retention_time_col_name: str,
         peak_area_col_name: str,
+        values: Optional[list[float]] = None,
+        unit: Optional[UnitDefinition] = None,
         silent: bool = False,
     ) -> ChromAnalyzer:
         """Reads chromatographic data from a CSV file.
@@ -785,8 +811,8 @@ class ChromAnalyzer(BaseModel):
         Args:
             path (str): Path to the CSV file.
             mode (Literal["timecourse", "calibration"]): Mode of the data.
-            values (list[float]): List of values.
-            unit (UnitDefinition): Unit of the values.
+            values (Optional[list[float]]): List of values. Defaults to None.
+            unit (Optional[UnitDefinition]): Unit of the values. Defaults to None.
             ph (float): pH value of the measurement.
             temperature (float): Temperature of the measurement.
             temperature_unit (UnitDefinition): Unit of the temperature.
@@ -883,7 +909,9 @@ class ChromAnalyzer(BaseModel):
 
         raise ValueError(f"Molecule with ID {molecule_id} not found.")
 
-    def visualize_all(self, assigned_only: bool = False, dark_mode: bool = False, show: bool = False) -> go.Figure:
+    def visualize_all(
+        self, assigned_only: bool = False, dark_mode: bool = False, show: bool = False
+    ) -> go.Figure:
         """Plots the fitted peaks of the chromatograms in an interactive figure.
 
         Args:
@@ -963,12 +991,7 @@ class ChromAnalyzer(BaseModel):
                             )
                             peak_vis_mode = "skewnorm"
 
-                        else:
-                            if peak.retention_time is None or peak.amplitude is None:
-                                raise ValueError(
-                                    "Peak retention time and amplitude must not be None for line visualization"
-                                )
-                            # make only h-line at retention time
+                        elif peak.retention_time and peak.amplitude:
                             interval = 0.03
                             left_shifted = peak.retention_time - interval
                             right_shifted = peak.retention_time + interval
@@ -980,6 +1003,19 @@ class ChromAnalyzer(BaseModel):
                                 left_shifted,
                             ]
                             data = [0, 0, peak.amplitude, peak.amplitude, 0]
+
+                        else:
+                            interval = 0.03
+                            left_shifted = peak.retention_time - interval
+                            right_shifted = peak.retention_time + interval
+                            x_arr = [
+                                left_shifted,
+                                right_shifted,
+                                right_shifted,
+                                left_shifted,
+                                left_shifted,
+                            ]
+                            data = [0, 0, peak.area, peak.area, 0]
 
                         custom1 = [round(peak.area)] * len(x_arr)
                         custom2 = [round(peak.retention_time, 2)] * len(x_arr)
@@ -1050,7 +1086,11 @@ class ChromAnalyzer(BaseModel):
 
         if assigned_only:
             n_peaks_in_first_chrom = len(
-                [peak for peak in self.measurements[0].chromatograms[0].peaks if peak.molecule_id]
+                [
+                    peak
+                    for peak in self.measurements[0].chromatograms[0].peaks
+                    if peak.molecule_id
+                ]
             )
         else:
             n_peaks_in_first_chrom = len(self.measurements[0].chromatograms[0].peaks)
@@ -1117,11 +1157,15 @@ class ChromAnalyzer(BaseModel):
             wavelength (float | None, optional): The wavelength of the detector. Defaults to None.
             visualize (bool, optional): If True, the standard curve is visualized. Defaults to True.
         """
-        assert any([molecule in [mol for mol in self.molecules]]), "Molecule not found in molecules of analyzer."
+        assert any(
+            [molecule in [mol for mol in self.molecules]]
+        ), "Molecule not found in molecules of analyzer."
 
         # check if all measurements only contain one chromatogram
         if all([len(meas.chromatograms) == 1 for meas in self.measurements]):
-            chroms = [chrom for meas in self.measurements for chrom in meas.chromatograms]
+            chroms = [
+                chrom for meas in self.measurements for chrom in meas.chromatograms
+            ]
         else:
             assert (
                 wavelength is not None
@@ -1129,15 +1173,19 @@ class ChromAnalyzer(BaseModel):
 
             chroms = self._get_chromatograms_by_wavelegnth(wavelength)
 
-            assert len(chroms) > 0, "No chromatograms found at the specified wavelength."
+            assert (
+                len(chroms) > 0
+            ), "No chromatograms found at the specified wavelength."
 
-        peak_areas = [peak.area for chrom in chroms for peak in chrom.peaks if peak.molecule_id]
+        peak_areas = [
+            peak.area for chrom in chroms for peak in chrom.peaks if peak.molecule_id
+        ]
 
         concs = [meas.data.value for meas in self.measurements]
         conc_unit = self.measurements[0].data.unit
 
-        assert len(peak_areas) == len(
-            concs
+        assert (
+            len(peak_areas) == len(concs)
         ), f"Number of {molecule.name} peak areas {len(peak_areas)} and concentrations {len(concs)} do not match."
 
         assert all(
@@ -1146,12 +1194,14 @@ class ChromAnalyzer(BaseModel):
         ph = self.measurements[0].ph
 
         assert all(
-            meas.temperature == self.measurements[0].temperature for meas in self.measurements
+            meas.temperature == self.measurements[0].temperature
+            for meas in self.measurements
         ), "All measurements need to have the same temperature value."
         temperature = self.measurements[0].temperature
 
         assert all(
-            meas.temperature_unit.name == self.measurements[0].temperature_unit.name for meas in self.measurements
+            meas.temperature_unit.name == self.measurements[0].temperature_unit.name
+            for meas in self.measurements
         ), "All measurements need to have the same temperature unit."
         temperature_unit = self.measurements[0].temperature_unit
 
