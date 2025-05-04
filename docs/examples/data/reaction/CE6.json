@@ -16,7 +16,7 @@
             "organism": null,
             "organism_tax_id": null,
             "references": [],
-            "ld_id": "enzml:Protein/e84c67e8-e14f-47a5-a5b2-af881d6dcc0e",
+            "ld_id": "enzml:Protein/5c2e4c7d-6e2e-4503-bb70-c31f62ef53f1",
             "ld_type": [
                 "enzml:Protein",
                 "schema:Protein"
@@ -130,7 +130,7 @@
                                 "exponent": 1,
                                 "multiplier": null,
                                 "scale": -6.0,
-                                "ld_id": "chromatopy:BaseUnit/14dcb8c6-c263-4a3d-ba98-d2f2e567c697",
+                                "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
                                 "ld_type": [
                                     "chromatopy:BaseUnit"
                                 ],
@@ -143,7 +143,7 @@
                                 "exponent": -1,
                                 "multiplier": null,
                                 "scale": 1.0,
-                                "ld_id": "chromatopy:BaseUnit/15801558-6240-4379-b5b1-a93cf9ef0271",
+                                "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
                                 "ld_type": [
                                     "chromatopy:BaseUnit"
                                 ],
@@ -173,7 +173,7 @@
                                 "exponent": 1,
                                 "multiplier": 60.0,
                                 "scale": 1.0,
-                                "ld_id": "chromatopy:BaseUnit/be831a73-b23c-43f0-be21-9390036e023d",
+                                "ld_id": "chromatopy:BaseUnit/6c9dc0c3-738a-4f37-9c4d-d6189858773f",
                                 "ld_type": [
                                     "chromatopy:BaseUnit"
                                 ],
@@ -191,7 +191,7 @@
                         }
                     },
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/0662d228-4530-474d-a7a9-fb56ec12a58f",
+                    "ld_id": "enzml:MeasurementData/a44029b7-7b49-4397-8064-0193db0c1f2b",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -216,7 +216,7 @@
                                 "exponent": 1,
                                 "multiplier": null,
                                 "scale": -6.0,
-                                "ld_id": "chromatopy:BaseUnit/14dcb8c6-c263-4a3d-ba98-d2f2e567c697",
+                                "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
                                 "ld_type": [
                                     "chromatopy:BaseUnit"
                                 ],
@@ -229,7 +229,7 @@
                                 "exponent": -1,
                                 "multiplier": null,
                                 "scale": 1.0,
-                                "ld_id": "chromatopy:BaseUnit/15801558-6240-4379-b5b1-a93cf9ef0271",
+                                "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
                                 "ld_type": [
                                     "chromatopy:BaseUnit"
                                 ],
@@ -275,7 +275,7 @@
                                 "exponent": 1,
                                 "multiplier": 60.0,
                                 "scale": 1.0,
-                                "ld_id": "chromatopy:BaseUnit/be831a73-b23c-43f0-be21-9390036e023d",
+                                "ld_id": "chromatopy:BaseUnit/6c9dc0c3-738a-4f37-9c4d-d6189858773f",
                                 "ld_type": [
                                     "chromatopy:BaseUnit"
                                 ],
@@ -293,7 +293,7 @@
                         }
                     },
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/2a2a140d-89fb-40e6-8843-e611fe57c89b",
+                    "ld_id": "enzml:MeasurementData/ba3e90c7-8e6e-4ef1-8eef-8ef84d181678",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -318,7 +318,7 @@
                                 "exponent": 1,
                                 "multiplier": null,
                                 "scale": -6.0,
-                                "ld_id": "chromatopy:BaseUnit/14dcb8c6-c263-4a3d-ba98-d2f2e567c697",
+                                "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
                                 "ld_type": [
                                     "chromatopy:BaseUnit"
                                 ],
@@ -331,7 +331,7 @@
                                 "exponent": -1,
                                 "multiplier": null,
                                 "scale": 1.0,
-                                "ld_id": "chromatopy:BaseUnit/15801558-6240-4379-b5b1-a93cf9ef0271",
+                                "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
                                 "ld_type": [
                                     "chromatopy:BaseUnit"
                                 ],
@@ -377,7 +377,7 @@
                                 "exponent": 1,
                                 "multiplier": 60.0,
                                 "scale": 1.0,
-                                "ld_id": "chromatopy:BaseUnit/be831a73-b23c-43f0-be21-9390036e023d",
+                                "ld_id": "chromatopy:BaseUnit/6c9dc0c3-738a-4f37-9c4d-d6189858773f",
                                 "ld_type": [
                                     "chromatopy:BaseUnit"
                                 ],
@@ -395,7 +395,7 @@
                         }
                     },
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/81e0df02-5416-4eaf-aa91-4393d4066cfb",
+                    "ld_id": "enzml:MeasurementData/3b94ee5c-79ef-4252-b3fe-b84e3f6ec98d",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -421,7 +421,7 @@
                         "exponent": 1,
                         "multiplier": null,
                         "scale": 1.0,
-                        "ld_id": "chromatopy:BaseUnit/dc16bbc9-6b12-46cd-b0cd-3fce3d6f94cd",
+                        "ld_id": "chromatopy:BaseUnit/8f061666-c387-456f-9d75-d0aa3bef136d",
                         "ld_type": [
                             "chromatopy:BaseUnit"
                         ],
@@ -430,7 +430,7 @@
                         }
                     }
                 ],
-                "ld_id": "chromatopy:UnitDefinition/bc41846e-2990-41eb-bbcc-67c1343de84d",
+                "ld_id": "chromatopy:UnitDefinition/bbf845eb-6f35-4287-9b58-fe1eef2486bb",
                 "ld_type": [
                     "OBO:UO_0000000"
                 ],
@@ -438,7 +438,7 @@
                     "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
                 }
             },
-            "ld_id": "enzml:Measurement/486c575c-7089-4c62-80cc-2aba8078e50d",
+            "ld_id": "enzml:Measurement/c511d444-031a-46bc-ae78-ac08c70895a8",
             "ld_type": [
                 "enzml:Measurement"
             ],
@@ -458,7 +458,7 @@
     ],
     "equations": [],
     "parameters": [],
-    "ld_id": "enzml:EnzymeMLDocument/10e0059f-d2c8-4931-b6f2-e77f819b5c60",
+    "ld_id": "enzml:EnzymeMLDocument/8e0f5ba2-0569-4786-adb1-49a873392f86",
     "ld_type": [
         "enzml:EnzymeMLDocument"
     ],
