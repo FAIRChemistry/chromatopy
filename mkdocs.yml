@@ -8,20 +8,18 @@ site_author: Max Häußler
 nav:
   - Home: index.md
   - Data Preparation: supported_formats.md
-  - Usage:
-    - Read Data: examples/read_data.md
-    - Define Molecules: examples/define_molecules.md
-    - Define Proteins: examples/define_proteins.md
-    - Visualize Data: examples/visualize.md
-    - Assign Peaks: examples/peak_assignment.md
-  - Installation: installation.md
+  - Usage: examples/usage.ipynb
   - API Reference:
     - ChromAnalyzer: api_reference/analyzer.md
+    - Molecule: api_reference/molecule.md
+    - Protein: api_reference/protein.md
+
 
 plugins:
   - plotly
   - mkdocstrings
   - search
+  - mkdocs-jupyter
 
 
 theme:

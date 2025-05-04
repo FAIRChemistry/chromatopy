@@ -2,9 +2,7 @@
 
 ## 📂 Data organization
 
-`chromatopy` strives to simplify the data import and processing of chromatographic data. The tool focuses on efficient handling of time-course reaction data, allowing to combine the measured data with data on reaction conditions, concentration calculations and export to the EnzymeML format.  
-
-For this purpose, `chromatopy` requires a specific organization of the measurement data of a time-course or calibration series. The scope of one analysis run is therefore eighter a single chemical sample which is measured over time or a calibration series with multiple samples for different concentrations. 
+`chromatopy` requires a specific organization of the measurement data of a time-course or calibration series. The scope of one analysis run is therefore eighter a single sample which is measured over time or a calibration series with multiple samples for different concentrations. 
 
 !!! example
     An exemplary consisting of calibration mensurements and time-course data should be organized as follows:
@@ -12,41 +10,39 @@ For this purpose, `chromatopy` requires a specific organization of the measureme
     📂 Project
     │
     ├── 📂 Calibration
-    │   ├── abts_001uM.json
-    │   ├── abts_050uM.json
+    │   ├── abts_1uM.json
+    │   ├── abts_50uM.json
     │   └── abts_300uM.json
     │
-    └── 📂 Time-course
-        ├── B002_12_h.json
-        ├── B002_24_h.json
-        └── B002_36_h.json
+    └── 📂 B002
+        ├── B002_12h.json
+        ├── B002_24h.json
+        └── B002_36h.json
     ```
+### Calibration data
+
+- The set of calibration data files should be stored within a single folder.
+- Deposit the concentration including the unit in the file name. E.g. `abts_1uM.json` `abts_50uM.json` `abts_300uM.json`. In this case the concentration can be automatically extracted from the file name.
 
 ### Time-course data
 
 - All data files of a time-course series should be stored within a single folder.
-- The files within a folder should be named in a way that allows alphabetical sorting to represent the chronological or logical order of the data. E.g. naming time-course data by reaction time or calibration data by concentration. Otherwise, data will be assigned to wrong concentration or time points.
+- Name the folder after your sample ID. E.g. `B002`.
+- Deposit the reaction time including the unit in the file name. E.g. `B002_12h.json` `B002_24h.json` `B002_36h.json`. This allows to automatically extract the reaction time and unit from the file name.
 
-!!! Tip
-    Name your files including the corresponding reaction time e.g. `B002_12_h.txt` or `A034.2_5.67min.json` Then the files will be extracted in the correct order and with the correct time unit. In the latter case, the reaction time is `5.67` `min` and alphabetic naming is not necessary. Note that the reaction time unit should be consistent across all files.
 
-### Calibration data
 
-- The set of calibration data files should be stored within a single folder.
-- The files need to be named in an alphabetically sortable way to represent the logical order of the data. E.g. naming calibration data by ascending concentration values `abts_001uM.json` `abts_050uM.json` `abts_300uM.json`.
-- For calibration data the corresponding concentration cannot be extracted from the file name.
 
 ## 🔧 Supported Formats
 
 Most output data from chromatographic devices is vendor-specific and proprietary. However, [OpenChrom](https://lablicate.com/platform/openchrom), an open-source software that is free for academic use, provides the tools to convert proprietary data from almost all vendors into a vendor-neutral and machine-readable format, specifically the Allotrope Simple Model (ASM). A complete list of supported formats for pre-processing with OpenChrom can be found [here](https://www.openchrom.net/).
- 
 
 Peak detection and integration with subsequent export to the ASM format is the recommended way to prepare data for subsequent processing with `chromatopy`. For information on how to batch process chromatographic data with OpenChrom, please refer to the section [Spectrum Processing with OpenChrom](#spectrum-processing-with-openchrom-from-lablicate).
 
 ### Allotrope Simple Model
 
 !!! info
-    The Allotrope Simple Model (ASM) is a JSON-based and vendor-independent format for analytical data. It is designed to store raw and processed data as well as metadata.
+    The [Allotrope Simple Model (ASM)](https://www.allotrope.org/asm) is a JSON-based and vendor-independent format for analytical data. It is designed to store chromatographic measurement data.
 
 The ASM format is the preferred format for data import. It can be exported from OpenChrom and contains the measured signal and data of all peaks which were processed by OpenChrom. The format is supported by `chromatopy` and can be imported directly.
 
@@ -381,17 +377,20 @@ As an alternative to the ASM format, `chromatopy` supports the import of chromat
         ...
         ```
 
-## 🌈 Spectrum Processing with OpenChrom (from Lablicate)
+## 🌈 Spectrum Processing with OpenChrom (from Lablicate)
 
 !!! info
-    [OpenChrome](https://lablicate.com/platform/openchrom) is tailored for data analysis purposes including processing, visualization and reporting. The implemented batch-processing allows high-throughput evaluation. It can be used for targeted and non-targeted chromatography. A continuously growing portfolio of processing and analysis procedures is provided. Extensions are welcome, as OpenChrom is developed open source and uses a flexible approach, which allows others to implement their own methods, algorithms, filters, detectors, integrators or processors.
+    [OpenChrom](https://lablicate.com/platform/openchrom) is an open‑source application for chromatography, spectrometry and spectroscopy. It natively imports data from most GC/MS, GC/FID, HPLC‑DAD and related instruments, offers high‑throughput batch processing (baseline correction, peak detection/integration, reporting) and exports results to the vendor‑independent Allotrope Simple Model (ASM) format—ready for use with `chromatopy`.
 
-Since OpenChrom offers a convenient way to batch-process and export chromatographic data, it is the recommended tool for peak processing prior to data import with chromatopy. 
-The following steps showcase how to batch process chromatographic data with OpenChrom, including baseline correction, peak detection and integration, and export to the Allotrope Simple Model (ASM) format. For further information, please refer to the [official documentation of OpenChrom](https://lablicate.com/marketplace/extensions/handbook), which is freely available for academic use.
+### Installation & plug‑in setup
+
+1. Download the current OpenChrom release from the [official site](https://www.openchrom.net/download) and install it.
+2. Activate the [Allotrope Simple Model (ASM) plugin](https://lablicate.com/marketplace/extensions/allotrope) (free for academic use) to export the data in the ASM format.
+3. Add import converters – in OpenChrom choose `Plug‑ins ➜ Install Converters`, search for your vendor (e.g. *Agilent*, *Waters*, *Shimadzu*) and install the matching plug‑ins.  
+   For ASM export, search for **asm** and install the *Allotrope Simple Model* plug‑in.  
+   ![Install plug‑in](pics/plug-ins.png){ align=left }
 
 ### Batch processing
-
-If not already done, download and setup OpenChrom as described in the [installation section](installation.md#openchrome-from-lablicate){ data-preview }
 
 1. Open OpenChrom and navigate to `Chromatogram` > `Batch Process`.
 

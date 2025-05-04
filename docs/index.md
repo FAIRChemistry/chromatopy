@@ -2,47 +2,74 @@
 
 ## ℹ️ Overview
 
-`chromatopy` is a Python package which aims to streamline the data processing and analysis of chromatographic reaction data. It allows to process raw or pre-processed chromatographic data, enrich it with metadata such as reaction time, temperature, pH, and initial concentrations of reaction components. Finally, the peaks of interest can be aggregated, concentrations calculated, and the time-course data for each analyte transformed to EnzymeML data.
-
-`chromatopy` is designed to work seamlessly with [OpenChrom](https://lablicate.com/platform/openchrom), enabling batch processing of proprietary chromatographic data. After processing in OpenChrom and exporting to an open file format, the data can be further analyzed in Jupyter Notebooks using `chromatopy`. This allows for the creation and application of calibration curves and the generation of EnzymeML files for subsequent data analysis.
-For some output formats, `chromatopy` provides a direct interface to read in data. For more information on the supported file formats and data preparation to use the `chromatopy` workflow, refer to the [_Data Preparation_](supported_formats.md) section.
+`chromatopy` is a Python package which aims to streamline the data processing and analysis of chromatographic time-course and calibration experiments. 
+It can read peak area data from various formats, enrich it with metadata such as reaction time, temperature, pH, and initial concentrations of reaction components. Finally, the peaks of interest can be aggregated, concentrations calculated, and the time-course data for each analyte of interest transformed into an EnzymeML Document.
 
 ``` mermaid
 graph LR
-  AD[🧪 Analytical Instrument] --> A[📄 Vendor-Specific Files];
-  style AD fill:transparent,stroke:#000,stroke-width:2px;
-  A[📄 Proprietary File Format] -->|read| B{OpenChrom};
-  style B stroke-width:4px
-  subgraph Processing in OpenChrom
-    B --> B1[Baseline Correction]
-    B1 --> B2[Peak Detection]
-    B2 --> B3[Peak Integration]
-    B3 --> B
-    style B1 stroke-dasharray: 5, 5
-    style B2 stroke-dasharray: 5, 5
-    style B3 stroke-dasharray: 5, 5
+  AD[🌈 Chromatographic Instrument] --> CAL
+  AD --> RXN
 
+  subgraph "📁experimental_data"
+
+      CAL["<div style='text-align:left;font-family:monospace'>
+📂 calib_substrate<br>
+├── mh1_10mM.json<br>
+├── mh2_50mM.json<br>
+└── mh3_90mM.json<br><br>
+📂 calib_prod1<br>
+├── prod1_10mM.json<br>
+├── prod1_50mM.json<br>
+└── prod1_90mM.json<br><br>
+</div>"]
+
+      RXN["<div style='text-align:left;font-family:monospace'>
+📂 reaction_mh9<br>
+├── mh9_1h.json<br>
+├── mh9_2h.json<br>
+├── mh9_3h.json<br>
+├── mh9_4h.json<br>
+├── mh9_5h.json<br>
+├── mh9_6h.json<br>
+└── mh9_12h.json
+</div>"]
   end
-  B -->|export| C[📄 Open File Format]
-  AD -->C
-  C -->|read| D{chromatopy};
-    style D stroke-width:4px
-  subgraph in Jupyter Notebook
-    subgraph with chromatopy
-      D --> E[Enrich Data with Metadata]
-      E --> F[Create and Apply Calibration Curves]
-      F --> D
-      style E stroke-dasharray: 5, 5
-      style F stroke-dasharray: 5, 5
-    end
-    D -->|convert| G[📄 EnzymeML time-course Data]
-    G -.-> H[📊 Data Science and Insights]
-    H -.-> G
-    style H stroke-dasharray: 5, 5,fill:transparent
+
+  CAL -->|read| C_cal{"<span style='font-family:monospace'><b>chromatopy</b></span><br>"}
+  RXN -->|read| C_react{"<span style='font-family:monospace'><b>chromatopy</b></span><br>"}
+
+  cal1["<div style='text-align:left'>
+Define measured molecules<br>
+– retention time<br>
+– PubChem CID
+</div>"]
+
+  cal2["<div style='text-align:left'>
+Create calibration standard
+</div>"]
+
+  E4["Define reaction conditions"]
+  E3["Add measured molecules"]
+  E5["Define enzymes"]
+  Enz[📄 EnzymeML Document]
+
+  subgraph "Calibration mode"
+    C_cal --> cal1
+    cal1 --> cal2
   end
-  G -->|export| I[📄 EnzymeML File]
+
+  subgraph "Reaction mode"
+    C_react --> E4
+    E4 --> E3
+    E3 --> E5
+    cal2 --> E3
+  end
+
+  E5 -->|convert| Enz
 
 ```
+
+For some output formats, `chromatopy` provides a direct interface to read in data. For more information on the supported file formats and data preparation to use the `chromatopy` workflow, refer to the [data preparation](supported_formats.md) section.
 
 ## ⭐ Key Features
 
@@ -60,7 +87,7 @@ Transform your data into EnzymeML format for subsequent analysis pipelines.
 Install `chromatopy` using `pip`:
 
 ```bash
-pip install chromatopy # 🚧 not released yet
+# 🚧 not released yet
 ```
 
 or from source:
@@ -68,5 +95,3 @@ or from source:
 ```bash
 pip install git+https://github.com/FAIRChemistry/chromatopy.git
 ```
-
-For installation and setup instructions for OpenChrom, refer to the [Installation](installation.md#openchrome-from-lablicate) section.
