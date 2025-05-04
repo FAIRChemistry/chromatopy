@@ -13,39 +13,65 @@ For some output formats, `chromatopy` provides a direct interface to read in dat
 
 ``` mermaid
 graph LR
-  AD[🧪 Analytical Instrument] --> A[📄 Vendor-Specific Files];
-  style AD fill:transparent,stroke:#000,stroke-width:2px;
-  A[📄 Proprietary File Format] -->|read| B{OpenChrom};
-  style B stroke-width:4px
-  subgraph Processing in OpenChrom
-    B --> B1[Baseline Correction]
-    B1 --> B2[Peak Detection]
-    B2 --> B3[Peak Integration]
-    B3 --> B
-    style B1 stroke-dasharray: 5, 5
-    style B2 stroke-dasharray: 5, 5
-    style B3 stroke-dasharray: 5, 5
+  AD[🌈 Chromatographic Instrument] --> CAL
+  AD --> RXN
 
-  end
-  B -->|export| C[📄 Open File Format]
-  AD -->C
-  C -->|read| D{chromatopy};
-    style D stroke-width:4px
-  subgraph in Jupyter Notebook
-    subgraph with chromatopy
-      D --> E[Enrich Data with Metadata]
-      E --> F[Create and Apply Calibration Curves]
-      F --> D
-      style E stroke-dasharray: 5, 5
-      style F stroke-dasharray: 5, 5
-    end
-    D -->|convert| G[📄 EnzymeML time-course Data]
-    G -.-> H[📊 Data Science and Insights]
-    H -.-> G
-    style H stroke-dasharray: 5, 5,fill:transparent
-  end
-  G -->|export| I[📄 EnzymeML File]
+  subgraph "📁experimental_data"
 
+      CAL["<div style='text-align:left;font-family:monospace'>
+📂 calib_substrate<br>
+├── mh1_10mM.json<br>
+├── mh2_50mM.json<br>
+└── mh3_90mM.json<br><br>
+📂 calib_prod1<br>
+├── prod1_10mM.json<br>
+├── prod1_50mM.json<br>
+└── prod1_90mM.json<br><br>
+</div>"]
+
+      RXN["<div style='text-align:left;font-family:monospace'>
+📂 reaction_mh9<br>
+├── mh9_1h.json<br>
+├── mh9_2h.json<br>
+├── mh9_3h.json<br>
+├── mh9_4h.json<br>
+├── mh9_5h.json<br>
+├── mh9_6h.json<br>
+└── mh9_12h.json
+</div>"]
+  end
+
+  CAL -->|read| C_cal{"<span style='font-family:monospace'><b>chromatopy</b></span><br>"}
+  RXN -->|read| C_react{"<span style='font-family:monospace'><b>chromatopy</b></span><br>"}
+
+  cal1["<div style='text-align:left'>
+Define measured molecules<br>
+– retention time<br>
+– PubChem CID
+</div>"]
+
+  cal2["<div style='text-align:left'>
+Create calibration standard
+</div>"]
+
+  E4["Define reaction conditions"]
+  E3["Add measured molecules"]
+  E5["Define enzymes"]
+  Enz[📄 EnzymeML Document]
+
+  subgraph "Calibration mode"
+    C_cal --> cal1
+    cal1 --> cal2
+  end
+
+  subgraph "Reaction mode"
+    C_react --> E4
+    E4 --> E3
+    E3 --> E5
+    cal2 --> E3
+  end
+
+  E5 -->|convert| Enz
 ```
 
 ## ⭐ Key Features

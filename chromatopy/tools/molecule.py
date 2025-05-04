@@ -65,7 +65,16 @@ class Molecule(BaseModel):
     def from_standard(
         cls, standard: Standard, init_conc: float, conc_unit: UnitDefinition
     ) -> Molecule:
-        """Creates a Molecule instance from a Standard instance."""
+        """Creates a Molecule instance from a Standard instance.
+
+        Args:
+            standard (Standard): The standard instance to create the molecule from.
+            init_conc (float): The initial concentration of the molecule.
+            conc_unit (UnitDefinition): The unit of the concentration.
+
+        Returns:
+            Molecule: The created Molecule instance.
+        """
 
         assert standard.retention_time, """
         The retention time of the standard needs to be defined. 
@@ -92,7 +101,20 @@ class Molecule(BaseModel):
         temp_unit: UnitDefinition = C,
         visualize: bool = True,
     ) -> Standard:
-        """Creates a linear standard from the molecule's calibration data."""
+        """Creates a linear standard from the molecule's calibration data.
+
+        Args:
+            areas (list[float]): The areas of the molecule.
+            concs (list[float]): The concentrations of the molecule.
+            conc_unit (UnitDefinition): The unit of the concentration.
+            ph (float): The pH of the solution.
+            temperature (float): The temperature of the solution.
+            temp_unit (UnitDefinition): The unit of the temperature.
+            visualize (bool): Whether to visualize the standard.
+
+        Returns:
+            Standard: The created Standard instance.
+        """
 
         calibrator = Calibrator(
             molecule_id=self.id,
@@ -115,7 +137,7 @@ class Molecule(BaseModel):
         model.calibration_range.signal_lower = 0.0
 
         if visualize:
-            calibrator.visualize()
+            calibrator.visualize_static()
 
         standard = calibrator.create_standard(
             model=model,
@@ -149,12 +171,32 @@ class Molecule(BaseModel):
 
     @classmethod
     def read_json(cls, path: str) -> Molecule:
-        """Creates a Molecule instance from a JSON file."""
+        """Creates a Molecule instance from a JSON file.
+
+        Args:
+            path (str): The path to the JSON file.
+
+        Returns:
+            Molecule: The created Molecule instance.
+        """
 
         with open(path, "r") as f:
             data = json.load(f)
 
         return cls(**data)
+
+    def save_json(self, path: str) -> None:
+        """Saves the Molecule instance to a JSON file.
+
+        Args:
+            path (str): The path to the JSON file.
+
+        Returns:
+            None
+        """
+
+        with open(path, "w") as f:
+            f.write(self.model_dump_json(indent=4))
 
     @property
     def has_retention_time(self) -> bool:

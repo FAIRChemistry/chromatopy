@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "chromatopy"
-version = "0.9.16"
+version = "0.9.17"
 description = "Tool for processing chromatography data"
 authors = ["haeussma <83341109+haeussma@users.noreply.github.com>"]
 license = "MIT"
@@ -10,15 +10,11 @@ packages = [{include = "chromatopy"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
-calipytion = { git = "https://github.com/FAIRChemistry/CaliPytion.git", branch = "dev" }
+calipytion = { git = "https://github.com/FAIRChemistry/CaliPytion.git" }
 pyenzyme = { git = "https://github.com/EnzymeML/PyEnzyme.git", branch = "v2-migration" }
 plotly = "^5.19.0"
-rainbow-api = "^1.0.6"
-joblib = "^1.4.2"
 rich = "^13.7.1"
 loguru = "^0.7.2"
-pybaselines = "^1.1.0"
-hplc-py = "^0.2.7"
 
 [tool.poetry.group.dev.dependencies]
 pydantic = {extras = ["mypy"], version = "^2.3.0"}
