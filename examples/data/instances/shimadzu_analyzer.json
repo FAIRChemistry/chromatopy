@@ -1,0 +1,2598 @@
+{
+  "id": "data/thermo",
+  "name": "Chromatographic measurement",
+  "mode": "timecourse",
+  "molecules": [],
+  "proteins": [],
+  "measurements": [
+    {
+      "id": "EXP-24-AK6145_a_001",
+      "data": {
+        "value": 0.0,
+        "unit": {
+          "id": null,
+          "name": "Second",
+          "base_units": [
+            {
+              "kind": "second",
+              "exponent": 1,
+              "multiplier": 60.0,
+              "scale": 1.0,
+              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
+              "ld_type": [
+                "chromatopy:BaseUnit"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "ld_id": "OBO:UO_0000031",
+          "ld_type": [
+            "OBO:UO_0000000"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        },
+        "data_type": "timecourse",
+        "ld_id": "chromatopy:Data/4ba3a961-9fc7-468f-9661-d7c49be97720",
+        "ld_type": [
+          "chromatopy:Data"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "temperature": 25.0,
+      "temperature_unit": {
+        "id": null,
+        "name": "Celsius",
+        "base_units": [
+          {
+            "kind": "celsius",
+            "exponent": 1,
+            "multiplier": null,
+            "scale": 1.0,
+            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
+            "ld_type": [
+              "chromatopy:BaseUnit"
+            ],
+            "ld_context": {
+              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+            }
+          }
+        ],
+        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
+        "ld_type": [
+          "OBO:UO_0000000"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "ph": 7.4,
+      "dilution_factor": 1.0,
+      "chromatograms": [
+        {
+          "type": null,
+          "peaks": [
+            {
+              "retention_time": 0.038,
+              "area": 257.1,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 696.06,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/fe094379-2c32-425e-9de0-14bab59ee317",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.264,
+              "area": 179.67,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 470.6,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/6dc1675d-219a-4b7d-929c-403143de368a",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.385,
+              "area": 259.38,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 621.12,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/544522dd-cde6-4dcb-a0be-79ac285eed9f",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.5,
+              "area": 220.8,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 581.45,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/2d4b8380-d4f0-4b40-b347-dfac798d598b",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.553,
+              "area": 183.92,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 511.17,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/e418fd51-585b-4605-94b7-5b6153d6177c",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.695,
+              "area": 327.81,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 775.83,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/a7f40286-7819-45f9-8866-5961991ee417",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.926,
+              "area": 522.05,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 749.51,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/8d6e1625-9be0-40ea-9ec4-b92ce126467d",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.979,
+              "area": 186.68,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 528.6,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/38f01d0a-c491-4099-a9b8-7dad93259710",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 1.704,
+              "area": 3843600.67,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 965752.35,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 68.3,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/8002769f-c612-445f-8398-4981c9250f30",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.104,
+              "area": 1713921.67,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 964859.33,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 30.46,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/b12d49f2-d76a-40f2-aec7-286b3c267fef",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.501,
+              "area": 12409.48,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 5556.41,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.22,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/e22f48f1-efb3-4257-be9b-093326ec3aa3",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 9.386,
+              "area": 11075.94,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 5523.48,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.2,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/85c6dcf1-b9bf-4354-9a2b-a3050bf90b85",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 10.499,
+              "area": 44226.69,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 22809.79,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.79,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/51916ce2-af73-4868-80c9-ce743c0cb9ec",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "signals": [],
+          "times": [],
+          "processed_signal": [],
+          "wavelength": null,
+          "ld_id": "chromatopy:Chromatogram/fb22036e-480b-41c3-96ec-0a24a148bb3c",
+          "ld_type": [
+            "chromatopy:Chromatogram"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        }
+      ],
+      "sample_name": null,
+      "timestamp": "2024-10-09 15:24:19",
+      "injection_volume": null,
+      "injection_volume_unit": null,
+      "ld_id": "chromatopy:Measurement/3206231a-df2b-48dd-b775-c172679ea589",
+      "ld_type": [
+        "chromatopy:Measurement"
+      ],
+      "ld_context": {
+        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+      }
+    },
+    {
+      "id": "EXP-24-AK6145_a_002",
+      "data": {
+        "value": 1.0,
+        "unit": {
+          "id": null,
+          "name": "Second",
+          "base_units": [
+            {
+              "kind": "second",
+              "exponent": 1,
+              "multiplier": 60.0,
+              "scale": 1.0,
+              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
+              "ld_type": [
+                "chromatopy:BaseUnit"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "ld_id": "OBO:UO_0000031",
+          "ld_type": [
+            "OBO:UO_0000000"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        },
+        "data_type": "timecourse",
+        "ld_id": "chromatopy:Data/7ff5baee-9ad1-4895-bdf2-093fcd018acf",
+        "ld_type": [
+          "chromatopy:Data"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "temperature": 25.0,
+      "temperature_unit": {
+        "id": null,
+        "name": "Celsius",
+        "base_units": [
+          {
+            "kind": "celsius",
+            "exponent": 1,
+            "multiplier": null,
+            "scale": 1.0,
+            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
+            "ld_type": [
+              "chromatopy:BaseUnit"
+            ],
+            "ld_context": {
+              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+            }
+          }
+        ],
+        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
+        "ld_type": [
+          "OBO:UO_0000000"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "ph": 7.4,
+      "dilution_factor": 1.0,
+      "chromatograms": [
+        {
+          "type": null,
+          "peaks": [
+            {
+              "retention_time": 0.038,
+              "area": 279.25,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 770.35,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/4400bb5e-a53d-4eab-bc9a-30059e6817e7",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.246,
+              "area": 400.7,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 958.94,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/3da99e36-7bd8-4b75-b13d-3b79f789f070",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.482,
+              "area": 531.91,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 687.77,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/74833f02-ec9b-4609-ad93-ed54815162ca",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.678,
+              "area": 329.27,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 815.82,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/5c46bd5b-2ead-4fa0-bced-0a462f836205",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.908,
+              "area": 182.86,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 472.42,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/b90946e1-8432-4e7c-9929-4f3e7e14d522",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 1.715,
+              "area": 3822254.0,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 966404.72,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 71.77,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/af0069ff-be27-4a20-9dd2-81a046090df0",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.123,
+              "area": 1365829.72,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 906937.73,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 25.65,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/c267a527-8980-46fa-8e4a-d28a610cd39a",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.526,
+              "area": 75255.36,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 31614.72,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 1.41,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/020b3a54-003b-48e2-b068-00f2b0546744",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 9.405,
+              "area": 4262.02,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 2208.61,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.08,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/571c4991-5cee-4031-96e5-a17aa9f5d899",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 10.51,
+              "area": 56135.78,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 29399.93,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 1.05,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/aa21f858-90dd-4fb2-9189-b52594809fa6",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "signals": [],
+          "times": [],
+          "processed_signal": [],
+          "wavelength": null,
+          "ld_id": "chromatopy:Chromatogram/3f7af1ea-13c0-4088-97c9-0e1435e291f7",
+          "ld_type": [
+            "chromatopy:Chromatogram"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        }
+      ],
+      "sample_name": null,
+      "timestamp": "2024-10-09 12:56:51",
+      "injection_volume": null,
+      "injection_volume_unit": null,
+      "ld_id": "chromatopy:Measurement/a7ab01ae-2782-49f0-8df8-61df64c1cd1b",
+      "ld_type": [
+        "chromatopy:Measurement"
+      ],
+      "ld_context": {
+        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+      }
+    },
+    {
+      "id": "EXP-24-AK6145_a_003",
+      "data": {
+        "value": 2.0,
+        "unit": {
+          "id": null,
+          "name": "Second",
+          "base_units": [
+            {
+              "kind": "second",
+              "exponent": 1,
+              "multiplier": 60.0,
+              "scale": 1.0,
+              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
+              "ld_type": [
+                "chromatopy:BaseUnit"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "ld_id": "OBO:UO_0000031",
+          "ld_type": [
+            "OBO:UO_0000000"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        },
+        "data_type": "timecourse",
+        "ld_id": "chromatopy:Data/a05e8aa1-1161-4e41-8789-b0c2b9e0433d",
+        "ld_type": [
+          "chromatopy:Data"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "temperature": 25.0,
+      "temperature_unit": {
+        "id": null,
+        "name": "Celsius",
+        "base_units": [
+          {
+            "kind": "celsius",
+            "exponent": 1,
+            "multiplier": null,
+            "scale": 1.0,
+            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
+            "ld_type": [
+              "chromatopy:BaseUnit"
+            ],
+            "ld_context": {
+              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+            }
+          }
+        ],
+        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
+        "ld_type": [
+          "OBO:UO_0000000"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "ph": 7.4,
+      "dilution_factor": 1.0,
+      "chromatograms": [
+        {
+          "type": null,
+          "peaks": [
+            {
+              "retention_time": 0.037,
+              "area": 241.53,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 649.39,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/f6aed48d-152c-4cf5-8da0-4486cd2da410",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.248,
+              "area": 386.59,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 880.77,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/295bb5cf-7ebe-4e2e-9263-bd3ee2d75d8b",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.484,
+              "area": 150.52,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 381.06,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/a8147709-0592-4593-a8a7-fbd00ac0ff8d",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.679,
+              "area": 257.03,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 638.19,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/c06c5a1a-d0f2-4c0e-9d2e-59c957ff2950",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.909,
+              "area": 166.85,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 396.68,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/220e79f7-c847-42eb-a314-62cf0336b9d3",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 1.708,
+              "area": 3876207.1,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 965830.65,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 69.04,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/e193d626-4445-4219-9a14-0722538e3fd8",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.111,
+              "area": 1449523.42,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 955984.01,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 25.82,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/ae4f2759-68ef-4d95-bbc6-4edd9328556c",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.509,
+              "area": 154384.95,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 65785.0,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 2.75,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/59884593-8d00-4c2e-8647-7a255937ae6a",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 9.397,
+              "area": 4703.67,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 2429.52,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.08,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/e7aa5500-8a7a-400c-a88e-ae5169aa2c3f",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 10.495,
+              "area": 128724.44,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 63007.71,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 2.29,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/6910c4b6-d989-4a35-ae15-0955a1f6dca9",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "signals": [],
+          "times": [],
+          "processed_signal": [],
+          "wavelength": null,
+          "ld_id": "chromatopy:Chromatogram/e704f6f0-637d-460b-9169-0109e93eb100",
+          "ld_type": [
+            "chromatopy:Chromatogram"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        }
+      ],
+      "sample_name": null,
+      "timestamp": "2024-10-09 13:17:27",
+      "injection_volume": null,
+      "injection_volume_unit": null,
+      "ld_id": "chromatopy:Measurement/5e1ea0ed-a87e-4d4c-93b9-61e710613b7e",
+      "ld_type": [
+        "chromatopy:Measurement"
+      ],
+      "ld_context": {
+        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+      }
+    },
+    {
+      "id": "EXP-24-AK6145_a_004",
+      "data": {
+        "value": 3.0,
+        "unit": {
+          "id": null,
+          "name": "Second",
+          "base_units": [
+            {
+              "kind": "second",
+              "exponent": 1,
+              "multiplier": 60.0,
+              "scale": 1.0,
+              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
+              "ld_type": [
+                "chromatopy:BaseUnit"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "ld_id": "OBO:UO_0000031",
+          "ld_type": [
+            "OBO:UO_0000000"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        },
+        "data_type": "timecourse",
+        "ld_id": "chromatopy:Data/02922c93-a030-4d43-9d65-75349b632a39",
+        "ld_type": [
+          "chromatopy:Data"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "temperature": 25.0,
+      "temperature_unit": {
+        "id": null,
+        "name": "Celsius",
+        "base_units": [
+          {
+            "kind": "celsius",
+            "exponent": 1,
+            "multiplier": null,
+            "scale": 1.0,
+            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
+            "ld_type": [
+              "chromatopy:BaseUnit"
+            ],
+            "ld_context": {
+              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+            }
+          }
+        ],
+        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
+        "ld_type": [
+          "OBO:UO_0000000"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "ph": 7.4,
+      "dilution_factor": 1.0,
+      "chromatograms": [
+        {
+          "type": null,
+          "peaks": [
+            {
+              "retention_time": 0.038,
+              "area": 219.21,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 590.16,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/8f1bf823-608d-47f5-bc8d-7b0b0d619b5c",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.251,
+              "area": 366.56,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 884.64,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/22cc571f-28ca-4c3b-ae45-9cb2ba4dee93",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.488,
+              "area": 156.36,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 389.97,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/3ed2722c-5a3b-4056-9fe3-21ef69ef3922",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.683,
+              "area": 317.74,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 758.93,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/2f349f54-94f0-4173-a5f8-cf7ecc29533c",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.914,
+              "area": 194.29,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 510.57,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/f121e982-dad3-4785-849c-27a1bd8a48ca",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 1.708,
+              "area": 3992894.96,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 965755.63,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 68.97,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/d31b76d5-7de4-4a5d-9069-f9b9cf18139d",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.108,
+              "area": 1339740.42,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 890927.06,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 23.14,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/a3037709-b451-4125-a826-5d20d92c125a",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.504,
+              "area": 211263.85,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 90065.28,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 3.65,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/a4f2ab94-964a-452c-ae7e-d8edb04c7039",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 9.398,
+              "area": 5542.56,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 2888.54,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.1,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/b3d6066d-fb4c-4ccb-9434-1d4bf9a4c39f",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 10.487,
+              "area": 238482.35,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 113559.84,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 4.12,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/70c0bd73-c8ee-4687-b021-008aa49b2784",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "signals": [],
+          "times": [],
+          "processed_signal": [],
+          "wavelength": null,
+          "ld_id": "chromatopy:Chromatogram/025b3aa1-4c49-4bb5-b434-bb33a32429ff",
+          "ld_type": [
+            "chromatopy:Chromatogram"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        }
+      ],
+      "sample_name": null,
+      "timestamp": "2024-10-09 13:38:01",
+      "injection_volume": null,
+      "injection_volume_unit": null,
+      "ld_id": "chromatopy:Measurement/fa5979bf-f825-4e9e-b1c9-868633e0d475",
+      "ld_type": [
+        "chromatopy:Measurement"
+      ],
+      "ld_context": {
+        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+      }
+    },
+    {
+      "id": "EXP-24-AK6145_a_005",
+      "data": {
+        "value": 4.0,
+        "unit": {
+          "id": null,
+          "name": "Second",
+          "base_units": [
+            {
+              "kind": "second",
+              "exponent": 1,
+              "multiplier": 60.0,
+              "scale": 1.0,
+              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
+              "ld_type": [
+                "chromatopy:BaseUnit"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "ld_id": "OBO:UO_0000031",
+          "ld_type": [
+            "OBO:UO_0000000"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        },
+        "data_type": "timecourse",
+        "ld_id": "chromatopy:Data/1526e9dc-26a2-47c6-a58e-6f53f4e48d06",
+        "ld_type": [
+          "chromatopy:Data"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "temperature": 25.0,
+      "temperature_unit": {
+        "id": null,
+        "name": "Celsius",
+        "base_units": [
+          {
+            "kind": "celsius",
+            "exponent": 1,
+            "multiplier": null,
+            "scale": 1.0,
+            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
+            "ld_type": [
+              "chromatopy:BaseUnit"
+            ],
+            "ld_context": {
+              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+            }
+          }
+        ],
+        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
+        "ld_type": [
+          "OBO:UO_0000000"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "ph": 7.4,
+      "dilution_factor": 1.0,
+      "chromatograms": [
+        {
+          "type": null,
+          "peaks": [
+            {
+              "retention_time": 0.037,
+              "area": 252.78,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 652.45,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/7003d8c2-e3b3-4cb3-9290-1dd4585d9913",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.252,
+              "area": 356.83,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 887.4,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/d5e739c3-8178-4b45-baa6-0008799dec76",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.273,
+              "area": 85.68,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 287.66,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/54afa3fb-cb64-4d56-a1cb-b7156bc8b435",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.684,
+              "area": 580.36,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 828.77,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/48e086bf-3f88-488f-ba98-29ee215c4fa6",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.914,
+              "area": 592.85,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 762.6,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/587b8835-793e-4400-9b66-8ab6de67d324",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 1.704,
+              "area": 3894870.25,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 965810.46,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 68.61,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/ff46e553-0554-48c6-979d-a5cce6d372de",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.111,
+              "area": 1276267.34,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 846248.88,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 22.48,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/3a9f6524-cd66-4c8c-b7fc-0cb4d6ce66be",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.511,
+              "area": 255609.86,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 109118.64,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 4.5,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/d62eb9e5-a36f-4565-b437-fb8b3201b3ca",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 9.392,
+              "area": 4839.19,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 2583.45,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.09,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/4c43b6ca-5302-418a-9cad-cc885e07ae09",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 10.481,
+              "area": 243375.62,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 115411.11,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 4.29,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/c53e354f-5178-4665-bf2f-1d83188ea7d8",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "signals": [],
+          "times": [],
+          "processed_signal": [],
+          "wavelength": null,
+          "ld_id": "chromatopy:Chromatogram/4407f212-dcb0-4e4c-a2b9-157145b84c8d",
+          "ld_type": [
+            "chromatopy:Chromatogram"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        }
+      ],
+      "sample_name": null,
+      "timestamp": "2024-10-09 13:59:45",
+      "injection_volume": null,
+      "injection_volume_unit": null,
+      "ld_id": "chromatopy:Measurement/9171b322-88e2-4ca5-ba79-79209f17d332",
+      "ld_type": [
+        "chromatopy:Measurement"
+      ],
+      "ld_context": {
+        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+      }
+    },
+    {
+      "id": "EXP-24-AK6145_a_006",
+      "data": {
+        "value": 5.0,
+        "unit": {
+          "id": null,
+          "name": "Second",
+          "base_units": [
+            {
+              "kind": "second",
+              "exponent": 1,
+              "multiplier": 60.0,
+              "scale": 1.0,
+              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
+              "ld_type": [
+                "chromatopy:BaseUnit"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "ld_id": "OBO:UO_0000031",
+          "ld_type": [
+            "OBO:UO_0000000"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        },
+        "data_type": "timecourse",
+        "ld_id": "chromatopy:Data/48c4bc92-51cf-4afa-9e3e-a3d2a3145d94",
+        "ld_type": [
+          "chromatopy:Data"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "temperature": 25.0,
+      "temperature_unit": {
+        "id": null,
+        "name": "Celsius",
+        "base_units": [
+          {
+            "kind": "celsius",
+            "exponent": 1,
+            "multiplier": null,
+            "scale": 1.0,
+            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
+            "ld_type": [
+              "chromatopy:BaseUnit"
+            ],
+            "ld_context": {
+              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+            }
+          }
+        ],
+        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
+        "ld_type": [
+          "OBO:UO_0000000"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "ph": 7.4,
+      "dilution_factor": 1.0,
+      "chromatograms": [
+        {
+          "type": null,
+          "peaks": [
+            {
+              "retention_time": 0.255,
+              "area": 289.05,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 718.45,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/f1e0e313-6adf-406c-9940-8d67fd6c5368",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.686,
+              "area": 232.54,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 586.74,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/a2a4caf6-5622-4ee0-89ef-47661be014be",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.917,
+              "area": 177.34,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 444.09,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/3f501afc-bf91-4035-9126-1e88863b64da",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 1.708,
+              "area": 3862333.83,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 965789.62,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 69.11,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/c85fc923-a4df-44aa-b5bd-a6a7d4ac645c",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.11,
+              "area": 1203797.88,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 810360.28,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 21.54,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/74ca9703-9696-45ca-b319-399eb8cac0d2",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.508,
+              "area": 286644.55,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 121091.2,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 5.13,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/d5324b96-3386-4019-940e-4494b929bea6",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 9.396,
+              "area": 4497.38,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 2423.34,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.08,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/e8f3df4b-a916-4403-af87-5c0a5518151e",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 10.486,
+              "area": 230395.89,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 109490.88,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 4.12,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/75490e64-31b1-4001-93be-d6ea039dcb22",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "signals": [],
+          "times": [],
+          "processed_signal": [],
+          "wavelength": null,
+          "ld_id": "chromatopy:Chromatogram/b202adda-a3f8-4dae-be48-55d8e759895e",
+          "ld_type": [
+            "chromatopy:Chromatogram"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        }
+      ],
+      "sample_name": null,
+      "timestamp": "2024-10-09 14:21:28",
+      "injection_volume": null,
+      "injection_volume_unit": null,
+      "ld_id": "chromatopy:Measurement/35abb4cb-7044-4420-af7d-a0bd8f48fc8b",
+      "ld_type": [
+        "chromatopy:Measurement"
+      ],
+      "ld_context": {
+        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+      }
+    },
+    {
+      "id": "EXP-24-AK6145_a_007",
+      "data": {
+        "value": 6.0,
+        "unit": {
+          "id": null,
+          "name": "Second",
+          "base_units": [
+            {
+              "kind": "second",
+              "exponent": 1,
+              "multiplier": 60.0,
+              "scale": 1.0,
+              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
+              "ld_type": [
+                "chromatopy:BaseUnit"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "ld_id": "OBO:UO_0000031",
+          "ld_type": [
+            "OBO:UO_0000000"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        },
+        "data_type": "timecourse",
+        "ld_id": "chromatopy:Data/04df99fc-c5c4-4252-a976-e64ae9f5d355",
+        "ld_type": [
+          "chromatopy:Data"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "temperature": 25.0,
+      "temperature_unit": {
+        "id": null,
+        "name": "Celsius",
+        "base_units": [
+          {
+            "kind": "celsius",
+            "exponent": 1,
+            "multiplier": null,
+            "scale": 1.0,
+            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
+            "ld_type": [
+              "chromatopy:BaseUnit"
+            ],
+            "ld_context": {
+              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+            }
+          }
+        ],
+        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
+        "ld_type": [
+          "OBO:UO_0000000"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "ph": 7.4,
+      "dilution_factor": 1.0,
+      "chromatograms": [
+        {
+          "type": null,
+          "peaks": [
+            {
+              "retention_time": 0.039,
+              "area": 241.97,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 633.67,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/839292a3-fcae-4096-9c9f-a3710744554e",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.26,
+              "area": 306.66,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 767.71,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/aa26bb41-4bf2-4ea9-aeea-8a7508325ea2",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.496,
+              "area": 184.92,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 468.85,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/7c7f38f8-984c-4c9a-a387-863042d4fce2",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.691,
+              "area": 510.58,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 841.42,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/440d0407-02b3-405c-829c-361974e9b0dc",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.922,
+              "area": 197.17,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 491.91,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/077d4856-6244-436e-80f8-abed592c3a40",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 1.708,
+              "area": 3824249.46,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 965708.79,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 69.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/91f2a6ce-9121-4fbe-93d6-0ddcd7da5e74",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.112,
+              "area": 1123721.25,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 746637.44,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 20.27,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/3ef667c8-1a41-4c06-849a-e3f7a1133c98",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.51,
+              "area": 343732.35,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 146585.84,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 6.2,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/83d1c352-40cd-40ac-9b00-588b7c362e6f",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 9.387,
+              "area": 4333.77,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 2314.84,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.08,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/ccf00e79-fc82-45ba-b68a-524d548f2cef",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 10.479,
+              "area": 244961.05,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 110736.45,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 4.42,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/ee45ffb1-7b58-4ed4-a8b8-b5ce8d4ccd89",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "signals": [],
+          "times": [],
+          "processed_signal": [],
+          "wavelength": null,
+          "ld_id": "chromatopy:Chromatogram/aed3f989-f6b8-4699-b29b-33c4f88899b6",
+          "ld_type": [
+            "chromatopy:Chromatogram"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        }
+      ],
+      "sample_name": null,
+      "timestamp": "2024-10-09 14:43:11",
+      "injection_volume": null,
+      "injection_volume_unit": null,
+      "ld_id": "chromatopy:Measurement/739fb950-69e8-4eda-b802-d4131a5673e5",
+      "ld_type": [
+        "chromatopy:Measurement"
+      ],
+      "ld_context": {
+        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+      }
+    },
+    {
+      "id": "EXP-24-AK6145_a_008",
+      "data": {
+        "value": 7.0,
+        "unit": {
+          "id": null,
+          "name": "Second",
+          "base_units": [
+            {
+              "kind": "second",
+              "exponent": 1,
+              "multiplier": 60.0,
+              "scale": 1.0,
+              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
+              "ld_type": [
+                "chromatopy:BaseUnit"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "ld_id": "OBO:UO_0000031",
+          "ld_type": [
+            "OBO:UO_0000000"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        },
+        "data_type": "timecourse",
+        "ld_id": "chromatopy:Data/b4e0170b-1ade-4da7-9a77-4572b1f0160f",
+        "ld_type": [
+          "chromatopy:Data"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "temperature": 25.0,
+      "temperature_unit": {
+        "id": null,
+        "name": "Celsius",
+        "base_units": [
+          {
+            "kind": "celsius",
+            "exponent": 1,
+            "multiplier": null,
+            "scale": 1.0,
+            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
+            "ld_type": [
+              "chromatopy:BaseUnit"
+            ],
+            "ld_context": {
+              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+            }
+          }
+        ],
+        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
+        "ld_type": [
+          "OBO:UO_0000000"
+        ],
+        "ld_context": {
+          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+        }
+      },
+      "ph": 7.4,
+      "dilution_factor": 1.0,
+      "chromatograms": [
+        {
+          "type": null,
+          "peaks": [
+            {
+              "retention_time": 0.039,
+              "area": 233.17,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 633.82,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/32b06481-1a49-44f7-828d-9a317a56e8d8",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.262,
+              "area": 205.09,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 529.91,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/8db8d7c0-2097-46a1-b07f-f55abbae7a9f",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.497,
+              "area": 227.83,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 577.98,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/a506f65e-75af-454c-8113-c87f7ff96966",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.693,
+              "area": 373.65,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 902.69,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/6c86f670-2e9b-4d78-9f0c-6160da4c10a1",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.924,
+              "area": 485.54,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 718.7,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.01,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/4f1dc1f8-892d-4dd2-a63f-641c99e6d8ec",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 0.976,
+              "area": 170.15,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 489.03,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.0,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/23c5aab4-b25c-490c-89fb-72efb6b1bbf7",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 1.704,
+              "area": 3819573.87,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 965770.19,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 69.33,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/7b9e9f43-019b-4b2c-b0f9-fe531bb6310f",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.105,
+              "area": 1037238.09,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 693060.57,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 18.83,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/b307103d-78e0-43bf-ad6d-9e96b620a8b1",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 2.502,
+              "area": 374936.99,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 162232.13,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 6.81,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/e452683d-0357-4152-ad56-dfb8effc2c29",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 9.387,
+              "area": 4234.73,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 2242.29,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 0.08,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/7e1ad4c6-f75d-4781-a842-075f2d523eec",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            },
+            {
+              "retention_time": 10.48,
+              "area": 271782.35,
+              "molecule_id": null,
+              "type": null,
+              "width": null,
+              "amplitude": 120983.95,
+              "max_signal": null,
+              "skew": null,
+              "percent_area": 4.93,
+              "tailing_factor": null,
+              "separation_factor": null,
+              "peak_start": null,
+              "peak_end": null,
+              "ld_id": "chromatopy:Peak/871dd88a-9f28-4992-aa8b-e4070d29b6ed",
+              "ld_type": [
+                "chromatopy:Peak"
+              ],
+              "ld_context": {
+                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+              }
+            }
+          ],
+          "signals": [],
+          "times": [],
+          "processed_signal": [],
+          "wavelength": null,
+          "ld_id": "chromatopy:Chromatogram/6b19739b-00e2-4856-8749-ae0f21914e5a",
+          "ld_type": [
+            "chromatopy:Chromatogram"
+          ],
+          "ld_context": {
+            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+          }
+        }
+      ],
+      "sample_name": null,
+      "timestamp": "2024-10-09 15:03:48",
+      "injection_volume": null,
+      "injection_volume_unit": null,
+      "ld_id": "chromatopy:Measurement/6b8ad3b3-ef22-4321-8abf-0a8bd76783f1",
+      "ld_type": [
+        "chromatopy:Measurement"
+      ],
+      "ld_context": {
+        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
+      }
+    }
+  ],
+  "internal_standard": null
+}
