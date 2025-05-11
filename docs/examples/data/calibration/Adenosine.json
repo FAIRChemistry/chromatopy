@@ -4,43 +4,22 @@
     "name": "Adenosine",
     "init_conc": null,
     "conc_unit": {
-        "id": null,
-        "name": "uMole / Litre",
+        "id": "umol / l",
+        "name": "umol / l",
         "base_units": [
             {
                 "kind": "mole",
                 "exponent": 1,
-                "multiplier": null,
-                "scale": -6.0,
-                "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
-                "ld_type": [
-                    "chromatopy:BaseUnit"
-                ],
-                "ld_context": {
-                    "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                }
+                "multiplier": 1.0,
+                "scale": -6.0
             },
             {
                 "kind": "litre",
                 "exponent": -1,
-                "multiplier": null,
-                "scale": 1.0,
-                "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
-                "ld_type": [
-                    "chromatopy:BaseUnit"
-                ],
-                "ld_context": {
-                    "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                }
+                "multiplier": 1.0,
+                "scale": 0.0
             }
-        ],
-        "ld_id": "OBO:UO_0000064",
-        "ld_type": [
-            "OBO:UO_0000000"
-        ],
-        "ld_context": {
-            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-        }
+        ]
     },
     "retention_time": 7.8,
     "wavelength": null,
@@ -51,30 +30,22 @@
         "ph": 7.4,
         "temperature": 37.0,
         "temp_unit": {
-            "id": null,
-            "name": "Celsius",
+            "id": "C",
+            "name": "C",
             "base_units": [
                 {
-                    "kind": "celsius",
+                    "kind": "ampere",
                     "exponent": 1,
-                    "multiplier": null,
-                    "scale": 1.0,
-                    "ld_id": "chromatopy:BaseUnit/8f061666-c387-456f-9d75-d0aa3bef136d",
-                    "ld_type": [
-                        "chromatopy:BaseUnit"
-                    ],
-                    "ld_context": {
-                        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                    }
+                    "multiplier": 1.0,
+                    "scale": 0.0
+                },
+                {
+                    "kind": "second",
+                    "exponent": 1,
+                    "multiplier": 1.0,
+                    "scale": 0.0
                 }
-            ],
-            "ld_id": "chromatopy:UnitDefinition/bbf845eb-6f35-4287-9b58-fe1eef2486bb",
-            "ld_type": [
-                "OBO:UO_0000000"
-            ],
-            "ld_context": {
-                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-            }
+            ]
         },
         "retention_time": null,
         "wavelength": null,
@@ -82,301 +53,175 @@
             {
                 "concentration": 25.0,
                 "conc_unit": {
-                    "id": null,
-                    "name": "uMole / Litre",
+                    "id": "umol / l",
+                    "name": "umol / l",
                     "base_units": [
                         {
                             "kind": "mole",
                             "exponent": 1,
-                            "multiplier": null,
-                            "scale": -6.0,
-                            "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
-                            "ld_type": [
-                                "chromatopy:BaseUnit"
-                            ],
-                            "ld_context": {
-                                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                            }
+                            "multiplier": 1.0,
+                            "scale": -6.0
                         },
                         {
                             "kind": "litre",
                             "exponent": -1,
-                            "multiplier": null,
-                            "scale": 1.0,
-                            "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
-                            "ld_type": [
-                                "chromatopy:BaseUnit"
-                            ],
-                            "ld_context": {
-                                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                            }
+                            "multiplier": 1.0,
+                            "scale": 0.0
                         }
-                    ],
-                    "ld_id": "OBO:UO_0000064",
-                    "ld_type": [
-                        "OBO:UO_0000000"
-                    ],
-                    "ld_context": {
-                        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                    }
+                    ]
                 },
                 "signal": 206070492.57077637,
-                "ld_id": "calipy:Sample/ff143be6-1d8d-4e00-97e1-b7b841ac0b34",
+                "ld_id": "md:Sample/f0dd686b-3b27-4062-9269-dbf220453cbd",
                 "ld_type": [
-                    "calipy:Sample"
+                    "md:Sample"
                 ],
                 "ld_context": {
-                    "calipy": "https://github.com/FAIRChemistry/CaliPytion"
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
                 }
             },
             {
                 "concentration": 50.0,
                 "conc_unit": {
-                    "id": null,
-                    "name": "uMole / Litre",
+                    "id": "umol / l",
+                    "name": "umol / l",
                     "base_units": [
                         {
                             "kind": "mole",
                             "exponent": 1,
-                            "multiplier": null,
-                            "scale": -6.0,
-                            "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
-                            "ld_type": [
-                                "chromatopy:BaseUnit"
-                            ],
-                            "ld_context": {
-                                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                            }
+                            "multiplier": 1.0,
+                            "scale": -6.0
                         },
                         {
                             "kind": "litre",
                             "exponent": -1,
-                            "multiplier": null,
-                            "scale": 1.0,
-                            "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
-                            "ld_type": [
-                                "chromatopy:BaseUnit"
-                            ],
-                            "ld_context": {
-                                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                            }
+                            "multiplier": 1.0,
+                            "scale": 0.0
                         }
-                    ],
-                    "ld_id": "OBO:UO_0000064",
-                    "ld_type": [
-                        "OBO:UO_0000000"
-                    ],
-                    "ld_context": {
-                        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                    }
+                    ]
                 },
                 "signal": 439195099.4666703,
-                "ld_id": "calipy:Sample/801bd80f-7543-4a8e-a205-52c7d2e4e6e6",
+                "ld_id": "md:Sample/284f6606-b4ed-40bb-bc23-37e3d0c00710",
                 "ld_type": [
-                    "calipy:Sample"
+                    "md:Sample"
                 ],
                 "ld_context": {
-                    "calipy": "https://github.com/FAIRChemistry/CaliPytion"
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
                 }
             },
             {
                 "concentration": 100.0,
                 "conc_unit": {
-                    "id": null,
-                    "name": "uMole / Litre",
+                    "id": "umol / l",
+                    "name": "umol / l",
                     "base_units": [
                         {
                             "kind": "mole",
                             "exponent": 1,
-                            "multiplier": null,
-                            "scale": -6.0,
-                            "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
-                            "ld_type": [
-                                "chromatopy:BaseUnit"
-                            ],
-                            "ld_context": {
-                                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                            }
+                            "multiplier": 1.0,
+                            "scale": -6.0
                         },
                         {
                             "kind": "litre",
                             "exponent": -1,
-                            "multiplier": null,
-                            "scale": 1.0,
-                            "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
-                            "ld_type": [
-                                "chromatopy:BaseUnit"
-                            ],
-                            "ld_context": {
-                                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                            }
+                            "multiplier": 1.0,
+                            "scale": 0.0
                         }
-                    ],
-                    "ld_id": "OBO:UO_0000064",
-                    "ld_type": [
-                        "OBO:UO_0000000"
-                    ],
-                    "ld_context": {
-                        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                    }
+                    ]
                 },
                 "signal": 854035324.340625,
-                "ld_id": "calipy:Sample/f3c6e0fb-f22c-4e1a-9f0d-4fbe0594e855",
+                "ld_id": "md:Sample/6ba17498-59af-4777-9059-e57836166453",
                 "ld_type": [
-                    "calipy:Sample"
+                    "md:Sample"
                 ],
                 "ld_context": {
-                    "calipy": "https://github.com/FAIRChemistry/CaliPytion"
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
                 }
             },
             {
                 "concentration": 200.0,
                 "conc_unit": {
-                    "id": null,
-                    "name": "uMole / Litre",
+                    "id": "umol / l",
+                    "name": "umol / l",
                     "base_units": [
                         {
                             "kind": "mole",
                             "exponent": 1,
-                            "multiplier": null,
-                            "scale": -6.0,
-                            "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
-                            "ld_type": [
-                                "chromatopy:BaseUnit"
-                            ],
-                            "ld_context": {
-                                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                            }
+                            "multiplier": 1.0,
+                            "scale": -6.0
                         },
                         {
                             "kind": "litre",
                             "exponent": -1,
-                            "multiplier": null,
-                            "scale": 1.0,
-                            "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
-                            "ld_type": [
-                                "chromatopy:BaseUnit"
-                            ],
-                            "ld_context": {
-                                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                            }
+                            "multiplier": 1.0,
+                            "scale": 0.0
                         }
-                    ],
-                    "ld_id": "OBO:UO_0000064",
-                    "ld_type": [
-                        "OBO:UO_0000000"
-                    ],
-                    "ld_context": {
-                        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                    }
+                    ]
                 },
                 "signal": 1746852483.6073058,
-                "ld_id": "calipy:Sample/25ddeb4c-4b45-4468-bc35-d60876e55653",
+                "ld_id": "md:Sample/da7872f3-ca1f-43c8-899a-6cb48fd0b423",
                 "ld_type": [
-                    "calipy:Sample"
+                    "md:Sample"
                 ],
                 "ld_context": {
-                    "calipy": "https://github.com/FAIRChemistry/CaliPytion"
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
                 }
             },
             {
                 "concentration": 400.0,
                 "conc_unit": {
-                    "id": null,
-                    "name": "uMole / Litre",
+                    "id": "umol / l",
+                    "name": "umol / l",
                     "base_units": [
                         {
                             "kind": "mole",
                             "exponent": 1,
-                            "multiplier": null,
-                            "scale": -6.0,
-                            "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
-                            "ld_type": [
-                                "chromatopy:BaseUnit"
-                            ],
-                            "ld_context": {
-                                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                            }
+                            "multiplier": 1.0,
+                            "scale": -6.0
                         },
                         {
                             "kind": "litre",
                             "exponent": -1,
-                            "multiplier": null,
-                            "scale": 1.0,
-                            "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
-                            "ld_type": [
-                                "chromatopy:BaseUnit"
-                            ],
-                            "ld_context": {
-                                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                            }
+                            "multiplier": 1.0,
+                            "scale": 0.0
                         }
-                    ],
-                    "ld_id": "OBO:UO_0000064",
-                    "ld_type": [
-                        "OBO:UO_0000000"
-                    ],
-                    "ld_context": {
-                        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                    }
+                    ]
                 },
                 "signal": 3435929167.1560173,
-                "ld_id": "calipy:Sample/0c70ec8d-428f-4935-a63c-f701d7ef1a06",
+                "ld_id": "md:Sample/82ae1a77-a88b-4396-b513-7dd854ddaf45",
                 "ld_type": [
-                    "calipy:Sample"
+                    "md:Sample"
                 ],
                 "ld_context": {
-                    "calipy": "https://github.com/FAIRChemistry/CaliPytion"
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
                 }
             },
             {
                 "concentration": 800.0,
                 "conc_unit": {
-                    "id": null,
-                    "name": "uMole / Litre",
+                    "id": "umol / l",
+                    "name": "umol / l",
                     "base_units": [
                         {
                             "kind": "mole",
                             "exponent": 1,
-                            "multiplier": null,
-                            "scale": -6.0,
-                            "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
-                            "ld_type": [
-                                "chromatopy:BaseUnit"
-                            ],
-                            "ld_context": {
-                                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                            }
+                            "multiplier": 1.0,
+                            "scale": -6.0
                         },
                         {
                             "kind": "litre",
                             "exponent": -1,
-                            "multiplier": null,
-                            "scale": 1.0,
-                            "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
-                            "ld_type": [
-                                "chromatopy:BaseUnit"
-                            ],
-                            "ld_context": {
-                                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                            }
+                            "multiplier": 1.0,
+                            "scale": 0.0
                         }
-                    ],
-                    "ld_id": "OBO:UO_0000064",
-                    "ld_type": [
-                        "OBO:UO_0000000"
-                    ],
-                    "ld_context": {
-                        "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                    }
+                    ]
                 },
                 "signal": 6884309268.309377,
-                "ld_id": "calipy:Sample/a09a34c5-6aad-4a7d-ba08-2a7cde3133bb",
+                "ld_id": "md:Sample/4ea324ca-299f-4fcc-a272-e828b04359d5",
                 "ld_type": [
-                    "calipy:Sample"
+                    "md:Sample"
                 ],
                 "ld_context": {
-                    "calipy": "https://github.com/FAIRChemistry/CaliPytion"
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
                 }
             }
         ],
@@ -392,12 +237,12 @@
                     "stderr": 14475.399286044209,
                     "lower_bound": -1e-6,
                     "upper_bound": 10000000000000.0,
-                    "ld_id": "calipy:Parameter/ea4d4ae1-1b01-4aa0-84f2-6645aa510b50",
+                    "ld_id": "md:Parameter/cbc2b031-3d37-4219-8690-8ea91334bc76",
                     "ld_type": [
-                        "calipy:Parameter"
+                        "md:Parameter"
                     ],
                     "ld_context": {
-                        "calipy": "https://github.com/FAIRChemistry/CaliPytion"
+                        "md": "https://github.com/FAIRChemistry/CaliPytion"
                     }
                 }
             ],
@@ -407,12 +252,12 @@
                 "conc_upper": 800.0,
                 "signal_lower": 0.0,
                 "signal_upper": 6884309268.309377,
-                "ld_id": "calipy:CalibrationRange/9a19162e-b5df-49ca-a7ca-29d90ac4593c",
+                "ld_id": "md:CalibrationRange/c697dc98-d907-43b1-b011-c98d36af386f",
                 "ld_type": [
-                    "calipy:CalibrationRange"
+                    "md:CalibrationRange"
                 ],
                 "ld_context": {
-                    "calipy": "https://github.com/FAIRChemistry/CaliPytion"
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
                 }
             },
             "statistics": {
@@ -420,28 +265,28 @@
                 "bic": 197.65093474808725,
                 "r2": 0.9999723000175624,
                 "rmsd": 12256879.63172309,
-                "ld_id": "calipy:FitStatistics/806c883a-a7c5-4070-9e37-305013109c87",
+                "ld_id": "md:FitStatistics/56e773a8-a61f-49e0-8daf-455273af0359",
                 "ld_type": [
-                    "calipy:FitStatistics"
+                    "md:FitStatistics"
                 ],
                 "ld_context": {
-                    "calipy": "https://github.com/FAIRChemistry/CaliPytion"
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
                 }
             },
-            "ld_id": "calipy:CalibrationModel/96498caa-e66d-4184-a38b-e7a8ca5b731b",
+            "ld_id": "md:CalibrationModel/7793fe25-84e3-4cd0-8c5f-bac23871d2b6",
             "ld_type": [
-                "calipy:CalibrationModel"
+                "md:CalibrationModel"
             ],
             "ld_context": {
-                "calipy": "https://github.com/FAIRChemistry/CaliPytion"
+                "md": "https://github.com/FAIRChemistry/CaliPytion"
             }
         },
         "ld_id": "https://pubchem.ncbi.nlm.nih.gov/compound/60961",
         "ld_type": [
-            "calipy:Standard"
+            "md:Calibration"
         ],
         "ld_context": {
-            "calipy": "https://github.com/FAIRChemistry/CaliPytion"
+            "md": "https://github.com/FAIRChemistry/CaliPytion"
         }
     },
     "retention_tolerance": 0.05,

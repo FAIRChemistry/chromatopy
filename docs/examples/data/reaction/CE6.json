@@ -1,6 +1,7 @@
 {
     "name": "SAH Hydrolysis assay",
-    "references": [],
+    "version": "2",
+    "description": null,
     "created": null,
     "modified": null,
     "creators": [],
@@ -16,16 +17,17 @@
             "organism": null,
             "organism_tax_id": null,
             "references": [],
-            "ld_id": "enzml:Protein/5c2e4c7d-6e2e-4503-bb70-c31f62ef53f1",
+            "ld_id": "enzml:Protein/e90c9e21-6bd3-4a59-8c06-282f750b6efd",
             "ld_type": [
                 "enzml:Protein",
-                "schema:Protein"
+                "OBO:PR_000000001"
             ],
             "ld_context": {
                 "enzml": "http://www.enzymeml.org/v2/",
-                "schema": "https://schema.org/",
                 "OBO": "http://purl.obolibrary.org/obo/",
+                "schema": "https://schema.org/",
                 "id": {
+                    "@id": "schema:identifier",
                     "@type": "@id"
                 },
                 "name": "schema:name",
@@ -48,22 +50,23 @@
     "complexes": [],
     "small_molecules": [
         {
-            "id": "Ado",
-            "name": "Adenosine",
+            "id": "SAH",
+            "name": "S-Adenosylhomocysteine",
             "constant": false,
             "vessel_id": null,
             "canonical_smiles": null,
             "inchi": null,
             "inchikey": null,
+            "synonymous_names": [],
             "references": [],
-            "ld_id": "https://pubchem.ncbi.nlm.nih.gov/compound/60961",
+            "ld_id": "https://pubchem.ncbi.nlm.nih.gov/compound/439155",
             "ld_type": [
                 "enzml:SmallMolecule"
             ],
             "ld_context": {
                 "enzml": "http://www.enzymeml.org/v2/",
-                "schema": "https://schema.org/",
                 "OBO": "http://purl.obolibrary.org/obo/",
+                "schema": "https://schema.org/",
                 "id": {
                     "@id": "schema:identifier",
                     "@type": "@id"
@@ -80,22 +83,23 @@
             }
         },
         {
-            "id": "SAH",
-            "name": "S-Adenosylhomocysteine",
+            "id": "Ado",
+            "name": "Adenosine",
             "constant": false,
             "vessel_id": null,
             "canonical_smiles": null,
             "inchi": null,
             "inchikey": null,
+            "synonymous_names": [],
             "references": [],
-            "ld_id": "https://pubchem.ncbi.nlm.nih.gov/compound/439155",
+            "ld_id": "https://pubchem.ncbi.nlm.nih.gov/compound/60961",
             "ld_type": [
                 "enzml:SmallMolecule"
             ],
             "ld_context": {
                 "enzml": "http://www.enzymeml.org/v2/",
-                "schema": "https://schema.org/",
                 "OBO": "http://purl.obolibrary.org/obo/",
+                "schema": "https://schema.org/",
                 "id": {
                     "@id": "schema:identifier",
                     "@type": "@id"
@@ -120,187 +124,50 @@
             "species_data": [
                 {
                     "species_id": "Q80SW1",
+                    "prepared": 0.05,
                     "initial": 0.05,
                     "data_unit": {
-                        "id": null,
-                        "name": "uMole / Litre",
+                        "id": "umol / l",
+                        "name": "umol / l",
                         "base_units": [
                             {
                                 "kind": "mole",
                                 "exponent": 1,
-                                "multiplier": null,
-                                "scale": -6.0,
-                                "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
-                                "ld_type": [
-                                    "chromatopy:BaseUnit"
-                                ],
-                                "ld_context": {
-                                    "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                                }
+                                "multiplier": 1.0,
+                                "scale": -6.0
                             },
                             {
                                 "kind": "litre",
                                 "exponent": -1,
-                                "multiplier": null,
-                                "scale": 1.0,
-                                "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
-                                "ld_type": [
-                                    "chromatopy:BaseUnit"
-                                ],
-                                "ld_context": {
-                                    "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                                }
+                                "multiplier": 1.0,
+                                "scale": 0.0
                             }
-                        ],
-                        "ld_id": "OBO:UO_0000064",
-                        "ld_type": [
-                            "OBO:UO_0000000"
-                        ],
-                        "ld_context": {
-                            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                        }
+                        ]
                     },
-                    "data_type": "http://purl.obolibrary.org/obo/PATO_0000033",
-                    "prepared": 0.05,
                     "data": [],
                     "time": [],
                     "time_unit": {
-                        "id": null,
-                        "name": "Second",
+                        "id": "min",
+                        "name": "min",
                         "base_units": [
                             {
                                 "kind": "second",
                                 "exponent": 1,
                                 "multiplier": 60.0,
-                                "scale": 1.0,
-                                "ld_id": "chromatopy:BaseUnit/6c9dc0c3-738a-4f37-9c4d-d6189858773f",
-                                "ld_type": [
-                                    "chromatopy:BaseUnit"
-                                ],
-                                "ld_context": {
-                                    "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                                }
+                                "scale": 1.0
                             }
-                        ],
-                        "ld_id": "OBO:UO_0000031",
-                        "ld_type": [
-                            "OBO:UO_0000000"
-                        ],
-                        "ld_context": {
-                            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                        }
+                        ]
                     },
+                    "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/a44029b7-7b49-4397-8064-0193db0c1f2b",
+                    "ld_id": "enzml:MeasurementData/23818b6d-d4a9-4a3d-9edd-0787ec5e3e26",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
                     "ld_context": {
                         "enzml": "http://www.enzymeml.org/v2/",
-                        "schema": "https://schema.org/",
                         "OBO": "http://purl.obolibrary.org/obo/",
-                        "species_id": {
-                            "@type": "@id"
-                        }
-                    }
-                },
-                {
-                    "species_id": "Ado",
-                    "initial": 12.719310709063759,
-                    "data_unit": {
-                        "id": null,
-                        "name": "uMole / Litre",
-                        "base_units": [
-                            {
-                                "kind": "mole",
-                                "exponent": 1,
-                                "multiplier": null,
-                                "scale": -6.0,
-                                "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
-                                "ld_type": [
-                                    "chromatopy:BaseUnit"
-                                ],
-                                "ld_context": {
-                                    "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                                }
-                            },
-                            {
-                                "kind": "litre",
-                                "exponent": -1,
-                                "multiplier": null,
-                                "scale": 1.0,
-                                "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
-                                "ld_type": [
-                                    "chromatopy:BaseUnit"
-                                ],
-                                "ld_context": {
-                                    "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                                }
-                            }
-                        ],
-                        "ld_id": "OBO:UO_0000064",
-                        "ld_type": [
-                            "OBO:UO_0000000"
-                        ],
-                        "ld_context": {
-                            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                        }
-                    },
-                    "data_type": "http://purl.obolibrary.org/obo/PATO_0000033",
-                    "prepared": 225.0,
-                    "data": [
-                        12.719310709063759,
-                        101.06247587474189,
-                        126.20002577877281,
-                        135.34565063040188,
-                        145.54190350238864,
-                        144.6097026411664,
-                        144.5084394291433
-                    ],
-                    "time": [
-                        0.0,
-                        10.0,
-                        20.0,
-                        30.0,
-                        60.0,
-                        120.0,
-                        240.0
-                    ],
-                    "time_unit": {
-                        "id": null,
-                        "name": "Second",
-                        "base_units": [
-                            {
-                                "kind": "second",
-                                "exponent": 1,
-                                "multiplier": 60.0,
-                                "scale": 1.0,
-                                "ld_id": "chromatopy:BaseUnit/6c9dc0c3-738a-4f37-9c4d-d6189858773f",
-                                "ld_type": [
-                                    "chromatopy:BaseUnit"
-                                ],
-                                "ld_context": {
-                                    "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                                }
-                            }
-                        ],
-                        "ld_id": "OBO:UO_0000031",
-                        "ld_type": [
-                            "OBO:UO_0000000"
-                        ],
-                        "ld_context": {
-                            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                        }
-                    },
-                    "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/ba3e90c7-8e6e-4ef1-8eef-8ef84d181678",
-                    "ld_type": [
-                        "enzml:MeasurementData"
-                    ],
-                    "ld_context": {
-                        "enzml": "http://www.enzymeml.org/v2/",
                         "schema": "https://schema.org/",
-                        "OBO": "http://purl.obolibrary.org/obo/",
                         "species_id": {
                             "@type": "@id"
                         }
@@ -308,48 +175,26 @@
                 },
                 {
                     "species_id": "SAH",
+                    "prepared": 225.0,
                     "initial": 215.02217601390657,
                     "data_unit": {
-                        "id": null,
-                        "name": "uMole / Litre",
+                        "id": "umol / l",
+                        "name": "umol / l",
                         "base_units": [
                             {
                                 "kind": "mole",
                                 "exponent": 1,
-                                "multiplier": null,
-                                "scale": -6.0,
-                                "ld_id": "chromatopy:BaseUnit/c6880061-db94-4e4a-942c-00e239bf009c",
-                                "ld_type": [
-                                    "chromatopy:BaseUnit"
-                                ],
-                                "ld_context": {
-                                    "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                                }
+                                "multiplier": 1.0,
+                                "scale": -6.0
                             },
                             {
                                 "kind": "litre",
                                 "exponent": -1,
-                                "multiplier": null,
-                                "scale": 1.0,
-                                "ld_id": "chromatopy:BaseUnit/b2b36acc-647f-45cd-bc3b-064e249b67f0",
-                                "ld_type": [
-                                    "chromatopy:BaseUnit"
-                                ],
-                                "ld_context": {
-                                    "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                                }
+                                "multiplier": 1.0,
+                                "scale": 0.0
                             }
-                        ],
-                        "ld_id": "OBO:UO_0000064",
-                        "ld_type": [
-                            "OBO:UO_0000000"
-                        ],
-                        "ld_context": {
-                            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                        }
+                        ]
                     },
-                    "data_type": "http://purl.obolibrary.org/obo/PATO_0000033",
-                    "prepared": 0.0,
                     "data": [
                         215.02217601390657,
                         105.82217209710173,
@@ -369,40 +214,94 @@
                         240.0
                     ],
                     "time_unit": {
-                        "id": null,
-                        "name": "Second",
+                        "id": "min",
+                        "name": "min",
                         "base_units": [
                             {
                                 "kind": "second",
                                 "exponent": 1,
                                 "multiplier": 60.0,
-                                "scale": 1.0,
-                                "ld_id": "chromatopy:BaseUnit/6c9dc0c3-738a-4f37-9c4d-d6189858773f",
-                                "ld_type": [
-                                    "chromatopy:BaseUnit"
-                                ],
-                                "ld_context": {
-                                    "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                                }
+                                "scale": 1.0
                             }
-                        ],
-                        "ld_id": "OBO:UO_0000031",
-                        "ld_type": [
-                            "OBO:UO_0000000"
-                        ],
-                        "ld_context": {
-                            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                        }
+                        ]
                     },
+                    "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/3b94ee5c-79ef-4252-b3fe-b84e3f6ec98d",
+                    "ld_id": "enzml:MeasurementData/58bcc75d-14ee-4b3e-9135-3a9d935e80de",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
                     "ld_context": {
                         "enzml": "http://www.enzymeml.org/v2/",
-                        "schema": "https://schema.org/",
                         "OBO": "http://purl.obolibrary.org/obo/",
+                        "schema": "https://schema.org/",
+                        "species_id": {
+                            "@type": "@id"
+                        }
+                    }
+                },
+                {
+                    "species_id": "Ado",
+                    "prepared": 0.0,
+                    "initial": 12.719310709063759,
+                    "data_unit": {
+                        "id": "umol / l",
+                        "name": "umol / l",
+                        "base_units": [
+                            {
+                                "kind": "mole",
+                                "exponent": 1,
+                                "multiplier": 1.0,
+                                "scale": -6.0
+                            },
+                            {
+                                "kind": "litre",
+                                "exponent": -1,
+                                "multiplier": 1.0,
+                                "scale": 0.0
+                            }
+                        ]
+                    },
+                    "data": [
+                        12.719310709063759,
+                        101.06247587474189,
+                        126.20002577877281,
+                        135.34565063040188,
+                        145.54190350238864,
+                        144.6097026411664,
+                        144.5084394291433
+                    ],
+                    "time": [
+                        0.0,
+                        10.0,
+                        20.0,
+                        30.0,
+                        60.0,
+                        120.0,
+                        240.0
+                    ],
+                    "time_unit": {
+                        "id": "min",
+                        "name": "min",
+                        "base_units": [
+                            {
+                                "kind": "second",
+                                "exponent": 1,
+                                "multiplier": 60.0,
+                                "scale": 1.0
+                            }
+                        ]
+                    },
+                    "data_type": "concentration",
+                    "is_simulated": false,
+                    "ld_id": "enzml:MeasurementData/b2ac631d-e083-464b-9a3a-df6a7bb557bb",
+                    "ld_type": [
+                        "enzml:MeasurementData"
+                    ],
+                    "ld_context": {
+                        "enzml": "http://www.enzymeml.org/v2/",
+                        "OBO": "http://purl.obolibrary.org/obo/",
+                        "schema": "https://schema.org/",
                         "species_id": {
                             "@type": "@id"
                         }
@@ -413,39 +312,31 @@
             "ph": 7.4,
             "temperature": 37.0,
             "temperature_unit": {
-                "id": null,
-                "name": "Celsius",
+                "id": "C",
+                "name": "C",
                 "base_units": [
                     {
-                        "kind": "celsius",
+                        "kind": "ampere",
                         "exponent": 1,
-                        "multiplier": null,
-                        "scale": 1.0,
-                        "ld_id": "chromatopy:BaseUnit/8f061666-c387-456f-9d75-d0aa3bef136d",
-                        "ld_type": [
-                            "chromatopy:BaseUnit"
-                        ],
-                        "ld_context": {
-                            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                        }
+                        "multiplier": 1.0,
+                        "scale": 0.0
+                    },
+                    {
+                        "kind": "second",
+                        "exponent": 1,
+                        "multiplier": 1.0,
+                        "scale": 0.0
                     }
-                ],
-                "ld_id": "chromatopy:UnitDefinition/bbf845eb-6f35-4287-9b58-fe1eef2486bb",
-                "ld_type": [
-                    "OBO:UO_0000000"
-                ],
-                "ld_context": {
-                    "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-                }
+                ]
             },
-            "ld_id": "enzml:Measurement/c511d444-031a-46bc-ae78-ac08c70895a8",
+            "ld_id": "enzml:Measurement/155fd745-7975-4c07-a06e-61f51b798b04",
             "ld_type": [
                 "enzml:Measurement"
             ],
             "ld_context": {
                 "enzml": "http://www.enzymeml.org/v2/",
-                "schema": "https://schema.org/",
                 "OBO": "http://purl.obolibrary.org/obo/",
+                "schema": "https://schema.org/",
                 "id": {
                     "@id": "schema:identifier",
                     "@type": "@id"
@@ -458,21 +349,22 @@
     ],
     "equations": [],
     "parameters": [],
-    "ld_id": "enzml:EnzymeMLDocument/8e0f5ba2-0569-4786-adb1-49a873392f86",
+    "references": [],
+    "ld_id": "enzml:EnzymeMLDocument/e2c83849-b849-4b19-b50a-eb221cb59f2c",
     "ld_type": [
         "enzml:EnzymeMLDocument"
     ],
     "ld_context": {
         "enzml": "http://www.enzymeml.org/v2/",
-        "schema": "https://schema.org/",
         "OBO": "http://purl.obolibrary.org/obo/",
+        "schema": "https://schema.org/",
         "name": "schema:title",
+        "created": "schema:dateCreated",
+        "modified": "schema:dateModified",
+        "creators": "schema:creator",
         "references": {
             "@id": "schema:citation",
             "@type": "@id"
-        },
-        "created": "schema:dateCreated",
-        "modified": "schema:dateModified",
-        "creators": "schema:creator"
+        }
     }
 }

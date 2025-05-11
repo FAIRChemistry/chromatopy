@@ -11,7 +11,9 @@ from chromatopy.readers.abstractreader import AbstractReader
 class GenericCSVReader(AbstractReader):
     def model_post_init(self, __context: Any) -> None:
         if not self.file_paths:
-            logger.debug("Collecting file paths without reaction time and unit parsing.")
+            logger.debug(
+                "Collecting file paths without reaction time and unit parsing."
+            )
             self._get_file_paths()
 
     def read(self) -> list[Measurement]:
@@ -56,7 +58,7 @@ class GenericCSVReader(AbstractReader):
 
             data = Data(
                 value=self.values[i],
-                unit=self.unit,
+                unit=self.unit.name,
                 data_type=self.mode,
             )
 
@@ -65,7 +67,7 @@ class GenericCSVReader(AbstractReader):
                 chromatograms=[chromatogram],
                 data=data,
                 temperature=self.temperature,
-                temperature_unit=self.temperature_unit,
+                temperature_unit=self.temperature_unit.name,
                 ph=self.ph,
             )
             measurements.append(measurement)
@@ -80,7 +82,9 @@ class GenericCSVReader(AbstractReader):
         # check if directory exists
         assert directory.exists(), f"Directory '{self.dirpath}' does not exist."
         assert directory.is_dir(), f"'{self.dirpath}' is not a directory."
-        assert any(directory.rglob("*.csv")), f"No .csv files found in '{self.dirpath}'."
+        assert any(
+            directory.rglob("*.csv")
+        ), f"No .csv files found in '{self.dirpath}'."
 
         for file_path in directory.iterdir():
             if file_path.name.startswith(".") or not file_path.name.endswith(".csv"):
@@ -88,8 +92,8 @@ class GenericCSVReader(AbstractReader):
 
             files.append(str(file_path.absolute()))
 
-        assert len(files) == len(
-            self.values
+        assert (
+            len(files) == len(self.values)
         ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.values)})."
 
         self.file_paths = sorted(files)

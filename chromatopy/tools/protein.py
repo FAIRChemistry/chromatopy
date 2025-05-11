@@ -1,8 +1,7 @@
 from typing import Optional
 
+from mdmodels.units.annotation import UnitDefinitionAnnot
 from pydantic import BaseModel, ConfigDict, Field
-
-from chromatopy.model import UnitDefinition
 
 
 class Protein(BaseModel):
@@ -21,7 +20,7 @@ class Protein(BaseModel):
         description="Initial concentration of the protein at t=0",
         default=None,
     )
-    conc_unit: Optional[UnitDefinition] = Field(
+    conc_unit: Optional[UnitDefinitionAnnot] = Field(
         description="Unit of the concentration",
         default=None,
     )

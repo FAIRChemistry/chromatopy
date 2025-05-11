@@ -11,7 +11,9 @@ from chromatopy.readers.abstractreader import AbstractReader
 class ASMReader(AbstractReader):
     def model_post_init(self, __context: Any) -> None:
         if not self.file_paths:
-            logger.debug("Collecting file paths without reaction time and unit parsing.")
+            logger.debug(
+                "Collecting file paths without reaction time and unit parsing."
+            )
             self._get_file_paths()
 
     def read(self) -> list[Measurement]:
@@ -41,7 +43,9 @@ class ASMReader(AbstractReader):
         # check if directory exists
         assert directory.exists(), f"Directory '{self.dirpath}' does not exist."
         assert directory.is_dir(), f"'{self.dirpath}' is not a directory."
-        assert any(directory.rglob("*.json")), f"No .json files found in '{self.dirpath}'."
+        assert any(
+            directory.rglob("*.json")
+        ), f"No .json files found in '{self.dirpath}'."
 
         for file_path in directory.iterdir():
             if file_path.name.startswith(".") or not file_path.name.endswith(".json"):
@@ -49,8 +53,8 @@ class ASMReader(AbstractReader):
 
             files.append(str(file_path.absolute()))
 
-        assert len(files) == len(
-            self.values
+        assert (
+            len(files) == len(self.values)
         ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.values)})."
 
         self.file_paths = sorted(files)
@@ -80,17 +84,25 @@ class ASMReader(AbstractReader):
         reaction_time: float,
         path: str,
     ) -> Measurement:
-        doc = content["liquid chromatography aggregate document"]["liquid chromatography document"]
+        doc = content["liquid chromatography aggregate document"][
+            "liquid chromatography document"
+        ]
 
         if len(doc) > 1:
-            logger.warning(f"More than one chromatogram found in file '{path}'. Using the first chromatogram only.")
+            logger.warning(
+                f"More than one chromatogram found in file '{path}'. Using the first chromatogram only."
+            )
 
         try:
             sample_document = doc[0]["sample document"]
             meas_document = doc[0]["measurement document"]
         except KeyError:
-            sample_document = doc[0]["measurement aggregate document"]["measurement document"]["sample document"]
-            meas_document = doc[0]["measurement aggregate document"]["measurement document"]
+            sample_document = doc[0]["measurement aggregate document"][
+                "measurement document"
+            ]["sample document"]
+            meas_document = doc[0]["measurement aggregate document"][
+                "measurement document"
+            ]
 
         # sample info
         name = sample_document.get("written name")
@@ -104,7 +116,9 @@ class ASMReader(AbstractReader):
         # signal and time
         signal = meas_document["chromatogram data cube"]["data"]["measures"][0]
         time = meas_document["chromatogram data cube"]["data"]["dimensions"][0]
-        time_unit = meas_document["chromatogram data cube"]["cube-structure"]["dimensions"][0]["unit"]
+        time_unit = meas_document["chromatogram data cube"]["cube-structure"][
+            "dimensions"
+        ][0]["unit"]
 
         if time_unit == "s":
             # to min
@@ -136,7 +150,7 @@ class ASMReader(AbstractReader):
 
         data = Data(
             value=reaction_time,
-            unit=self.unit,
+            unit=self.unit.name,
             data_type=self.mode,
         )
 
@@ -144,7 +158,7 @@ class ASMReader(AbstractReader):
             id=sample_id,
             sample_name=name,
             temperature=self.temperature,
-            temperature_unit=self.temperature_unit,
+            temperature_unit=self.temperature_unit.name,
             ph=self.ph,
             chromatograms=[chrom],
             data=data,
@@ -156,10 +170,14 @@ class ASMReader(AbstractReader):
         reaction_time: float,
         path: str,
     ) -> Measurement:
-        doc = content["gas chromatography aggregate document"]["gas chromatography document"]
+        doc = content["gas chromatography aggregate document"][
+            "gas chromatography document"
+        ]
 
         if len(doc) > 1:
-            logger.warning(f"More than one chromatogram found in file '{path}'. Using the first chromatogram only.")
+            logger.warning(
+                f"More than one chromatogram found in file '{path}'. Using the first chromatogram only."
+            )
 
         meas_document = doc[0]["measurement aggregate document"]["measurement document"]
 
@@ -177,7 +195,9 @@ class ASMReader(AbstractReader):
         # signal and time
         signal = meas_document["chromatogram data cube"]["data"]["measures"][0]
         time = meas_document["chromatogram data cube"]["data"]["dimensions"][0]
-        time_unit = meas_document["chromatogram data cube"]["cube-structure"]["dimensions"][0]["unit"]
+        time_unit = meas_document["chromatogram data cube"]["cube-structure"][
+            "dimensions"
+        ][0]["unit"]
 
         if time_unit == "s":
             # to min
@@ -199,7 +219,7 @@ class ASMReader(AbstractReader):
 
         data = Data(
             value=reaction_time,
-            unit=self.unit,
+            unit=self.unit.name,
             data_type=self.mode,
         )
 
@@ -207,7 +227,7 @@ class ASMReader(AbstractReader):
             id=sample_id,
             sample_name=name,
             temperature=self.temperature,
-            temperature_unit=self.temperature_unit,
+            temperature_unit=self.temperature_unit.name,
             ph=self.ph,
             chromatograms=[chrom],
             data=data,

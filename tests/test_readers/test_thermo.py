@@ -1,7 +1,6 @@
 import pytest
 
 from chromatopy.readers.thermo_txt import ThermoTX0Reader
-from chromatopy.units import C, minute
 
 
 @pytest.fixture
@@ -9,10 +8,10 @@ def thermo_reader() -> ThermoTX0Reader:
     reader = ThermoTX0Reader(
         dirpath="docs/examples/data/thermo",
         values=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
-        unit=minute,
+        unit="min",
         ph=7.4,
         temperature=25.0,
-        temperature_unit=C,
+        temperature_unit="C",
         silent=True,
         mode="timecourse",
     )
@@ -34,5 +33,5 @@ def test_read_thermo(thermo_reader: ThermoTX0Reader) -> None:
 
     # Test metadata
     assert measurements[0].temperature == 25.0
-    assert measurements[0].temperature_unit == C
+    assert measurements[0].temperature_unit.name == "C"
     assert measurements[0].ph == 7.4

@@ -54,7 +54,7 @@ class ShimadzuReader(AbstractReader):
 
             data = Data(
                 value=self.values[i],
-                unit=self.unit,
+                unit=self.unit.name,
                 data_type=self.mode,
             )
 
@@ -62,7 +62,7 @@ class ShimadzuReader(AbstractReader):
                 id=str(Path(file).stem),
                 data=data,
                 temperature=self.temperature,
-                temperature_unit=self.temperature_unit,
+                temperature_unit=self.temperature_unit.name,
                 ph=self.ph,
                 injection_volume=injection_volume,
                 dilution_factor=dilution_factor,
@@ -272,8 +272,8 @@ class ShimadzuReader(AbstractReader):
 
             files.append(str(file_path.absolute()))
 
-        assert len(files) == len(
-            self.values
+        assert (
+            len(files) == len(self.values)
         ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.values)})."
 
         self.file_paths = files

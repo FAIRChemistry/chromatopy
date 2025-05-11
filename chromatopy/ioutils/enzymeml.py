@@ -2,6 +2,7 @@ import warnings
 from enum import Enum
 
 from calipytion.tools.calibrator import Calibrator
+from mdmodels.units.annotation import UnitDefinitionAnnot
 from pyenzyme import (
     DataTypes,
     EnzymeMLDocument,
@@ -10,10 +11,8 @@ from pyenzyme import (
     SmallMolecule,
 )
 from pyenzyme import Measurement as EnzymeMLMeasurement
-from pyenzyme import UnitDefinition as EnzymeMLUnitDefinition
 
 from ..model import Chromatogram, Measurement
-from ..model import UnitDefinition as UnitDefinition
 from ..tools.analyzer import ChromAnalyzer
 from ..tools.internal_standard import InternalStandard
 from ..tools.molecule import Molecule
@@ -168,13 +167,13 @@ def create_enzymeml(
 
     species_data = list(measurement_data_instances.values())
     for species in species_data:
-        species.time_unit = EnzymeMLUnitDefinition(**time_unit.model_dump())
+        species.time_unit = time_unit.name
 
     enzml_measurement = EnzymeMLMeasurement(
         id=measurement_id,
         name=measurement_id,
         temperature=temp,
-        temperature_unit=EnzymeMLUnitDefinition(**temp_unit.model_dump()),
+        temperature_unit=temp_unit.name,
         ph=ph,
         species_data=list(measurement_data_instances.values()),
     )
@@ -250,10 +249,11 @@ def create_MeasurementData_instances(
         A MeasurementData instance for molecule {species.name} already exists.
         """)
 
-    assert isinstance(species.conc_unit, UnitDefinition), f"""
-    The concentration unit of the molecule {species.name} needs to be defined.
-    Please specify the `conc_unit` attribute of {species.name}.
-    """
+    if not species.conc_unit:
+        raise ValueError(f"""
+        The concentration unit of the molecule {species.name} needs to be defined.
+        Please specify the `conc_unit` attribute of {species.name}.
+        """)
 
     # Determine the data type based on the species type
     if isinstance(species, ChromProtein):
@@ -263,7 +263,7 @@ def create_MeasurementData_instances(
             species_id=species.id,
             initial=species.init_conc,
             prepared=species.init_conc,
-            data_unit=EnzymeMLUnitDefinition(**species.conc_unit.model_dump()),
+            data_unit=species.conc_unit.name,
             data_type=data_type,
         )
     elif isinstance(species, Molecule):
@@ -272,7 +272,7 @@ def create_MeasurementData_instances(
             species_id=species.id,
             initial=species.init_conc,
             prepared=species.init_conc,
-            data_unit=EnzymeMLUnitDefinition(**species.conc_unit.model_dump()),
+            data_unit=species.conc_unit.name,
             data_type=data_type,
         )
 
@@ -311,29 +311,38 @@ def add_measurements_to_enzymeml(
     ph, temp, time_unit, temp_unit = extract_measurement_conditions(new_measurements)
 
     # Create MeasurementData instances for existing molecules
-    measurement_data_instances = {
-        mol.id: MeasurementData(
+    measurement_data_instances: dict[str, MeasurementData] = {}
+    for mol in molecules:
+        if mol.internal_standard:
+            continue
+        if not mol.conc_unit:
+            raise ValueError(
+                f"Concentration unit is not defined for molecule {mol.name}."
+            )
+
+        measurement_data_instances[mol.id] = MeasurementData(
             species_id=mol.id,
             initial=mol.init_conc,
             prepared=mol.init_conc,
-            data_unit=EnzymeMLUnitDefinition(**mol.conc_unit.model_dump()),  # type: ignore
+            data_unit=mol.conc_unit.name,
             data_type=DataTypes.PEAK_AREA,
-            time_unit=EnzymeMLUnitDefinition(**time_unit.model_dump()),
+            time_unit=time_unit.name,
         )
-        for mol in molecules
-        if not mol.internal_standard
-    }
 
     # Add MeasurementData instances for proteins
     for protein in proteins:
+        if not protein.conc_unit:
+            raise ValueError(
+                f"Concentration unit is not defined for protein {protein.name}."
+            )
         if protein.id not in measurement_data_instances:
             measurement_data_instances[protein.id] = MeasurementData(
                 species_id=protein.id,
                 initial=protein.init_conc,
                 prepared=protein.init_conc,
-                data_unit=EnzymeMLUnitDefinition(**protein.conc_unit.model_dump()),  # type: ignore
+                data_unit=protein.conc_unit.name,
                 data_type=DataTypes.CONCENTRATION,
-                time_unit=EnzymeMLUnitDefinition(**time_unit.model_dump()),
+                time_unit=time_unit.name,
             )
 
     # Convert new measurements to MeasurementData instances
@@ -351,7 +360,7 @@ def add_measurements_to_enzymeml(
         id=measurement_id,
         name=measurement_id,
         temperature=temp,
-        temperature_unit=EnzymeMLUnitDefinition(**temp_unit.model_dump()),
+        temperature_unit=temp_unit.name,
         ph=ph,
         species_data=list(measurement_data_instances.values()),
     )
@@ -431,6 +440,12 @@ def add_measurement_to_MeasurementData(
         if species_id in measured_once:
             # Handle molecules with peaks
             for measurement in measurements:
+                dilution_factor = (
+                    measurement.dilution_factor
+                    if measurement.dilution_factor is not None
+                    else 1.0
+                )
+
                 for chrom in measurement.chromatograms:
                     add_data(
                         measurement_data=meas_data,
@@ -439,7 +454,7 @@ def add_measurement_to_MeasurementData(
                         calibrators=calibrators,
                         calibrator_type=strategy,
                         extrapolate=extrapolate,
-                        dilution_factor=measurement.dilution_factor,
+                        dilution_factor=dilution_factor,
                     )
         else:
             # Handle proteins or molecules without peaks - add zero values for molecules with retention times
@@ -626,7 +641,7 @@ def setup_internal_calibrators(
                 standard_molecule_id=internal_standard.id,
                 molecule_init_conc=molecule.init_conc,
                 standard_init_conc=internal_standard.init_conc,
-                molecule_conc_unit=molecule.conc_unit,
+                molecule_conc_unit=molecule.conc_unit.name,
                 molecule_t0_signal=peak_analyte.area,
                 standard_t0_signal=peak_internal_standard.area,
             )
@@ -636,7 +651,7 @@ def setup_internal_calibrators(
 
 def extract_measurement_conditions(
     measurements: list[Measurement],
-) -> tuple[float, float, UnitDefinition, UnitDefinition]:
+) -> tuple[float, float, UnitDefinitionAnnot, UnitDefinitionAnnot]:
     """Asserts and extracts the measurement conditions from a list of Measurement instances.
 
     Args:
