@@ -1,16 +1,17 @@
-# from chromatopy.tools.analyzer import ChromAnalyzer
-# from chromatopy.units import min
+from chromatopy.tools.analyzer import ChromAnalyzer
 
 
-# def test_read_chromeleon():
-#     dir_path = "tests/test_readers/data/chromeleon"
+def test_read_chromeleon() -> None:
+    dir_path = "docs/examples/data/chromeleon"
 
-#     ana = ChromAnalyzer.read_chromeleon(
-#         path=dir_path,
-#         reaction_times=[0] * 6,
-#         time_unit=min,
-#         ph=7.4,
-#         temperature=25.0,
-#     )
+    ana = ChromAnalyzer.read_chromeleon(
+        path=dir_path,
+        values=[0] * 6,
+        unit="min",
+        ph=7.4,
+        temperature=25.0,
+        temperature_unit="C",
+        mode="timecourse",
+    )
 
-#     assert len(ana.measurements) == 6
+    assert len(ana.measurements) == 6

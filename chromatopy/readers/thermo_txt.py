@@ -23,7 +23,7 @@ class ThermoTX0Reader(AbstractReader):
             chromatogram = Chromatogram(peaks=peaks)
             data = Data(
                 value=self.values[idx],
-                unit=self.unit,
+                unit=self.unit.name,
                 data_type=self.mode,
             )
 
@@ -34,7 +34,7 @@ class ThermoTX0Reader(AbstractReader):
                     data=data,
                     timestamp=metadata.get("acquisition_time"),
                     temperature=self.temperature,
-                    temperature_unit=self.temperature_unit,
+                    temperature_unit=self.temperature_unit.name,
                     ph=self.ph,
                 )
             )
@@ -122,7 +122,11 @@ def _read_peaks_from_csv(path: str) -> list[Peak]:
             parts = _parse_line_with_decimal_comma(line)
 
             # Skip separator lines or empty peaks
-            if not parts or any(p.strip("- ") == "" for p in parts) or all("-" in p for p in parts):
+            if (
+                not parts
+                or any(p.strip("- ") == "" for p in parts)
+                or all("-" in p for p in parts)
+            ):
                 continue
 
             if parts[1] == "":
@@ -186,7 +190,9 @@ def _read_metadata(path: str) -> dict[str, Any]:
                     pass
             elif value := _extract_value(parts, "Data Acquisition Time:"):
                 try:
-                    metadata["acquisition_time"] = str(datetime.strptime(value, "%d-%m-%Y %H:%M:%S"))
+                    metadata["acquisition_time"] = str(
+                        datetime.strptime(value, "%d-%m-%Y %H:%M:%S")
+                    )
                 except ValueError:
                     pass
 

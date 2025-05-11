@@ -7,18 +7,22 @@ from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
 from pyenzyme import DataTypes, EnzymeMLDocument, SmallMolecule
 
-from chromatopy.model import Chromatogram, UnitDefinition
+from chromatopy.model import Chromatogram
 
 logger.remove()
 logger.add(sys.stderr, level="INFO")
 
 
-def _resolve_chromatogram(chromatograms: list[Chromatogram], wavelength: float | None) -> Chromatogram:
+def _resolve_chromatogram(
+    chromatograms: list[Chromatogram], wavelength: float | None
+) -> Chromatogram:
     if len(chromatograms) == 1:
         return chromatograms[0]
 
     if len(chromatograms) > 1:
-        assert wavelength is not None, "Multiple chromatograms found, but no wavelength is specified."
+        assert (
+            wavelength is not None
+        ), "Multiple chromatograms found, but no wavelength is specified."
 
         # check that any of the chromatograms has the specified wavelength
         assert any(
@@ -88,7 +92,9 @@ def generate_gaussian_data(
     return x_values.tolist(), y_values.tolist()
 
 
-def visualize_enzymeml(enzymeml_doc: EnzymeMLDocument, return_fig: bool = False) -> Figure | None:
+def visualize_enzymeml(
+    enzymeml_doc: EnzymeMLDocument, return_fig: bool = False
+) -> Figure | None:
     """visualize the data in the EnzymeML document
 
     Args:
@@ -108,8 +114,8 @@ def visualize_enzymeml(enzymeml_doc: EnzymeMLDocument, return_fig: bool = False)
     if species.data_type == DataTypes.PEAK_AREA:
         plt.ylabel("Peak Area [-]")
     elif species.data_type == DataTypes.CONCENTRATION:
-        plt.ylabel(f"concentration [{unit_to_str(species.data_unit)}]")
-    plt.xlabel(f"reaction time [{unit_to_str(species.time_unit)}]")
+        plt.ylabel(f"concentration [{species.data_unit.name}]")
+    plt.xlabel(f"reaction time [{species.time_unit.name}]")
 
     plt.show()
     if return_fig:
@@ -122,43 +128,3 @@ def get_species_by_id(enzymeml_doc: EnzymeMLDocument, species_id: str) -> SmallM
         if species.id == species_id:
             return species
     raise ValueError(f"Species with ID {species_id} not found.")
-
-
-def unit_to_str(unit: UnitDefinition) -> str:
-    magnitude_dict: dict[int, str] = {
-        1: "",
-        -1: "",
-        -3: "m",
-        -6: "µ",
-        -9: "n",
-        -12: "p",
-    }
-
-    # Handle single base unit cases
-    if len(unit.base_units) == 1:
-        base_unit = unit.base_units[0]
-
-        if base_unit.kind.value == "second":
-            if base_unit.multiplier == 1:
-                return "s"
-            elif base_unit.multiplier == 60:
-                return "min"
-            elif base_unit.multiplier == 3600:
-                return "h"
-            else:
-                return unit.name or ""
-        else:
-            return unit.name or ""
-
-    # Handle mole per litre cases
-    elif len(unit.base_units) == 2:
-        u1, u2 = unit.base_units
-        if u1.kind.value == "mole" and u2.kind.value == "litre" and u2.exponent == -1:
-            if u1.scale is None:
-                return "M"
-            return f"{magnitude_dict[int(u1.scale)]}M"
-        else:
-            return unit.name or ""
-
-    # Default return for other cases
-    return unit.name or ""

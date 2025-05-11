@@ -10,33 +10,19 @@
       "data": {
         "value": 0.0,
         "unit": {
-          "id": null,
-          "name": "Second",
+          "id": "min",
+          "name": "min",
           "base_units": [
             {
               "kind": "second",
               "exponent": 1,
               "multiplier": 60.0,
-              "scale": 1.0,
-              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
-              "ld_type": [
-                "chromatopy:BaseUnit"
-              ],
-              "ld_context": {
-                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-              }
+              "scale": 1.0
             }
-          ],
-          "ld_id": "OBO:UO_0000031",
-          "ld_type": [
-            "OBO:UO_0000000"
-          ],
-          "ld_context": {
-            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-          }
+          ]
         },
         "data_type": "timecourse",
-        "ld_id": "chromatopy:Data/4ba3a961-9fc7-468f-9661-d7c49be97720",
+        "ld_id": "chromatopy:Data/33dde745-9295-4b65-b872-46f58f269750",
         "ld_type": [
           "chromatopy:Data"
         ],
@@ -46,33 +32,24 @@
       },
       "temperature": 25.0,
       "temperature_unit": {
-        "id": null,
-        "name": "Celsius",
+        "id": "C",
+        "name": "C",
         "base_units": [
           {
-            "kind": "celsius",
+            "kind": "ampere",
             "exponent": 1,
-            "multiplier": null,
-            "scale": 1.0,
-            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
-            "ld_type": [
-              "chromatopy:BaseUnit"
-            ],
-            "ld_context": {
-              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-            }
+            "multiplier": 1.0,
+            "scale": 0.0
+          },
+          {
+            "kind": "second",
+            "exponent": 1,
+            "multiplier": 1.0,
+            "scale": 0.0
           }
-        ],
-        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
-        "ld_type": [
-          "OBO:UO_0000000"
-        ],
-        "ld_context": {
-          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-        }
+        ]
       },
       "ph": 7.4,
-      "dilution_factor": 1.0,
       "chromatograms": [
         {
           "type": null,
@@ -91,7 +68,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/fe094379-2c32-425e-9de0-14bab59ee317",
+              "ld_id": "chromatopy:Peak/5dd4d9e8-3d0a-4fb6-8d08-b2c5a47964c9",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -113,7 +90,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/6dc1675d-219a-4b7d-929c-403143de368a",
+              "ld_id": "chromatopy:Peak/617b060d-f584-47f2-bd4a-af8656fc9b9e",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -135,7 +112,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/544522dd-cde6-4dcb-a0be-79ac285eed9f",
+              "ld_id": "chromatopy:Peak/8d6fcba2-34e2-48b2-a8ee-b34571a05621",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -157,7 +134,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/2d4b8380-d4f0-4b40-b347-dfac798d598b",
+              "ld_id": "chromatopy:Peak/eaf0daab-20dd-4e9a-b877-09004e887b95",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -179,7 +156,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/e418fd51-585b-4605-94b7-5b6153d6177c",
+              "ld_id": "chromatopy:Peak/96b97dd7-03cd-4b6d-a37d-c1c81763793c",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -201,7 +178,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/a7f40286-7819-45f9-8866-5961991ee417",
+              "ld_id": "chromatopy:Peak/642d5b5f-ef29-4afa-ab3c-74c9fddf0788",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -223,7 +200,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/8d6e1625-9be0-40ea-9ec4-b92ce126467d",
+              "ld_id": "chromatopy:Peak/afa810df-5487-463d-b98b-620be5f6907e",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -245,7 +222,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/38f01d0a-c491-4099-a9b8-7dad93259710",
+              "ld_id": "chromatopy:Peak/af66a721-e354-48e6-8396-bade6181a2df",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -267,7 +244,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/8002769f-c612-445f-8398-4981c9250f30",
+              "ld_id": "chromatopy:Peak/b0de538e-3e84-4307-8d27-8048d2034f63",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -289,7 +266,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/b12d49f2-d76a-40f2-aec7-286b3c267fef",
+              "ld_id": "chromatopy:Peak/d5d26dee-68f5-4eea-b97c-084d5dc36ce5",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -311,7 +288,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/e22f48f1-efb3-4257-be9b-093326ec3aa3",
+              "ld_id": "chromatopy:Peak/9b8e8994-97cd-4de1-8c75-21988b00ea4c",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -333,7 +310,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/85c6dcf1-b9bf-4354-9a2b-a3050bf90b85",
+              "ld_id": "chromatopy:Peak/1db516db-3e29-45c0-9c26-e0f42cc49e7b",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -355,7 +332,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/51916ce2-af73-4868-80c9-ce743c0cb9ec",
+              "ld_id": "chromatopy:Peak/a65f7884-51a4-4230-8b98-f81458ce6769",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -368,7 +345,7 @@
           "times": [],
           "processed_signal": [],
           "wavelength": null,
-          "ld_id": "chromatopy:Chromatogram/fb22036e-480b-41c3-96ec-0a24a148bb3c",
+          "ld_id": "chromatopy:Chromatogram/43018136-2fe3-4896-a5a3-5dd897b667df",
           "ld_type": [
             "chromatopy:Chromatogram"
           ],
@@ -380,8 +357,9 @@
       "sample_name": null,
       "timestamp": "2024-10-09 15:24:19",
       "injection_volume": null,
+      "dilution_factor": 1.0,
       "injection_volume_unit": null,
-      "ld_id": "chromatopy:Measurement/3206231a-df2b-48dd-b775-c172679ea589",
+      "ld_id": "chromatopy:Measurement/6fa7c459-f2a9-4986-a0a3-7d4264a25e97",
       "ld_type": [
         "chromatopy:Measurement"
       ],
@@ -394,33 +372,19 @@
       "data": {
         "value": 1.0,
         "unit": {
-          "id": null,
-          "name": "Second",
+          "id": "min",
+          "name": "min",
           "base_units": [
             {
               "kind": "second",
               "exponent": 1,
               "multiplier": 60.0,
-              "scale": 1.0,
-              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
-              "ld_type": [
-                "chromatopy:BaseUnit"
-              ],
-              "ld_context": {
-                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-              }
+              "scale": 1.0
             }
-          ],
-          "ld_id": "OBO:UO_0000031",
-          "ld_type": [
-            "OBO:UO_0000000"
-          ],
-          "ld_context": {
-            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-          }
+          ]
         },
         "data_type": "timecourse",
-        "ld_id": "chromatopy:Data/7ff5baee-9ad1-4895-bdf2-093fcd018acf",
+        "ld_id": "chromatopy:Data/e2fbdc88-1dc9-44e1-be2f-ea14d72aa1af",
         "ld_type": [
           "chromatopy:Data"
         ],
@@ -430,33 +394,24 @@
       },
       "temperature": 25.0,
       "temperature_unit": {
-        "id": null,
-        "name": "Celsius",
+        "id": "C",
+        "name": "C",
         "base_units": [
           {
-            "kind": "celsius",
+            "kind": "ampere",
             "exponent": 1,
-            "multiplier": null,
-            "scale": 1.0,
-            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
-            "ld_type": [
-              "chromatopy:BaseUnit"
-            ],
-            "ld_context": {
-              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-            }
+            "multiplier": 1.0,
+            "scale": 0.0
+          },
+          {
+            "kind": "second",
+            "exponent": 1,
+            "multiplier": 1.0,
+            "scale": 0.0
           }
-        ],
-        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
-        "ld_type": [
-          "OBO:UO_0000000"
-        ],
-        "ld_context": {
-          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-        }
+        ]
       },
       "ph": 7.4,
-      "dilution_factor": 1.0,
       "chromatograms": [
         {
           "type": null,
@@ -475,7 +430,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/4400bb5e-a53d-4eab-bc9a-30059e6817e7",
+              "ld_id": "chromatopy:Peak/f0eb1e51-875a-428b-89dc-29fbc05511e4",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -497,7 +452,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/3da99e36-7bd8-4b75-b13d-3b79f789f070",
+              "ld_id": "chromatopy:Peak/a7986619-310f-4da0-a8af-067c9e49b2c5",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -519,7 +474,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/74833f02-ec9b-4609-ad93-ed54815162ca",
+              "ld_id": "chromatopy:Peak/a6c7bbac-2492-4299-8e0b-0594b729ff22",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -541,7 +496,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/5c46bd5b-2ead-4fa0-bced-0a462f836205",
+              "ld_id": "chromatopy:Peak/4c3c783f-1564-4a71-babc-b0e08690a3bc",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -563,7 +518,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/b90946e1-8432-4e7c-9929-4f3e7e14d522",
+              "ld_id": "chromatopy:Peak/dded7c5a-1a8a-494e-987a-24fa25e75a30",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -585,7 +540,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/af0069ff-be27-4a20-9dd2-81a046090df0",
+              "ld_id": "chromatopy:Peak/adf5f0e5-bfe5-4c38-abba-5b2a494f0162",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -607,7 +562,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/c267a527-8980-46fa-8e4a-d28a610cd39a",
+              "ld_id": "chromatopy:Peak/8498532d-338c-4952-b8fa-b7f505008af6",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -629,7 +584,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/020b3a54-003b-48e2-b068-00f2b0546744",
+              "ld_id": "chromatopy:Peak/eaf25e11-c742-44f5-8534-6c6b09803701",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -651,7 +606,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/571c4991-5cee-4031-96e5-a17aa9f5d899",
+              "ld_id": "chromatopy:Peak/96d4810d-356b-4f7b-b5eb-56ecce01c602",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -673,7 +628,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/aa21f858-90dd-4fb2-9189-b52594809fa6",
+              "ld_id": "chromatopy:Peak/047d2a64-8341-4a55-95e3-d54ab7987ce1",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -686,7 +641,7 @@
           "times": [],
           "processed_signal": [],
           "wavelength": null,
-          "ld_id": "chromatopy:Chromatogram/3f7af1ea-13c0-4088-97c9-0e1435e291f7",
+          "ld_id": "chromatopy:Chromatogram/9060f19b-92ba-4de7-a0a2-14bc795119ae",
           "ld_type": [
             "chromatopy:Chromatogram"
           ],
@@ -698,8 +653,9 @@
       "sample_name": null,
       "timestamp": "2024-10-09 12:56:51",
       "injection_volume": null,
+      "dilution_factor": 1.0,
       "injection_volume_unit": null,
-      "ld_id": "chromatopy:Measurement/a7ab01ae-2782-49f0-8df8-61df64c1cd1b",
+      "ld_id": "chromatopy:Measurement/9f12f18d-3ed8-40b4-8ef6-2537b60d10bf",
       "ld_type": [
         "chromatopy:Measurement"
       ],
@@ -712,33 +668,19 @@
       "data": {
         "value": 2.0,
         "unit": {
-          "id": null,
-          "name": "Second",
+          "id": "min",
+          "name": "min",
           "base_units": [
             {
               "kind": "second",
               "exponent": 1,
               "multiplier": 60.0,
-              "scale": 1.0,
-              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
-              "ld_type": [
-                "chromatopy:BaseUnit"
-              ],
-              "ld_context": {
-                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-              }
+              "scale": 1.0
             }
-          ],
-          "ld_id": "OBO:UO_0000031",
-          "ld_type": [
-            "OBO:UO_0000000"
-          ],
-          "ld_context": {
-            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-          }
+          ]
         },
         "data_type": "timecourse",
-        "ld_id": "chromatopy:Data/a05e8aa1-1161-4e41-8789-b0c2b9e0433d",
+        "ld_id": "chromatopy:Data/d0cb4446-3eb0-479e-bc6d-adc4cfaf04af",
         "ld_type": [
           "chromatopy:Data"
         ],
@@ -748,33 +690,24 @@
       },
       "temperature": 25.0,
       "temperature_unit": {
-        "id": null,
-        "name": "Celsius",
+        "id": "C",
+        "name": "C",
         "base_units": [
           {
-            "kind": "celsius",
+            "kind": "ampere",
             "exponent": 1,
-            "multiplier": null,
-            "scale": 1.0,
-            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
-            "ld_type": [
-              "chromatopy:BaseUnit"
-            ],
-            "ld_context": {
-              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-            }
+            "multiplier": 1.0,
+            "scale": 0.0
+          },
+          {
+            "kind": "second",
+            "exponent": 1,
+            "multiplier": 1.0,
+            "scale": 0.0
           }
-        ],
-        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
-        "ld_type": [
-          "OBO:UO_0000000"
-        ],
-        "ld_context": {
-          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-        }
+        ]
       },
       "ph": 7.4,
-      "dilution_factor": 1.0,
       "chromatograms": [
         {
           "type": null,
@@ -793,7 +726,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/f6aed48d-152c-4cf5-8da0-4486cd2da410",
+              "ld_id": "chromatopy:Peak/a72672ee-68ad-4251-8653-a2290512a6b9",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -815,7 +748,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/295bb5cf-7ebe-4e2e-9263-bd3ee2d75d8b",
+              "ld_id": "chromatopy:Peak/431c65d8-1c30-447e-9175-eb3beaaaeb47",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -837,7 +770,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/a8147709-0592-4593-a8a7-fbd00ac0ff8d",
+              "ld_id": "chromatopy:Peak/f9f1cb82-63d1-4826-a9cd-2ed50cff5125",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -859,7 +792,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/c06c5a1a-d0f2-4c0e-9d2e-59c957ff2950",
+              "ld_id": "chromatopy:Peak/6dfe4c32-4edb-4dcc-95cf-63ba29f930bd",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -881,7 +814,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/220e79f7-c847-42eb-a314-62cf0336b9d3",
+              "ld_id": "chromatopy:Peak/145f1062-10ec-4528-9c3d-140b7c6fee50",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -903,7 +836,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/e193d626-4445-4219-9a14-0722538e3fd8",
+              "ld_id": "chromatopy:Peak/ab476231-f5bb-4176-84ae-8dc2c3c09516",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -925,7 +858,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/ae4f2759-68ef-4d95-bbc6-4edd9328556c",
+              "ld_id": "chromatopy:Peak/9434eb7e-d1c7-4dc4-8cd7-3ddf0622e55e",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -947,7 +880,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/59884593-8d00-4c2e-8647-7a255937ae6a",
+              "ld_id": "chromatopy:Peak/1f6c4d05-d547-4755-82e6-a8a271e8e3be",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -969,7 +902,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/e7aa5500-8a7a-400c-a88e-ae5169aa2c3f",
+              "ld_id": "chromatopy:Peak/35047c04-9174-4e6e-93f3-5b2a2e60d662",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -991,7 +924,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/6910c4b6-d989-4a35-ae15-0955a1f6dca9",
+              "ld_id": "chromatopy:Peak/17c82813-7356-4f6a-96d8-faed9a98d728",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1004,7 +937,7 @@
           "times": [],
           "processed_signal": [],
           "wavelength": null,
-          "ld_id": "chromatopy:Chromatogram/e704f6f0-637d-460b-9169-0109e93eb100",
+          "ld_id": "chromatopy:Chromatogram/0d4ea936-c417-4875-a2b2-a07ca842d3e9",
           "ld_type": [
             "chromatopy:Chromatogram"
           ],
@@ -1016,8 +949,9 @@
       "sample_name": null,
       "timestamp": "2024-10-09 13:17:27",
       "injection_volume": null,
+      "dilution_factor": 1.0,
       "injection_volume_unit": null,
-      "ld_id": "chromatopy:Measurement/5e1ea0ed-a87e-4d4c-93b9-61e710613b7e",
+      "ld_id": "chromatopy:Measurement/28ef7827-afc1-420d-a948-e640ce5eb49c",
       "ld_type": [
         "chromatopy:Measurement"
       ],
@@ -1030,33 +964,19 @@
       "data": {
         "value": 3.0,
         "unit": {
-          "id": null,
-          "name": "Second",
+          "id": "min",
+          "name": "min",
           "base_units": [
             {
               "kind": "second",
               "exponent": 1,
               "multiplier": 60.0,
-              "scale": 1.0,
-              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
-              "ld_type": [
-                "chromatopy:BaseUnit"
-              ],
-              "ld_context": {
-                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-              }
+              "scale": 1.0
             }
-          ],
-          "ld_id": "OBO:UO_0000031",
-          "ld_type": [
-            "OBO:UO_0000000"
-          ],
-          "ld_context": {
-            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-          }
+          ]
         },
         "data_type": "timecourse",
-        "ld_id": "chromatopy:Data/02922c93-a030-4d43-9d65-75349b632a39",
+        "ld_id": "chromatopy:Data/b98c6443-ff3d-46e3-9949-b81397729cf9",
         "ld_type": [
           "chromatopy:Data"
         ],
@@ -1066,33 +986,24 @@
       },
       "temperature": 25.0,
       "temperature_unit": {
-        "id": null,
-        "name": "Celsius",
+        "id": "C",
+        "name": "C",
         "base_units": [
           {
-            "kind": "celsius",
+            "kind": "ampere",
             "exponent": 1,
-            "multiplier": null,
-            "scale": 1.0,
-            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
-            "ld_type": [
-              "chromatopy:BaseUnit"
-            ],
-            "ld_context": {
-              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-            }
+            "multiplier": 1.0,
+            "scale": 0.0
+          },
+          {
+            "kind": "second",
+            "exponent": 1,
+            "multiplier": 1.0,
+            "scale": 0.0
           }
-        ],
-        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
-        "ld_type": [
-          "OBO:UO_0000000"
-        ],
-        "ld_context": {
-          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-        }
+        ]
       },
       "ph": 7.4,
-      "dilution_factor": 1.0,
       "chromatograms": [
         {
           "type": null,
@@ -1111,7 +1022,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/8f1bf823-608d-47f5-bc8d-7b0b0d619b5c",
+              "ld_id": "chromatopy:Peak/09a8e97b-20a0-458a-b064-1e927b5e5b85",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1133,7 +1044,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/22cc571f-28ca-4c3b-ae45-9cb2ba4dee93",
+              "ld_id": "chromatopy:Peak/c4d10bd0-41b4-4e72-9055-487d4ad47d57",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1155,7 +1066,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/3ed2722c-5a3b-4056-9fe3-21ef69ef3922",
+              "ld_id": "chromatopy:Peak/0564cae8-af5c-4d79-bb05-4063a5cec873",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1177,7 +1088,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/2f349f54-94f0-4173-a5f8-cf7ecc29533c",
+              "ld_id": "chromatopy:Peak/c2440864-6aa5-47d3-8e71-e6fcc8af46be",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1199,7 +1110,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/f121e982-dad3-4785-849c-27a1bd8a48ca",
+              "ld_id": "chromatopy:Peak/f23e0d01-7bd6-4ee2-ae95-7f58a4807aa4",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1221,7 +1132,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/d31b76d5-7de4-4a5d-9069-f9b9cf18139d",
+              "ld_id": "chromatopy:Peak/7a045c17-8614-40a9-a15c-c732e054d837",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1243,7 +1154,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/a3037709-b451-4125-a826-5d20d92c125a",
+              "ld_id": "chromatopy:Peak/1ade557e-8698-4f0d-93b7-c9f33b993bd6",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1265,7 +1176,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/a4f2ab94-964a-452c-ae7e-d8edb04c7039",
+              "ld_id": "chromatopy:Peak/dd4f498e-b509-47a8-8169-016732da9689",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1287,7 +1198,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/b3d6066d-fb4c-4ccb-9434-1d4bf9a4c39f",
+              "ld_id": "chromatopy:Peak/160176e0-072d-423c-9b79-af94cc49e3dd",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1309,7 +1220,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/70c0bd73-c8ee-4687-b021-008aa49b2784",
+              "ld_id": "chromatopy:Peak/d77945a3-8b89-46c8-9f17-97c9f4184723",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1322,7 +1233,7 @@
           "times": [],
           "processed_signal": [],
           "wavelength": null,
-          "ld_id": "chromatopy:Chromatogram/025b3aa1-4c49-4bb5-b434-bb33a32429ff",
+          "ld_id": "chromatopy:Chromatogram/8f374a87-d2c3-4211-bb4b-312db1dd05db",
           "ld_type": [
             "chromatopy:Chromatogram"
           ],
@@ -1334,8 +1245,9 @@
       "sample_name": null,
       "timestamp": "2024-10-09 13:38:01",
       "injection_volume": null,
+      "dilution_factor": 1.0,
       "injection_volume_unit": null,
-      "ld_id": "chromatopy:Measurement/fa5979bf-f825-4e9e-b1c9-868633e0d475",
+      "ld_id": "chromatopy:Measurement/391592a6-837e-4bc3-8fd2-d78899f099ad",
       "ld_type": [
         "chromatopy:Measurement"
       ],
@@ -1348,33 +1260,19 @@
       "data": {
         "value": 4.0,
         "unit": {
-          "id": null,
-          "name": "Second",
+          "id": "min",
+          "name": "min",
           "base_units": [
             {
               "kind": "second",
               "exponent": 1,
               "multiplier": 60.0,
-              "scale": 1.0,
-              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
-              "ld_type": [
-                "chromatopy:BaseUnit"
-              ],
-              "ld_context": {
-                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-              }
+              "scale": 1.0
             }
-          ],
-          "ld_id": "OBO:UO_0000031",
-          "ld_type": [
-            "OBO:UO_0000000"
-          ],
-          "ld_context": {
-            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-          }
+          ]
         },
         "data_type": "timecourse",
-        "ld_id": "chromatopy:Data/1526e9dc-26a2-47c6-a58e-6f53f4e48d06",
+        "ld_id": "chromatopy:Data/7bded4ce-fa4b-40a5-95b9-fff9701be70c",
         "ld_type": [
           "chromatopy:Data"
         ],
@@ -1384,33 +1282,24 @@
       },
       "temperature": 25.0,
       "temperature_unit": {
-        "id": null,
-        "name": "Celsius",
+        "id": "C",
+        "name": "C",
         "base_units": [
           {
-            "kind": "celsius",
+            "kind": "ampere",
             "exponent": 1,
-            "multiplier": null,
-            "scale": 1.0,
-            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
-            "ld_type": [
-              "chromatopy:BaseUnit"
-            ],
-            "ld_context": {
-              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-            }
+            "multiplier": 1.0,
+            "scale": 0.0
+          },
+          {
+            "kind": "second",
+            "exponent": 1,
+            "multiplier": 1.0,
+            "scale": 0.0
           }
-        ],
-        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
-        "ld_type": [
-          "OBO:UO_0000000"
-        ],
-        "ld_context": {
-          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-        }
+        ]
       },
       "ph": 7.4,
-      "dilution_factor": 1.0,
       "chromatograms": [
         {
           "type": null,
@@ -1429,7 +1318,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/7003d8c2-e3b3-4cb3-9290-1dd4585d9913",
+              "ld_id": "chromatopy:Peak/24d7961a-7691-4b0b-9270-e90467f7e563",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1451,7 +1340,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/d5e739c3-8178-4b45-baa6-0008799dec76",
+              "ld_id": "chromatopy:Peak/783c4b48-8601-43e7-8676-d4042a1b08f1",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1473,7 +1362,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/54afa3fb-cb64-4d56-a1cb-b7156bc8b435",
+              "ld_id": "chromatopy:Peak/70937f09-21cf-4265-998b-efd15781fdc8",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1495,7 +1384,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/48e086bf-3f88-488f-ba98-29ee215c4fa6",
+              "ld_id": "chromatopy:Peak/a2fe944a-bcd8-4842-a096-ebe1aca550e0",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1517,7 +1406,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/587b8835-793e-4400-9b66-8ab6de67d324",
+              "ld_id": "chromatopy:Peak/8904bbc6-d06a-47dd-b015-c9928cb56ca5",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1539,7 +1428,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/ff46e553-0554-48c6-979d-a5cce6d372de",
+              "ld_id": "chromatopy:Peak/0248042f-734c-4be3-9a30-0ba75648b420",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1561,7 +1450,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/3a9f6524-cd66-4c8c-b7fc-0cb4d6ce66be",
+              "ld_id": "chromatopy:Peak/5e9c9fe7-c009-4d3e-92e7-61b7a475819d",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1583,7 +1472,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/d62eb9e5-a36f-4565-b437-fb8b3201b3ca",
+              "ld_id": "chromatopy:Peak/95289550-4f78-4d65-b169-ffea5a2744c0",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1605,7 +1494,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/4c43b6ca-5302-418a-9cad-cc885e07ae09",
+              "ld_id": "chromatopy:Peak/c0184e1a-b1c1-4e2e-9c99-e1659fb555c5",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1627,7 +1516,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/c53e354f-5178-4665-bf2f-1d83188ea7d8",
+              "ld_id": "chromatopy:Peak/02d249a9-c7bd-436c-94fc-adf4b489661a",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1640,7 +1529,7 @@
           "times": [],
           "processed_signal": [],
           "wavelength": null,
-          "ld_id": "chromatopy:Chromatogram/4407f212-dcb0-4e4c-a2b9-157145b84c8d",
+          "ld_id": "chromatopy:Chromatogram/53c291d4-c5f1-4ace-b99d-a2702e95f7cd",
           "ld_type": [
             "chromatopy:Chromatogram"
           ],
@@ -1652,8 +1541,9 @@
       "sample_name": null,
       "timestamp": "2024-10-09 13:59:45",
       "injection_volume": null,
+      "dilution_factor": 1.0,
       "injection_volume_unit": null,
-      "ld_id": "chromatopy:Measurement/9171b322-88e2-4ca5-ba79-79209f17d332",
+      "ld_id": "chromatopy:Measurement/863c39a8-9c1b-4797-9aa6-e81cfbaf0a60",
       "ld_type": [
         "chromatopy:Measurement"
       ],
@@ -1666,33 +1556,19 @@
       "data": {
         "value": 5.0,
         "unit": {
-          "id": null,
-          "name": "Second",
+          "id": "min",
+          "name": "min",
           "base_units": [
             {
               "kind": "second",
               "exponent": 1,
               "multiplier": 60.0,
-              "scale": 1.0,
-              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
-              "ld_type": [
-                "chromatopy:BaseUnit"
-              ],
-              "ld_context": {
-                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-              }
+              "scale": 1.0
             }
-          ],
-          "ld_id": "OBO:UO_0000031",
-          "ld_type": [
-            "OBO:UO_0000000"
-          ],
-          "ld_context": {
-            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-          }
+          ]
         },
         "data_type": "timecourse",
-        "ld_id": "chromatopy:Data/48c4bc92-51cf-4afa-9e3e-a3d2a3145d94",
+        "ld_id": "chromatopy:Data/69e1a188-b435-468f-9e8a-108451cdfa9b",
         "ld_type": [
           "chromatopy:Data"
         ],
@@ -1702,33 +1578,24 @@
       },
       "temperature": 25.0,
       "temperature_unit": {
-        "id": null,
-        "name": "Celsius",
+        "id": "C",
+        "name": "C",
         "base_units": [
           {
-            "kind": "celsius",
+            "kind": "ampere",
             "exponent": 1,
-            "multiplier": null,
-            "scale": 1.0,
-            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
-            "ld_type": [
-              "chromatopy:BaseUnit"
-            ],
-            "ld_context": {
-              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-            }
+            "multiplier": 1.0,
+            "scale": 0.0
+          },
+          {
+            "kind": "second",
+            "exponent": 1,
+            "multiplier": 1.0,
+            "scale": 0.0
           }
-        ],
-        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
-        "ld_type": [
-          "OBO:UO_0000000"
-        ],
-        "ld_context": {
-          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-        }
+        ]
       },
       "ph": 7.4,
-      "dilution_factor": 1.0,
       "chromatograms": [
         {
           "type": null,
@@ -1747,7 +1614,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/f1e0e313-6adf-406c-9940-8d67fd6c5368",
+              "ld_id": "chromatopy:Peak/8610b038-76d5-4ddc-ac11-aa8851556117",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1769,7 +1636,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/a2a4caf6-5622-4ee0-89ef-47661be014be",
+              "ld_id": "chromatopy:Peak/74a59087-8e66-49ef-9493-d66b7f1af07e",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1791,7 +1658,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/3f501afc-bf91-4035-9126-1e88863b64da",
+              "ld_id": "chromatopy:Peak/dbe5f27f-e8cb-4a27-9498-9c3b08ab81ff",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1813,7 +1680,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/c85fc923-a4df-44aa-b5bd-a6a7d4ac645c",
+              "ld_id": "chromatopy:Peak/743b7ffb-564e-48db-b4fd-7810767a4a6f",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1835,7 +1702,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/74ca9703-9696-45ca-b319-399eb8cac0d2",
+              "ld_id": "chromatopy:Peak/acd459a0-d19c-438f-be0e-1dcba60bc5c2",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1857,7 +1724,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/d5324b96-3386-4019-940e-4494b929bea6",
+              "ld_id": "chromatopy:Peak/9325759c-c871-4391-ba9b-a51a7e96b633",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1879,7 +1746,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/e8f3df4b-a916-4403-af87-5c0a5518151e",
+              "ld_id": "chromatopy:Peak/e275d293-ffab-460d-bb43-457b4f86a771",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1901,7 +1768,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/75490e64-31b1-4001-93be-d6ea039dcb22",
+              "ld_id": "chromatopy:Peak/4b46549f-6d57-4952-9616-0b38755e9782",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -1914,7 +1781,7 @@
           "times": [],
           "processed_signal": [],
           "wavelength": null,
-          "ld_id": "chromatopy:Chromatogram/b202adda-a3f8-4dae-be48-55d8e759895e",
+          "ld_id": "chromatopy:Chromatogram/f3a04399-9cd0-4fbd-9400-e3975b34d886",
           "ld_type": [
             "chromatopy:Chromatogram"
           ],
@@ -1926,8 +1793,9 @@
       "sample_name": null,
       "timestamp": "2024-10-09 14:21:28",
       "injection_volume": null,
+      "dilution_factor": 1.0,
       "injection_volume_unit": null,
-      "ld_id": "chromatopy:Measurement/35abb4cb-7044-4420-af7d-a0bd8f48fc8b",
+      "ld_id": "chromatopy:Measurement/ea015b48-30b6-4477-b777-b8ff80d42ad4",
       "ld_type": [
         "chromatopy:Measurement"
       ],
@@ -1940,33 +1808,19 @@
       "data": {
         "value": 6.0,
         "unit": {
-          "id": null,
-          "name": "Second",
+          "id": "min",
+          "name": "min",
           "base_units": [
             {
               "kind": "second",
               "exponent": 1,
               "multiplier": 60.0,
-              "scale": 1.0,
-              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
-              "ld_type": [
-                "chromatopy:BaseUnit"
-              ],
-              "ld_context": {
-                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-              }
+              "scale": 1.0
             }
-          ],
-          "ld_id": "OBO:UO_0000031",
-          "ld_type": [
-            "OBO:UO_0000000"
-          ],
-          "ld_context": {
-            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-          }
+          ]
         },
         "data_type": "timecourse",
-        "ld_id": "chromatopy:Data/04df99fc-c5c4-4252-a976-e64ae9f5d355",
+        "ld_id": "chromatopy:Data/b8a5ad20-6923-4f4c-9ba1-4341d2d45ec4",
         "ld_type": [
           "chromatopy:Data"
         ],
@@ -1976,33 +1830,24 @@
       },
       "temperature": 25.0,
       "temperature_unit": {
-        "id": null,
-        "name": "Celsius",
+        "id": "C",
+        "name": "C",
         "base_units": [
           {
-            "kind": "celsius",
+            "kind": "ampere",
             "exponent": 1,
-            "multiplier": null,
-            "scale": 1.0,
-            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
-            "ld_type": [
-              "chromatopy:BaseUnit"
-            ],
-            "ld_context": {
-              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-            }
+            "multiplier": 1.0,
+            "scale": 0.0
+          },
+          {
+            "kind": "second",
+            "exponent": 1,
+            "multiplier": 1.0,
+            "scale": 0.0
           }
-        ],
-        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
-        "ld_type": [
-          "OBO:UO_0000000"
-        ],
-        "ld_context": {
-          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-        }
+        ]
       },
       "ph": 7.4,
-      "dilution_factor": 1.0,
       "chromatograms": [
         {
           "type": null,
@@ -2021,7 +1866,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/839292a3-fcae-4096-9c9f-a3710744554e",
+              "ld_id": "chromatopy:Peak/4d2faa0f-ad4d-49bf-bf01-6cec8d58d22d",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2043,7 +1888,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/aa26bb41-4bf2-4ea9-aeea-8a7508325ea2",
+              "ld_id": "chromatopy:Peak/200f147c-fbcc-4440-adc0-91dd83cdcb5c",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2065,7 +1910,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/7c7f38f8-984c-4c9a-a387-863042d4fce2",
+              "ld_id": "chromatopy:Peak/bb4d451c-4389-4a17-8af5-55b5c8c9184b",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2087,7 +1932,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/440d0407-02b3-405c-829c-361974e9b0dc",
+              "ld_id": "chromatopy:Peak/d1180284-5444-4dcd-ae72-b401cecceaed",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2109,7 +1954,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/077d4856-6244-436e-80f8-abed592c3a40",
+              "ld_id": "chromatopy:Peak/a6bcbe67-4145-4d51-b57f-5b0535aafb1f",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2131,7 +1976,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/91f2a6ce-9121-4fbe-93d6-0ddcd7da5e74",
+              "ld_id": "chromatopy:Peak/8d1091a4-64bf-4a0c-b0d5-f644096f0455",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2153,7 +1998,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/3ef667c8-1a41-4c06-849a-e3f7a1133c98",
+              "ld_id": "chromatopy:Peak/7c77426d-164a-4b90-8813-9569f3e2321f",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2175,7 +2020,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/83d1c352-40cd-40ac-9b00-588b7c362e6f",
+              "ld_id": "chromatopy:Peak/74dbb72b-d731-4828-ad1b-cd5d93679c26",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2197,7 +2042,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/ccf00e79-fc82-45ba-b68a-524d548f2cef",
+              "ld_id": "chromatopy:Peak/5ba67e6c-e942-4842-a2ed-41a62cef73ef",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2219,7 +2064,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/ee45ffb1-7b58-4ed4-a8b8-b5ce8d4ccd89",
+              "ld_id": "chromatopy:Peak/7953e27b-ec5b-4309-ab2a-93b01310c669",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2232,7 +2077,7 @@
           "times": [],
           "processed_signal": [],
           "wavelength": null,
-          "ld_id": "chromatopy:Chromatogram/aed3f989-f6b8-4699-b29b-33c4f88899b6",
+          "ld_id": "chromatopy:Chromatogram/1ea97333-6df8-4367-af99-0b47bdae19cf",
           "ld_type": [
             "chromatopy:Chromatogram"
           ],
@@ -2244,8 +2089,9 @@
       "sample_name": null,
       "timestamp": "2024-10-09 14:43:11",
       "injection_volume": null,
+      "dilution_factor": 1.0,
       "injection_volume_unit": null,
-      "ld_id": "chromatopy:Measurement/739fb950-69e8-4eda-b802-d4131a5673e5",
+      "ld_id": "chromatopy:Measurement/328ad060-15c9-4af5-a1a1-9c8265f8afe2",
       "ld_type": [
         "chromatopy:Measurement"
       ],
@@ -2258,33 +2104,19 @@
       "data": {
         "value": 7.0,
         "unit": {
-          "id": null,
-          "name": "Second",
+          "id": "min",
+          "name": "min",
           "base_units": [
             {
               "kind": "second",
               "exponent": 1,
               "multiplier": 60.0,
-              "scale": 1.0,
-              "ld_id": "chromatopy:BaseUnit/8718f63f-8e21-45f7-af0f-ef95d62db350",
-              "ld_type": [
-                "chromatopy:BaseUnit"
-              ],
-              "ld_context": {
-                "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-              }
+              "scale": 1.0
             }
-          ],
-          "ld_id": "OBO:UO_0000031",
-          "ld_type": [
-            "OBO:UO_0000000"
-          ],
-          "ld_context": {
-            "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-          }
+          ]
         },
         "data_type": "timecourse",
-        "ld_id": "chromatopy:Data/b4e0170b-1ade-4da7-9a77-4572b1f0160f",
+        "ld_id": "chromatopy:Data/c4fed69f-5627-4bda-a9f5-97412825b7be",
         "ld_type": [
           "chromatopy:Data"
         ],
@@ -2294,33 +2126,24 @@
       },
       "temperature": 25.0,
       "temperature_unit": {
-        "id": null,
-        "name": "Celsius",
+        "id": "C",
+        "name": "C",
         "base_units": [
           {
-            "kind": "celsius",
+            "kind": "ampere",
             "exponent": 1,
-            "multiplier": null,
-            "scale": 1.0,
-            "ld_id": "chromatopy:BaseUnit/40db40e8-7856-4be0-8597-28e3afea1bbc",
-            "ld_type": [
-              "chromatopy:BaseUnit"
-            ],
-            "ld_context": {
-              "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-            }
+            "multiplier": 1.0,
+            "scale": 0.0
+          },
+          {
+            "kind": "second",
+            "exponent": 1,
+            "multiplier": 1.0,
+            "scale": 0.0
           }
-        ],
-        "ld_id": "chromatopy:UnitDefinition/2eda188d-e08c-4545-8ad7-329a21b5617b",
-        "ld_type": [
-          "OBO:UO_0000000"
-        ],
-        "ld_context": {
-          "chromatopy": "https://github.com/FAIRChemistry/chromatopy"
-        }
+        ]
       },
       "ph": 7.4,
-      "dilution_factor": 1.0,
       "chromatograms": [
         {
           "type": null,
@@ -2339,7 +2162,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/32b06481-1a49-44f7-828d-9a317a56e8d8",
+              "ld_id": "chromatopy:Peak/57d7da04-a67e-495d-a593-8c0ebb02303f",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2361,7 +2184,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/8db8d7c0-2097-46a1-b07f-f55abbae7a9f",
+              "ld_id": "chromatopy:Peak/f6d5894f-465d-4b28-81b4-56d345cb221a",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2383,7 +2206,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/a506f65e-75af-454c-8113-c87f7ff96966",
+              "ld_id": "chromatopy:Peak/837b1834-ca7b-436c-b344-666a7efe16ee",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2405,7 +2228,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/6c86f670-2e9b-4d78-9f0c-6160da4c10a1",
+              "ld_id": "chromatopy:Peak/32e09a81-1fc9-4bbc-9e85-fc533e610481",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2427,7 +2250,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/4f1dc1f8-892d-4dd2-a63f-641c99e6d8ec",
+              "ld_id": "chromatopy:Peak/9ac52c21-c0e3-41fc-93d7-7c5b0c11655d",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2449,7 +2272,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/23c5aab4-b25c-490c-89fb-72efb6b1bbf7",
+              "ld_id": "chromatopy:Peak/11a760f5-55d9-45b5-9aee-9c55438002a2",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2471,7 +2294,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/7b9e9f43-019b-4b2c-b0f9-fe531bb6310f",
+              "ld_id": "chromatopy:Peak/ac1dcf5c-1228-4e50-b134-66834d9bfc5a",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2493,7 +2316,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/b307103d-78e0-43bf-ad6d-9e96b620a8b1",
+              "ld_id": "chromatopy:Peak/8a697ea8-5436-4b1b-b57a-840439c9e0c8",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2515,7 +2338,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/e452683d-0357-4152-ad56-dfb8effc2c29",
+              "ld_id": "chromatopy:Peak/291162a0-4cd1-416f-adaa-547570abcdbe",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2537,7 +2360,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/7e1ad4c6-f75d-4781-a842-075f2d523eec",
+              "ld_id": "chromatopy:Peak/11e4ff9c-69ed-46a7-bf23-01b168eaa214",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2559,7 +2382,7 @@
               "separation_factor": null,
               "peak_start": null,
               "peak_end": null,
-              "ld_id": "chromatopy:Peak/871dd88a-9f28-4992-aa8b-e4070d29b6ed",
+              "ld_id": "chromatopy:Peak/c1115281-4844-4c84-b378-9734f54f0dc4",
               "ld_type": [
                 "chromatopy:Peak"
               ],
@@ -2572,7 +2395,7 @@
           "times": [],
           "processed_signal": [],
           "wavelength": null,
-          "ld_id": "chromatopy:Chromatogram/6b19739b-00e2-4856-8749-ae0f21914e5a",
+          "ld_id": "chromatopy:Chromatogram/edb143c5-2e95-4a9d-b8a8-d08c67a4a79a",
           "ld_type": [
             "chromatopy:Chromatogram"
           ],
@@ -2584,8 +2407,9 @@
       "sample_name": null,
       "timestamp": "2024-10-09 15:03:48",
       "injection_volume": null,
+      "dilution_factor": 1.0,
       "injection_volume_unit": null,
-      "ld_id": "chromatopy:Measurement/6b8ad3b3-ef22-4321-8abf-0a8bd76783f1",
+      "ld_id": "chromatopy:Measurement/afa3f8a5-1a8d-4ebf-9dd1-ac3a4be10613",
       "ld_type": [
         "chromatopy:Measurement"
       ],

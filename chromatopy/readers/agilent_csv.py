@@ -26,7 +26,7 @@ class AgilentCSVReader(AbstractReader):
 
             data = Data(
                 value=self.values[path_idx],
-                unit=self.unit,
+                unit=self.unit.name,
                 data_type=self.mode,
             )
 
@@ -35,7 +35,7 @@ class AgilentCSVReader(AbstractReader):
                     id=f"m{path_idx}",
                     chromatograms=[chromatogram],
                     temperature=self.temperature,
-                    temperature_unit=self.temperature_unit,
+                    temperature_unit=self.temperature_unit.name,
                     ph=self.ph,
                     data=data,
                 )

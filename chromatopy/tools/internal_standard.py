@@ -1,7 +1,8 @@
 from loguru import logger
+from mdmodels.units.annotation import UnitDefinitionAnnot
 from pydantic import BaseModel, Field
 
-from chromatopy.model import Measurement, UnitDefinition
+from chromatopy.model import Measurement
 from chromatopy.tools.utility import _resolve_chromatogram
 
 logger.level("INFO")
@@ -14,11 +15,21 @@ class InternalStandard(BaseModel):
     standard_molecule_id: str = Field(
         description="The ID of the standard molecule.",
     )
-    molecule_init_conc: float = Field(description="The initial concentration of the molecule.")
-    molecule_conc_unit: UnitDefinition = Field(description="The unit of concentration for the molecule.")
-    standard_init_conc: float = Field(description="The initial concentration of the standard.")
-    molecule_t0_signal: float | None = Field(description="The t0 signal of the molecule.", default=None)
-    standard_t0_signal: float | None = Field(description="The t0 signal of the standard.", default=None)
+    molecule_init_conc: float = Field(
+        description="The initial concentration of the molecule."
+    )
+    molecule_conc_unit: UnitDefinitionAnnot = Field(
+        description="The unit of concentration for the molecule."
+    )
+    standard_init_conc: float = Field(
+        description="The initial concentration of the standard."
+    )
+    molecule_t0_signal: float | None = Field(
+        description="The t0 signal of the molecule.", default=None
+    )
+    standard_t0_signal: float | None = Field(
+        description="The t0 signal of the standard.", default=None
+    )
 
     def _set_t0_signals(
         self,
@@ -31,7 +42,9 @@ class InternalStandard(BaseModel):
         without a measurement at t=0.
         """
 
-        for peak in _resolve_chromatogram(chromatograms=measurement.chromatograms, wavelength=None).peaks:
+        for peak in _resolve_chromatogram(
+            chromatograms=measurement.chromatograms, wavelength=None
+        ).peaks:
             if peak.molecule_id == self.molecule_id:
                 self.molecule_t0_signal = peak.area
             elif peak.molecule_id == self.standard_molecule_id:
@@ -45,9 +58,13 @@ class InternalStandard(BaseModel):
         No peak area for {self.standard_molecule_id} was found in measurement at t=0.
         """
 
-        logger.debug(f"molecule t0: {self.molecule_t0_signal}, standard t0: {self.standard_t0_signal}")
+        logger.debug(
+            f"molecule t0: {self.molecule_t0_signal}, standard t0: {self.standard_t0_signal}"
+        )
 
-    def calculate_conc(self, molecue_signal: float, standard_molecule_signal: float) -> float:
+    def calculate_conc(
+        self, molecue_signal: float, standard_molecule_signal: float
+    ) -> float:
         """Calculates the concentration of the internal standard based on the peak area.
 
         Args:
@@ -79,7 +96,9 @@ class InternalStandard(BaseModel):
             )
 
         if molecue_signal < MIN_SIGNAL_THRESHOLD:
-            raise ValueError(f"Molecule signal {molecue_signal} is below minimum threshold {MIN_SIGNAL_THRESHOLD}")
+            raise ValueError(
+                f"Molecule signal {molecue_signal} is below minimum threshold {MIN_SIGNAL_THRESHOLD}"
+            )
 
         if self.standard_t0_signal < MIN_SIGNAL_THRESHOLD:
             raise ValueError(

@@ -3,14 +3,11 @@ from __future__ import annotations
 import json
 from typing import Optional
 
-from calipytion.model import Standard
-from calipytion.model import UnitDefinition as CalUnit
+from calipytion.model import Calibration
 from calipytion.tools.calibrator import Calibrator
-from calipytion.units import C
 from loguru import logger
+from mdmodels.units.annotation import UnitDefinitionAnnot
 from pydantic import BaseModel, ConfigDict, Field
-
-from chromatopy.model import UnitDefinition
 
 
 class Molecule(BaseModel):
@@ -32,7 +29,7 @@ class Molecule(BaseModel):
         description="Initial concentration of the molecule at t=0",
         default=None,
     )
-    conc_unit: Optional[UnitDefinition] = Field(
+    conc_unit: Optional[UnitDefinitionAnnot] = Field(
         description="Unit of the concentration",
         default=None,
     )
@@ -44,8 +41,8 @@ class Molecule(BaseModel):
         description="Wavelength at which the molecule was detected",
         default=None,
     )
-    standard: Optional[Standard] = Field(
-        description="Standard instance associated with the molecule",
+    standard: Optional[Calibration] = Field(
+        description="Calibration instance associated with the molecule",
         default=None,
     )
     retention_tolerance: float = Field(
@@ -63,22 +60,22 @@ class Molecule(BaseModel):
 
     @classmethod
     def from_standard(
-        cls, standard: Standard, init_conc: float, conc_unit: UnitDefinition
+        cls, standard: Calibration, init_conc: float, conc_unit: UnitDefinitionAnnot
     ) -> Molecule:
-        """Creates a Molecule instance from a Standard instance.
+        """Creates a Molecule instance from a Calibration instance.
 
         Args:
-            standard (Standard): The standard instance to create the molecule from.
+            standard (Calibration): The calibration instance to create the molecule from.
             init_conc (float): The initial concentration of the molecule.
-            conc_unit (UnitDefinition): The unit of the concentration.
+            conc_unit (UnitDefinitionAnnot): The unit of the concentration.
 
         Returns:
             Molecule: The created Molecule instance.
         """
 
         assert standard.retention_time, """
-        The retention time of the standard needs to be defined. 
-        Specify the `retention_time` attribute of the standard.
+        The retention time of the calibration needs to be defined. 
+        Specify the `retention_time` attribute of the calibration.
         """
 
         return cls(
@@ -95,25 +92,25 @@ class Molecule(BaseModel):
         self,
         areas: list[float],
         concs: list[float],
-        conc_unit: UnitDefinition,
+        conc_unit: UnitDefinitionAnnot,
         ph: float,
         temperature: float,
-        temp_unit: UnitDefinition = C,
+        temp_unit: UnitDefinitionAnnot = "C",
         visualize: bool = True,
-    ) -> Standard:
+    ) -> Calibration:
         """Creates a linear standard from the molecule's calibration data.
 
         Args:
             areas (list[float]): The areas of the molecule.
             concs (list[float]): The concentrations of the molecule.
-            conc_unit (UnitDefinition): The unit of the concentration.
+            conc_unit (UnitDefinitionAnnot): The unit of the concentration.
             ph (float): The pH of the solution.
             temperature (float): The temperature of the solution.
-            temp_unit (UnitDefinition): The unit of the temperature.
+            temp_unit (UnitDefinitionAnnot): The unit of the temperature.
             visualize (bool): Whether to visualize the standard.
 
         Returns:
-            Standard: The created Standard instance.
+            Calibration: The created Calibration instance.
         """
 
         calibrator = Calibrator(
@@ -122,7 +119,7 @@ class Molecule(BaseModel):
             molecule_name=self.name,
             wavelength=self.wavelength,
             concentrations=concs,
-            conc_unit=CalUnit(**conc_unit.model_dump()),
+            conc_unit=conc_unit,
             signals=areas,
         )
         calibrator.models = []
@@ -143,7 +140,7 @@ class Molecule(BaseModel):
             model=model,
             ph=ph,
             temperature=temperature,
-            temp_unit=CalUnit(**temp_unit.model_dump()),
+            temp_unit=temp_unit,
         )
 
         # check if the `conc` attribute of the molecule is defined and if, it must have the same baseunit names as the calibration unit

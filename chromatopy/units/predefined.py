@@ -1,13 +1,13 @@
 # Molarity
-M = "mol / litre"
-mM = "mmol / litre"
-uM = "umol / litre"
-nM = "nmol / litre"
+M = "mol / l"
+mM = "mmol / l"
+uM = "umol / l"
+nM = "nmol / l"
 
 # Mass Concentration
-g_L = "g / litre"
-mg_L = "mg / litre"
-ug_L = "ug / litre"
+g_L = "g / l"
+mg_L = "mg / l"
+ug_L = "ug / l"
 
 # Substance
 mol = "mol"
@@ -35,7 +35,6 @@ nl = "nl"
 second = "s"
 s = "s"
 minute = "min"
-min = "min"
 hour = "hour"
 h = "hour"
 day = "day"

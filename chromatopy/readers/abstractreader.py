@@ -6,10 +6,10 @@ from pathlib import Path
 from typing import Any
 
 from loguru import logger
+from mdmodels.units.annotation import UnitDefinitionAnnot
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-from chromatopy.model import DataType, Measurement, UnitDefinition
-from chromatopy.units import C
+from chromatopy.model import DataType, Measurement
 
 
 class MetadataExtractionError(Exception):
@@ -41,10 +41,10 @@ class AbstractReader(BaseModel):
         dirpath (str): Path to the directory containing chromatographic data files.
         mode (str): Mode of data processing, either 'calibration' or 'timecourse'.
         values (Optional[List[float]]): List of reaction times or concentrations based on the mode.
-        unit (Optional[UnitDefinition]): Unit of the values (time unit for timecourse, concentration unit for calibration).
+        unit (Optional[UnitDefinitionAnnot]): Unit of the values (time unit for timecourse, concentration unit for calibration).
         ph (float): pH value of the measurement.
         temperature (float): Temperature of the measurement.
-        temperature_unit (UnitDefinition): Unit of the temperature.
+        temperature_unit (UnitDefinitionAnnot): Unit of the temperature.
         silent (bool): If True, suppresses output messages.
         file_paths (List[str]): List of file paths to process.
     """
@@ -66,7 +66,7 @@ class AbstractReader(BaseModel):
         ),
     )
 
-    unit: UnitDefinition = Field(
+    unit: UnitDefinitionAnnot = Field(
         ...,
         description=(
             "Unit of the values: "
@@ -84,8 +84,8 @@ class AbstractReader(BaseModel):
         description="Temperature of the measurement.",
     )
 
-    temperature_unit: UnitDefinition = Field(
-        default=C,
+    temperature_unit: UnitDefinitionAnnot = Field(
+        default="C",
         description="Unit of the temperature. Defaults to Celsius.",
     )
 
@@ -231,7 +231,7 @@ class AbstractReader(BaseModel):
             )
 
         try:
-            unit_definition = cls._map_unit_str_to_UnitDefinition(units[0], mode)
+            unit_definition = cls._map_unit_str_to_UnitDefinitionAnnot(units[0], mode)
         except ValueError:
             logger.debug(
                 f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
@@ -252,39 +252,37 @@ class AbstractReader(BaseModel):
         return data
 
     @staticmethod
-    def _map_unit_str_to_UnitDefinition(
+    def _map_unit_str_to_UnitDefinitionAnnot(
         unit_str: str,
         mode: str,
-    ) -> UnitDefinition:
-        """Maps a string representation of a unit to a `UnitDefinition` object based on the mode."""
+    ) -> UnitDefinitionAnnot:
+        """Maps a string representation of a unit to a `UnitDefinitionAnnot` object based on the mode."""
 
         unit_str = unit_str.lower()
         if mode == DataType.TIMECOURSE.value:
             # Time units
-            from chromatopy.units import hour, minute, second
 
             match unit_str:
                 case "min" | "mins" | "minute" | "minutes":
-                    return minute  # type: ignore
+                    return "minute"  # type: ignore
                 case "sec" | "secs" | "second" | "seconds":
-                    return second  # type: ignore
+                    return "second"  # type: ignore
                 case "hour" | "hours":
-                    return hour  # type: ignore
+                    return "hour"  # type: ignore
                 case _:
                     raise ValueError(f"Time unit '{unit_str}' not recognized.")
         elif mode == DataType.CALIBRATION.value:
             # Concentration units
-            from chromatopy.units import M, mM, nM, uM
 
             match unit_str:
                 case "m" | "M":
-                    return M
+                    return "mol / l"
                 case "mm" | "mM":
-                    return mM  # type: ignore
+                    return "mmol / l"
                 case "um" | "uM" | "µM":
-                    return uM  # type: ignore
+                    return "umol / l"
                 case "nm" | "nM":
-                    return nM  # type: ignore
+                    return "nmol / l"
                 case _:
                     raise ValueError(f"Concentration unit '{unit_str}' not recognized.")
         else:

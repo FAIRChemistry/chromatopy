@@ -1,3 +1,35 @@
+"""
+This file contains Pydantic model definitions for data validation.
+
+Pydantic is a data validation library that uses Python type annotations.
+It allows you to define data models with type hints that are validated
+at runtime while providing static type checking.
+
+Usage example:
+```python
+from my_model import MyModel
+
+# Validates data at runtime
+my_model = MyModel(name="John", age=30)
+
+# Type-safe - my_model has correct type hints
+print(my_model.name)
+
+# Will raise error if validation fails
+try:
+    MyModel(name="", age=30)
+except ValidationError as e:
+    print(e)
+```
+
+For more information see:
+https://docs.pydantic.dev/
+
+WARNING: This is an auto-generated file.
+Do not edit directly - any changes will be overwritten.
+"""
+
+
 ## This is a generated file. Do not modify it manually!
 
 from __future__ import annotations
@@ -6,6 +38,7 @@ from enum import Enum
 from typing import Generic, Optional, TypeVar
 from uuid import uuid4
 
+from mdmodels.units.annotation import UnitDefinitionAnnot
 from pydantic import BaseModel, ConfigDict, Field
 
 # Filter Wrapper definition used to filter a list of objects
@@ -22,7 +55,9 @@ class FilterWrapper(Generic[Cls]):
 
     def filter(self) -> list[Cls]:
         for key, value in self.kwargs.items():
-            self.collection = [item for item in self.collection if self._fetch_attr(key, item) == value]
+            self.collection = [
+                item for item in self.collection if self._fetch_attr(key, item) == value
+            ]
         return self.collection
 
     def _fetch_attr(self, name: str, item: Cls):
@@ -72,20 +107,20 @@ def validate_prefix(term: str | dict, prefix: str):
 
 class Measurement(BaseModel):
     model_config: ConfigDict = ConfigDict(  # type: ignore
-        validate_assigment=True,
+        validate_assignment=True,
     )  # type: ignore
 
     id: str
     data: Data
     temperature: float
-    temperature_unit: UnitDefinition
+    temperature_unit: UnitDefinitionAnnot
     ph: float
-    dilution_factor: float = Field(default=1)
     chromatograms: list[Chromatogram] = Field(default_factory=list)
-    sample_name: Optional[str] = Field(default=None)
-    timestamp: Optional[str] = Field(default=None)
-    injection_volume: Optional[float] = Field(default=None)
-    injection_volume_unit: Optional[UnitDefinition] = Field(default=None)
+    sample_name: Optional[Optional[str]] = Field(default=None)
+    timestamp: Optional[Optional[str]] = Field(default=None)
+    injection_volume: Optional[Optional[float]] = Field(default=None)
+    dilution_factor: Optional[float] = 1
+    injection_volume_unit: Optional[Optional[UnitDefinitionAnnot]] = Field(default=None)
 
     # JSON-LD fields
     ld_id: str = Field(
@@ -144,7 +179,9 @@ class Measurement(BaseModel):
             AssertionError: If the attribute is not found in the model
         """
 
-        assert attr in self.model_fields, f"Attribute {attr} not found in {self.__class__.__name__}"
+        assert (
+            attr in self.model_fields
+        ), f"Attribute {attr} not found in {self.__class__.__name__}"
 
         if prefix:
             validate_prefix(term, prefix)
@@ -152,7 +189,9 @@ class Measurement(BaseModel):
         add_namespace(self, prefix, iri)
         self.ld_context[attr] = term
 
-    def add_type_term(self, term: str, prefix: str | None = None, iri: str | None = None):
+    def add_type_term(
+        self, term: str, prefix: str | None = None, iri: str | None = None
+    ):
         """Adds a term to the @type field of the JSON-LD object
 
         Example:
@@ -207,12 +246,11 @@ class Measurement(BaseModel):
 
 class Data(BaseModel):
     model_config: ConfigDict = ConfigDict(  # type: ignore
-        validate_assigment=True,
-        use_enum_values=True,
+        validate_assignment=True,
     )  # type: ignore
 
     value: float
-    unit: UnitDefinition
+    unit: UnitDefinitionAnnot
     data_type: DataType
 
     # JSON-LD fields
@@ -260,7 +298,9 @@ class Data(BaseModel):
             AssertionError: If the attribute is not found in the model
         """
 
-        assert attr in self.model_fields, f"Attribute {attr} not found in {self.__class__.__name__}"
+        assert (
+            attr in self.model_fields
+        ), f"Attribute {attr} not found in {self.__class__.__name__}"
 
         if prefix:
             validate_prefix(term, prefix)
@@ -268,7 +308,9 @@ class Data(BaseModel):
         add_namespace(self, prefix, iri)
         self.ld_context[attr] = term
 
-    def add_type_term(self, term: str, prefix: str | None = None, iri: str | None = None):
+    def add_type_term(
+        self, term: str, prefix: str | None = None, iri: str | None = None
+    ):
         """Adds a term to the @type field of the JSON-LD object
 
         Example:
@@ -297,15 +339,15 @@ class Data(BaseModel):
 
 class Chromatogram(BaseModel):
     model_config: ConfigDict = ConfigDict(  # type: ignore
-        validate_assigment=True,
+        validate_assignment=True,
     )  # type: ignore
 
-    type: Optional[SignalType] = Field(default=None)
+    type: Optional[Optional[SignalType]] = Field(default=None)
     peaks: list[Peak] = Field(default_factory=list)
     signals: list[float] = Field(default_factory=list)
     times: list[float] = Field(default_factory=list)
     processed_signal: list[float] = Field(default_factory=list)
-    wavelength: Optional[float] = Field(default=None)
+    wavelength: Optional[Optional[float]] = Field(default=None)
 
     # JSON-LD fields
     ld_id: str = Field(
@@ -364,7 +406,9 @@ class Chromatogram(BaseModel):
             AssertionError: If the attribute is not found in the model
         """
 
-        assert attr in self.model_fields, f"Attribute {attr} not found in {self.__class__.__name__}"
+        assert (
+            attr in self.model_fields
+        ), f"Attribute {attr} not found in {self.__class__.__name__}"
 
         if prefix:
             validate_prefix(term, prefix)
@@ -372,7 +416,9 @@ class Chromatogram(BaseModel):
         add_namespace(self, prefix, iri)
         self.ld_context[attr] = term
 
-    def add_type_term(self, term: str, prefix: str | None = None, iri: str | None = None):
+    def add_type_term(
+        self, term: str, prefix: str | None = None, iri: str | None = None
+    ):
         """Adds a term to the @type field of the JSON-LD object
 
         Example:
@@ -441,22 +487,22 @@ class Chromatogram(BaseModel):
 
 class Peak(BaseModel):
     model_config: ConfigDict = ConfigDict(  # type: ignore
-        validate_assigment=True,
+        validate_assignment=True,
     )  # type: ignore
 
     retention_time: float
     area: float
-    molecule_id: Optional[str] = Field(default=None)
-    type: Optional[str] = Field(default=None)
-    width: Optional[float] = Field(default=None)
-    amplitude: Optional[float] = Field(default=None)
-    max_signal: Optional[float] = Field(default=None)
-    skew: Optional[float] = Field(default=None)
-    percent_area: Optional[float] = Field(default=None)
-    tailing_factor: Optional[float] = Field(default=None)
-    separation_factor: Optional[float] = Field(default=None)
-    peak_start: Optional[float] = Field(default=None)
-    peak_end: Optional[float] = Field(default=None)
+    molecule_id: Optional[Optional[str]] = Field(default=None)
+    type: Optional[Optional[str]] = Field(default=None)
+    width: Optional[Optional[float]] = Field(default=None)
+    amplitude: Optional[Optional[float]] = Field(default=None)
+    max_signal: Optional[Optional[float]] = Field(default=None)
+    skew: Optional[Optional[float]] = Field(default=None)
+    percent_area: Optional[Optional[float]] = Field(default=None)
+    tailing_factor: Optional[Optional[float]] = Field(default=None)
+    separation_factor: Optional[Optional[float]] = Field(default=None)
+    peak_start: Optional[Optional[float]] = Field(default=None)
+    peak_end: Optional[Optional[float]] = Field(default=None)
 
     # JSON-LD fields
     ld_id: str = Field(
@@ -503,7 +549,9 @@ class Peak(BaseModel):
             AssertionError: If the attribute is not found in the model
         """
 
-        assert attr in self.model_fields, f"Attribute {attr} not found in {self.__class__.__name__}"
+        assert (
+            attr in self.model_fields
+        ), f"Attribute {attr} not found in {self.__class__.__name__}"
 
         if prefix:
             validate_prefix(term, prefix)
@@ -511,222 +559,9 @@ class Peak(BaseModel):
         add_namespace(self, prefix, iri)
         self.ld_context[attr] = term
 
-    def add_type_term(self, term: str, prefix: str | None = None, iri: str | None = None):
-        """Adds a term to the @type field of the JSON-LD object
-
-        Example:
-            # Using a term
-            >> obj.add_type_term("https://schema.org/Person")
-
-            # Using a prefixed term
-            >> obj.add_type_term("schema:Person", "schema", "https://schema.org/Person")
-
-        Args:
-            term (str): The term to add to the @type field
-            prefix (str, optional): The prefix to use for the term. Defaults to None.
-            iri (str, optional): The IRI to use for the term prefix. Defaults to None.
-
-        Raises:
-            ValueError: If prefix is provided but iri is not
-            ValueError: If iri is provided but prefix is not
-        """
-
-        if prefix:
-            validate_prefix(term, prefix)
-
-        add_namespace(self, prefix, iri)
-        self.ld_type.append(term)
-
-
-class UnitDefinition(BaseModel):
-    model_config: ConfigDict = ConfigDict(  # type: ignore
-        validate_assigment=True,
-        use_enum_values=True,
-    )  # type: ignore
-
-    id: Optional[str] = Field(default=None)
-    name: Optional[str] = Field(default=None)
-    base_units: list[BaseUnit] = Field(default_factory=list)
-
-    # JSON-LD fields
-    ld_id: str = Field(
-        serialization_alias="@id",
-        default_factory=lambda: "chromatopy:UnitDefinition/" + str(uuid4()),
-    )
-    ld_type: list[str] = Field(
-        serialization_alias="@type",
-        default_factory=lambda: [
-            "chromatopy:UnitDefinition",
-        ],
-    )
-    ld_context: dict[str, str | dict] = Field(
-        serialization_alias="@context",
-        default_factory=lambda: {
-            "chromatopy": "https://github.com/FAIRChemistry/chromatopy",
-        },
-    )
-
-    def filter_base_units(self, **kwargs) -> list[BaseUnit]:
-        """Filters the base_units attribute based on the given kwargs
-
-        Args:
-            **kwargs: The attributes to filter by.
-
-        Returns:
-            list[BaseUnit]: The filtered list of BaseUnit objects
-        """
-
-        return FilterWrapper[BaseUnit](self.base_units, **kwargs).filter()
-
-    def set_attr_term(
-        self,
-        attr: str,
-        term: str | dict,
-        prefix: str | None = None,
-        iri: str | None = None,
+    def add_type_term(
+        self, term: str, prefix: str | None = None, iri: str | None = None
     ):
-        """Sets the term for a given attribute in the JSON-LD object
-
-        Example:
-            # Using an IRI term
-            >> obj.set_attr_term("name", "http://schema.org/givenName")
-
-            # Using a prefix and term
-            >> obj.set_attr_term("name", "schema:givenName", "schema", "http://schema.org")
-
-            # Usinng a dictionary term
-            >> obj.set_attr_term("name", {"@id": "http://schema.org/givenName", "@type": "@id"})
-
-        Args:
-            attr (str): The attribute to set the term for
-            term (str | dict): The term to set for the attribute
-
-        Raises:
-            AssertionError: If the attribute is not found in the model
-        """
-
-        assert attr in self.model_fields, f"Attribute {attr} not found in {self.__class__.__name__}"
-
-        if prefix:
-            validate_prefix(term, prefix)
-
-        add_namespace(self, prefix, iri)
-        self.ld_context[attr] = term
-
-    def add_type_term(self, term: str, prefix: str | None = None, iri: str | None = None):
-        """Adds a term to the @type field of the JSON-LD object
-
-        Example:
-            # Using a term
-            >> obj.add_type_term("https://schema.org/Person")
-
-            # Using a prefixed term
-            >> obj.add_type_term("schema:Person", "schema", "https://schema.org/Person")
-
-        Args:
-            term (str): The term to add to the @type field
-            prefix (str, optional): The prefix to use for the term. Defaults to None.
-            iri (str, optional): The IRI to use for the term prefix. Defaults to None.
-
-        Raises:
-            ValueError: If prefix is provided but iri is not
-            ValueError: If iri is provided but prefix is not
-        """
-
-        if prefix:
-            validate_prefix(term, prefix)
-
-        add_namespace(self, prefix, iri)
-        self.ld_type.append(term)
-
-    def add_to_base_units(
-        self,
-        kind: UnitType,
-        exponent: int,
-        multiplier: Optional[float] = None,
-        scale: Optional[float] = None,
-        **kwargs,
-    ):
-        params = {
-            "kind": kind,
-            "exponent": exponent,
-            "multiplier": multiplier,
-            "scale": scale,
-        }
-
-        if "id" in kwargs:
-            params["id"] = kwargs["id"]
-
-        self.base_units.append(BaseUnit(**params))
-
-        return self.base_units[-1]
-
-
-class BaseUnit(BaseModel):
-    model_config: ConfigDict = ConfigDict(  # type: ignore
-        validate_assigment=True,
-        use_enum_values=True,
-    )  # type: ignore
-
-    kind: UnitType
-    exponent: int
-    multiplier: Optional[float] = Field(default=None)
-    scale: Optional[float] = Field(default=None)
-
-    # JSON-LD fields
-    ld_id: str = Field(
-        serialization_alias="@id",
-        default_factory=lambda: "chromatopy:BaseUnit/" + str(uuid4()),
-    )
-    ld_type: list[str] = Field(
-        serialization_alias="@type",
-        default_factory=lambda: [
-            "chromatopy:BaseUnit",
-        ],
-    )
-    ld_context: dict[str, str | dict] = Field(
-        serialization_alias="@context",
-        default_factory=lambda: {
-            "chromatopy": "https://github.com/FAIRChemistry/chromatopy",
-        },
-    )
-
-    def set_attr_term(
-        self,
-        attr: str,
-        term: str | dict,
-        prefix: str | None = None,
-        iri: str | None = None,
-    ):
-        """Sets the term for a given attribute in the JSON-LD object
-
-        Example:
-            # Using an IRI term
-            >> obj.set_attr_term("name", "http://schema.org/givenName")
-
-            # Using a prefix and term
-            >> obj.set_attr_term("name", "schema:givenName", "schema", "http://schema.org")
-
-            # Usinng a dictionary term
-            >> obj.set_attr_term("name", {"@id": "http://schema.org/givenName", "@type": "@id"})
-
-        Args:
-            attr (str): The attribute to set the term for
-            term (str | dict): The term to set for the attribute
-
-        Raises:
-            AssertionError: If the attribute is not found in the model
-        """
-
-        assert attr in self.model_fields, f"Attribute {attr} not found in {self.__class__.__name__}"
-
-        if prefix:
-            validate_prefix(term, prefix)
-
-        add_namespace(self, prefix, iri)
-        self.ld_context[attr] = term
-
-    def add_type_term(self, term: str, prefix: str | None = None, iri: str | None = None):
         """Adds a term to the @type field of the JSON-LD object
 
         Example:
@@ -769,38 +604,11 @@ class DataType(Enum):
     TIMECOURSE = "timecourse"
 
 
-class UnitType(Enum):
-    AMPERE = "ampere"
-    AVOGADRO = "avogadro"
-    BECQUEREL = "becquerel"
-    CANDELA = "candela"
-    CELSIUS = "celsius"
-    COULOMB = "coulomb"
-    DIMENSIONLESS = "dimensionless"
-    FARAD = "farad"
-    GRAM = "gram"
-    GRAY = "gray"
-    HENRY = "henry"
-    HERTZ = "hertz"
-    ITEM = "item"
-    JOULE = "joule"
-    KATAL = "katal"
-    KELVIN = "kelvin"
-    KILOGRAM = "kilogram"
-    LITRE = "litre"
-    LUMEN = "lumen"
-    LUX = "lux"
-    METRE = "metre"
-    MOLE = "mole"
-    NEWTON = "newton"
-    OHM = "ohm"
-    PASCAL = "pascal"
-    RADIAN = "radian"
-    SECOND = "second"
-    SIEMENS = "siemens"
-    SIEVERT = "sievert"
-    STERADIAN = "steradian"
-    TESLA = "tesla"
-    VOLT = "volt"
-    WATT = "watt"
-    WEBER = "weber"
+# Rebuild all the classes within this file
+for cls in [
+    Measurement,
+    Data,
+    Chromatogram,
+    Peak,
+]:
+    cls.model_rebuild()

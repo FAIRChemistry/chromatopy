@@ -13,7 +13,9 @@ class AgilentRDLReader(AbstractReader):
 
             peak_data, sample_name, signal = self.extract_information(lines)
 
-            peak_data = [self.align_and_concatenate_columns(*pair) for pair in peak_data]
+            peak_data = [
+                self.align_and_concatenate_columns(*pair) for pair in peak_data
+            ]
             peaks = [self.map_peak(peak) for peak in peak_data]
 
             sample_name = self.align_and_concatenate_columns(*sample_name)[1]
@@ -22,7 +24,7 @@ class AgilentRDLReader(AbstractReader):
 
             data = Data(
                 value=self.values[path_id],
-                unit=self.unit,
+                unit=self.unit.name,
                 data_type=self.mode,
             )
 
@@ -33,7 +35,7 @@ class AgilentRDLReader(AbstractReader):
                     id=f"m{path_id}",
                     chromatograms=[chromatogram],
                     temperature=self.temperature,
-                    temperature_unit=self.temperature_unit,
+                    temperature_unit=self.temperature_unit.name,
                     ph=self.ph,
                     data=data,
                 )
@@ -96,7 +98,10 @@ class AgilentRDLReader(AbstractReader):
 
         # Concatenate aligned columns
         if row2_columns:
-            aligned_columns = [f"{col1}{col2}".strip() for col1, col2 in zip(row1_columns, row2_columns)]
+            aligned_columns = [
+                f"{col1}{col2}".strip()
+                for col1, col2 in zip(row1_columns, row2_columns)
+            ]
             return aligned_columns[1:-1]
 
         return row1_columns[1:-1]
