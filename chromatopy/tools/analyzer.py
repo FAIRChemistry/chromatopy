@@ -26,7 +26,6 @@ from chromatopy.model import (
 from chromatopy.tools.molecule import Molecule
 from chromatopy.tools.protein import Protein
 from chromatopy.tools.utility import _resolve_chromatogram
-from chromatopy.units import C
 
 
 class ChromAnalyzer(BaseModel):
@@ -312,7 +311,7 @@ class ChromAnalyzer(BaseModel):
         path: str,
         ph: float,
         temperature: float,
-        temperature_unit: UnitDefinitionAnnot = C,
+        temperature_unit: UnitDefinitionAnnot = "C",
         mode: Optional[Literal["timecourse", "calibration"]] = None,
         values: Optional[list[float]] = None,
         unit: Optional[UnitDefinitionAnnot] = None,
@@ -369,7 +368,7 @@ class ChromAnalyzer(BaseModel):
         path: str,
         ph: float,
         temperature: float,
-        temperature_unit: UnitDefinitionAnnot = C,
+        temperature_unit: UnitDefinitionAnnot = "C",
         mode: Optional[Literal["timecourse", "calibration"]] = None,
         values: Optional[list[float]] = None,
         unit: Optional[UnitDefinitionAnnot] = None,
@@ -431,7 +430,7 @@ class ChromAnalyzer(BaseModel):
         path: str,
         ph: float,
         temperature: float,
-        temperature_unit: UnitDefinitionAnnot = C,
+        temperature_unit: UnitDefinitionAnnot = "C",
         mode: Optional[Literal["timecourse", "calibration"]] = None,
         values: Optional[list[float]] = None,
         unit: Optional[UnitDefinitionAnnot] = None,
@@ -508,15 +507,15 @@ class ChromAnalyzer(BaseModel):
         }
 
         if rdl_paths:
-            data["file_paths"] = rdl_paths  # type: ignore
+            data["file_paths"] = rdl_paths
             reader = AgilentRDLReader(**data)
             measurements = reader.read()
         elif not csv_paths and txt_paths:
-            data["file_paths"] = txt_paths  # type: ignore
+            data["file_paths"] = txt_paths
             reader = AgilentTXTReader(**data)  # type: ignore
             measurements = reader.read()
         elif csv_paths and not txt_paths:
-            data["file_paths"] = csv_paths  # type: ignore
+            data["file_paths"] = csv_paths
             reader = AgilentCSVReader(**data)  # type: ignore
             measurements = AgilentCSVReader(**data).read()
         else:
@@ -533,7 +532,7 @@ class ChromAnalyzer(BaseModel):
         path: str,
         ph: float,
         temperature: float,
-        temperature_unit: UnitDefinitionAnnot = C,
+        temperature_unit: UnitDefinitionAnnot = "C",
         mode: Optional[Literal["timecourse", "calibration"]] = None,
         values: Optional[list[float]] = None,
         unit: Optional[UnitDefinitionAnnot] = None,
@@ -590,7 +589,7 @@ class ChromAnalyzer(BaseModel):
         path: str,
         ph: float,
         temperature: float,
-        temperature_unit: UnitDefinitionAnnot = C,
+        temperature_unit: UnitDefinitionAnnot = "C",
         mode: Optional[Literal["timecourse", "calibration"]] = None,
         values: Optional[list[float]] = None,
         unit: Optional[UnitDefinitionAnnot] = None,
@@ -636,7 +635,7 @@ class ChromAnalyzer(BaseModel):
         if id is None:
             id = path
 
-        reader = ThermoTX0Reader(**data)  # type: ignore
+        reader = ThermoTX0Reader(**data)
         measurements = reader.read()
 
         return cls(id=id, name=name, measurements=measurements, mode=reader.mode)

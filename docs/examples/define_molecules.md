@@ -37,7 +37,6 @@ The `ChromAnalyzer` class provides two primary methods for defining molecules, a
 
     ```python
     from chromatopy import ChromAnalyzer
-    from chromatopy.units import mM, minute
 
     # Read chromatographic data
     analyzer = ChromAnalyzer.read_thermo(
@@ -46,7 +45,7 @@ The `ChromAnalyzer` class provides two primary methods for defining molecules, a
         temperature=25.0,
         mode="timecourse",
         values=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
-        unit=minute,
+        unit="min",
     )
 
     # Define a molecule with a retention time
@@ -56,7 +55,7 @@ The `ChromAnalyzer` class provides two primary methods for defining molecules, a
         name="ATP",
         retention_time=5.64,
         init_conc=1.0,
-        conc_unit=mM,
+        conc_unit="mmol / l",
     )
     ```
     ```
@@ -88,9 +87,7 @@ Using the `add_molecule` method, an existing molecule can be added to the `Chrom
     Here the previously created molecule is added to the `ChromAnalyzer` object, and the initial concentration is updated.
 
     ```python
-    from chromatopy.units import mM
-
-    analyzer.add_molecule(ADP, init_conc=4.5, conc_unit=mM)
+    analyzer.add_molecule(ADP, init_conc=4.5, conc_unit="mmol / l")
     ```
     ```
     🎯 Assigned ADP to 8 peaks

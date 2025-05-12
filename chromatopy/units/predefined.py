@@ -1,3 +1,12 @@
+import warnings
+
+warnings.warn(
+    "Importing units from `predefined.units` is discouraged. "
+    "Use strings like 'mmol / l', 's', etc. instead.",
+    UserWarning,
+    stacklevel=3,
+)
+
 # Molarity
 M = "mol / l"
 mM = "mmol / l"

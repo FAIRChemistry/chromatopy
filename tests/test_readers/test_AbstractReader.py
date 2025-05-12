@@ -2,12 +2,8 @@ import os
 
 import pytest
 
-from chromatopy.readers.abstractreader import AbstractReader, UnitConsistencyError
-
-
-class TestAbstractReader(AbstractReader):
-    def read(self):
-        pass
+from chromatopy.readers.abstractreader import UnitConsistencyError
+from tests.test_readers.dummyreader import DummyReader
 
 
 @pytest.fixture
@@ -27,7 +23,7 @@ def inconsistent_units_dir() -> str:
 
 
 def test_parse_time_and_unit_success(working_data_dir: str) -> None:
-    reader = TestAbstractReader(
+    reader = DummyReader(
         dirpath=working_data_dir,
         ph=7.0,
         temperature=25.0,
@@ -55,7 +51,7 @@ def test_parse_time_and_unit_inconsistent_units(inconsistent_units_dir: str) -> 
     with pytest.raises(
         UnitConsistencyError,
     ):
-        TestAbstractReader(
+        DummyReader(
             dirpath=inconsistent_units_dir,
             values=None,
             unit=None,

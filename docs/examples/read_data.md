@@ -58,7 +58,6 @@ __Returns__:
 
         ```python
         from chromatopy import ChromAnalyzer
-        from chromatopy.units import minute
 
         data_dir = "data/agilent_txt"
         reaction_times = [0, 10, 20, 40]
@@ -68,7 +67,7 @@ __Returns__:
             ph=7.4,
             temperature=25,
             values=reaction_times,
-            unit=minute,
+            unit="min",
             mode="timecourse",
         )
         ```
@@ -82,7 +81,6 @@ __Returns__:
 
         ```python
         from chromatopy import ChromAnalyzer
-        from chromatopy.units import minute
 
         data_dir = "data/agilent_rdl"
 
@@ -124,7 +122,6 @@ __Returns__:
 
         ```python
         from chromatopy import ChromAnalyzer
-        from chromatopy.units import minute
 
         data_dir = "data/shimadzu"
 
@@ -133,7 +130,7 @@ __Returns__:
             ph=7.4,
             temperature=25,
             values=[0, 5, 10, 15, 20, 25, 30, 35, 40],
-            unit=minute,
+            unit="min",
             mode="timecourse",
         )
         ```
@@ -147,17 +144,16 @@ __Returns__:
 
         ```python
         from chromatopy import ChromAnalyzer
-        from chromatopy.units import C, minute
 
         data_dir = "data/thermo"
 
         analyzer = ChromAnalyzer.read_thermo(
             path=data_dir,
             values=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
-            unit=minute,
+            unit="min",
             ph=7.4,
             temperature=25.0,
-            temperature_unit=C,
+            temperature_unit="C",
             silent=True,
             mode="timecourse",
         )

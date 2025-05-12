@@ -7,7 +7,6 @@ import pandas as pd
 
 from chromatopy.model import Data, Measurement, Peak, SignalType
 from chromatopy.readers.abstractreader import AbstractReader
-from chromatopy.units.predefined import ul
 
 
 class ShimadzuReader(AbstractReader):
@@ -66,7 +65,7 @@ class ShimadzuReader(AbstractReader):
                 ph=self.ph,
                 injection_volume=injection_volume,
                 dilution_factor=dilution_factor,
-                injection_volume_unit=ul,
+                injection_volume_unit="ul",
             )
 
             # peak tables

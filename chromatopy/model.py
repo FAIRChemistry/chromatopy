@@ -108,7 +108,7 @@ def validate_prefix(term: str | dict, prefix: str):
 class Measurement(BaseModel):
     model_config: ConfigDict = ConfigDict(  # type: ignore
         validate_assignment=True,
-    )  # type: ignore
+    )
 
     id: str
     data: Data

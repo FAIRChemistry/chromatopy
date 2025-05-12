@@ -51,7 +51,6 @@ The `ChromAnalyzer` allows for the annotation of peaks corresponding to these re
 
     ```python
     from chromatopy import ChromAnalyzer
-    from chromatopy.units import mM
 
     # Read the data
     data_dir = "data/asm"
@@ -66,7 +65,7 @@ The `ChromAnalyzer` allows for the annotation of peaks corresponding to these re
         name="N6-benzyl-ATP",
         retention_time=13.9,
         init_conc=2.5,
-        conc_unit=mM,
+        conc_unit="mmol / l",
     )
 
     # Define ortho-nitrobenzyl-DL-homocysteine
@@ -76,7 +75,7 @@ The `ChromAnalyzer` allows for the annotation of peaks corresponding to these re
         name="ortho-nitrobenzyl-DL-homocysteine",
         retention_time=15.7,
         init_conc=5,
-        conc_unit=mM,
+        conc_unit="mmol /l",
     )
 
     # Define AdoONB analogue
@@ -86,7 +85,7 @@ The `ChromAnalyzer` allows for the annotation of peaks corresponding to these re
         name="DHBAL",
         retention_time=12.6,
         init_conc=0,
-        conc_unit=mM,
+        conc_unit="mmol /l",
     )
 
     DHBAL_modified = cascade_analyzer.define_molecule(
@@ -95,7 +94,7 @@ The `ChromAnalyzer` allows for the annotation of peaks corresponding to these re
         name="DHBAL O3",
         retention_time=23.21,
         init_conc=0,
-        conc_unit=mM,
+        conc_unit="mmol /l",
     )
     ```
     ```
@@ -1550,7 +1549,6 @@ Once a standard is defined, it can be transferred to another `ChromAnalyzer` obj
 
     ```python
     from chromatopy import ChromAnalyzer
-    from chromatopy.units import mM, hour
 
     data_path = "data/chromeleon_kinetic/"
     time_course_analyzer = ChromAnalyzer.read_chromeleon(
@@ -1559,7 +1557,7 @@ Once a standard is defined, it can be transferred to another `ChromAnalyzer` obj
         temperature=25,
         mode="timecourse",
         values=[0, 0, 0, 24, 24, 24],
-        unit=hour,
+        unit="hour",
     )
 
     time_course_analyzer.process_chromatograms()
@@ -1568,7 +1566,7 @@ Once a standard is defined, it can be transferred to another `ChromAnalyzer` obj
     time_course_analyzer.add_molecule(
         molecule=adenosine,
         init_conc=0,
-        conc_unit=mM,
+        conc_unit="mmol / l",
         retention_tolerance=0.5,
     )
     ```
@@ -1628,7 +1626,6 @@ The following example shows how an internal standard molecule is added to the `c
 
     ```python
     from chromatopy import ChromAnalyzer
-    from chromatopy.units import M, minute
 
     path = "data/agilent_csv"
     time = [0, 3, 6, 9, 12, 15, 18, 21, 24, 27, 30, 45, 60]
@@ -1640,7 +1637,7 @@ The following example shows how an internal standard molecule is added to the `c
         temperature=25,
         mode="timecourse",
         values=time,
-        unit=minute,
+        unit="min",
     )
 
     # add molecules
@@ -1649,7 +1646,7 @@ The following example shows how an internal standard molecule is added to the `c
         name="maleimide",
         pubchem_cid=10935,
         init_conc=0.656,
-        conc_unit=M,
+        conc_unit="mol / l",
         retention_time=6.05,
     )
 
@@ -1659,7 +1656,7 @@ The following example shows how an internal standard molecule is added to the `c
         name="internal standard",
         pubchem_cid=-1,
         init_conc=1.0,
-        conc_unit=M,
+        conc_unit="mol / l",
         retention_time=6.3,
         retention_tolerance=0.05,
     )
