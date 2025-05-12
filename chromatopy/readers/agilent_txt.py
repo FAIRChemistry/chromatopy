@@ -12,7 +12,6 @@ from chromatopy.model import (
     SignalType,
 )
 from chromatopy.readers.abstractreader import AbstractReader
-from chromatopy.units import ul
 
 
 class AgilentTXTReader(AbstractReader):
@@ -133,7 +132,7 @@ class AgilentTXTReader(AbstractReader):
         if match:
             injection_volume, _ = match[0].split()
             measurement.injection_volume = float(injection_volume)
-            measurement.injection_volume_unit = ul
+            measurement.injection_volume_unit = "ul"
 
     def _parse_signal(self, signal_content: list[str]) -> Chromatogram:
         """Parses a signal block into a Chromatogram object."""

@@ -17,7 +17,7 @@
             "organism": null,
             "organism_tax_id": null,
             "references": [],
-            "ld_id": "enzml:Protein/e90c9e21-6bd3-4a59-8c06-282f750b6efd",
+            "ld_id": "enzml:Protein/cf65f1d8-c2b4-4713-b2a6-d1d338a934b2",
             "ld_type": [
                 "enzml:Protein",
                 "OBO:PR_000000001"
@@ -160,7 +160,7 @@
                     },
                     "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/23818b6d-d4a9-4a3d-9edd-0787ec5e3e26",
+                    "ld_id": "enzml:MeasurementData/4613394e-218e-4a4a-b287-e7dfa7f76908",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -227,7 +227,7 @@
                     },
                     "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/58bcc75d-14ee-4b3e-9135-3a9d935e80de",
+                    "ld_id": "enzml:MeasurementData/b783e64d-bde3-4dd3-aeae-28c749f15a5a",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -294,7 +294,7 @@
                     },
                     "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/b2ac631d-e083-464b-9a3a-df6a7bb557bb",
+                    "ld_id": "enzml:MeasurementData/b509a393-08c5-4709-bb5a-3d999f26b96c",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -329,7 +329,7 @@
                     }
                 ]
             },
-            "ld_id": "enzml:Measurement/155fd745-7975-4c07-a06e-61f51b798b04",
+            "ld_id": "enzml:Measurement/58103c08-6106-4bd3-8a16-508d942767ac",
             "ld_type": [
                 "enzml:Measurement"
             ],
@@ -350,7 +350,7 @@
     "equations": [],
     "parameters": [],
     "references": [],
-    "ld_id": "enzml:EnzymeMLDocument/e2c83849-b849-4b19-b50a-eb221cb59f2c",
+    "ld_id": "enzml:EnzymeMLDocument/0784146e-2bc8-481e-bb15-d23816c9cea7",
     "ld_type": [
         "enzml:EnzymeMLDocument"
     ],
