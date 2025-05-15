@@ -1,0 +1,295 @@
+{
+    "id": "Ado",
+    "pubchem_cid": 60961,
+    "name": "Adenosine",
+    "init_conc": null,
+    "conc_unit": {
+        "id": "umol / l",
+        "name": "umol / l",
+        "base_units": [
+            {
+                "kind": "mole",
+                "exponent": 1,
+                "multiplier": 1.0,
+                "scale": -6.0
+            },
+            {
+                "kind": "litre",
+                "exponent": -1,
+                "multiplier": 1.0,
+                "scale": 0.0
+            }
+        ]
+    },
+    "retention_time": 7.8,
+    "wavelength": null,
+    "standard": {
+        "molecule_id": "Ado",
+        "pubchem_cid": 60961,
+        "molecule_name": "Adenosine",
+        "ph": 7.4,
+        "temperature": 37.0,
+        "temp_unit": {
+            "id": "C",
+            "name": "C",
+            "base_units": [
+                {
+                    "kind": "ampere",
+                    "exponent": 1,
+                    "multiplier": 1.0,
+                    "scale": 0.0
+                },
+                {
+                    "kind": "second",
+                    "exponent": 1,
+                    "multiplier": 1.0,
+                    "scale": 0.0
+                }
+            ]
+        },
+        "retention_time": null,
+        "wavelength": null,
+        "samples": [
+            {
+                "concentration": 25.0,
+                "conc_unit": {
+                    "id": "umol / l",
+                    "name": "umol / l",
+                    "base_units": [
+                        {
+                            "kind": "mole",
+                            "exponent": 1,
+                            "multiplier": 1.0,
+                            "scale": -6.0
+                        },
+                        {
+                            "kind": "litre",
+                            "exponent": -1,
+                            "multiplier": 1.0,
+                            "scale": 0.0
+                        }
+                    ]
+                },
+                "signal": 206070492.57077637,
+                "ld_id": "md:Sample/17fcd527-78d0-46c1-aed0-4dd896628b7e",
+                "ld_type": [
+                    "md:Sample"
+                ],
+                "ld_context": {
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
+                }
+            },
+            {
+                "concentration": 50.0,
+                "conc_unit": {
+                    "id": "umol / l",
+                    "name": "umol / l",
+                    "base_units": [
+                        {
+                            "kind": "mole",
+                            "exponent": 1,
+                            "multiplier": 1.0,
+                            "scale": -6.0
+                        },
+                        {
+                            "kind": "litre",
+                            "exponent": -1,
+                            "multiplier": 1.0,
+                            "scale": 0.0
+                        }
+                    ]
+                },
+                "signal": 439195099.4666703,
+                "ld_id": "md:Sample/3995d9b2-7070-4142-8426-63c3030a6a06",
+                "ld_type": [
+                    "md:Sample"
+                ],
+                "ld_context": {
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
+                }
+            },
+            {
+                "concentration": 100.0,
+                "conc_unit": {
+                    "id": "umol / l",
+                    "name": "umol / l",
+                    "base_units": [
+                        {
+                            "kind": "mole",
+                            "exponent": 1,
+                            "multiplier": 1.0,
+                            "scale": -6.0
+                        },
+                        {
+                            "kind": "litre",
+                            "exponent": -1,
+                            "multiplier": 1.0,
+                            "scale": 0.0
+                        }
+                    ]
+                },
+                "signal": 854035324.340625,
+                "ld_id": "md:Sample/bc4213bc-47d3-4eea-b64f-2aa16bb405b6",
+                "ld_type": [
+                    "md:Sample"
+                ],
+                "ld_context": {
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
+                }
+            },
+            {
+                "concentration": 200.0,
+                "conc_unit": {
+                    "id": "umol / l",
+                    "name": "umol / l",
+                    "base_units": [
+                        {
+                            "kind": "mole",
+                            "exponent": 1,
+                            "multiplier": 1.0,
+                            "scale": -6.0
+                        },
+                        {
+                            "kind": "litre",
+                            "exponent": -1,
+                            "multiplier": 1.0,
+                            "scale": 0.0
+                        }
+                    ]
+                },
+                "signal": 1746852483.6073058,
+                "ld_id": "md:Sample/39638e73-6e20-44b0-9936-399fe2ca4706",
+                "ld_type": [
+                    "md:Sample"
+                ],
+                "ld_context": {
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
+                }
+            },
+            {
+                "concentration": 400.0,
+                "conc_unit": {
+                    "id": "umol / l",
+                    "name": "umol / l",
+                    "base_units": [
+                        {
+                            "kind": "mole",
+                            "exponent": 1,
+                            "multiplier": 1.0,
+                            "scale": -6.0
+                        },
+                        {
+                            "kind": "litre",
+                            "exponent": -1,
+                            "multiplier": 1.0,
+                            "scale": 0.0
+                        }
+                    ]
+                },
+                "signal": 3435929167.1560173,
+                "ld_id": "md:Sample/1a6695c8-c528-4b66-9d6a-0b8492e3023c",
+                "ld_type": [
+                    "md:Sample"
+                ],
+                "ld_context": {
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
+                }
+            },
+            {
+                "concentration": 800.0,
+                "conc_unit": {
+                    "id": "umol / l",
+                    "name": "umol / l",
+                    "base_units": [
+                        {
+                            "kind": "mole",
+                            "exponent": 1,
+                            "multiplier": 1.0,
+                            "scale": -6.0
+                        },
+                        {
+                            "kind": "litre",
+                            "exponent": -1,
+                            "multiplier": 1.0,
+                            "scale": 0.0
+                        }
+                    ]
+                },
+                "signal": 6884309268.309377,
+                "ld_id": "md:Sample/f67fb919-428c-4e6a-9f85-6eb929031f87",
+                "ld_type": [
+                    "md:Sample"
+                ],
+                "ld_context": {
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
+                }
+            }
+        ],
+        "result": {
+            "name": "linear",
+            "molecule_id": "Ado",
+            "signal_law": "Ado * a",
+            "parameters": [
+                {
+                    "symbol": "a",
+                    "value": 8608005.424969805,
+                    "init_value": 1.0,
+                    "stderr": 14534.773785595427,
+                    "lower_bound": 0.001,
+                    "upper_bound": 10000000000.0,
+                    "ld_id": "md:Parameter/885230af-c358-4671-a176-862a14999ea2",
+                    "ld_type": [
+                        "md:Parameter"
+                    ],
+                    "ld_context": {
+                        "md": "https://github.com/FAIRChemistry/CaliPytion"
+                    }
+                }
+            ],
+            "was_fitted": true,
+            "calibration_range": {
+                "conc_lower": 0.0,
+                "conc_upper": 800.0,
+                "signal_lower": 0.0,
+                "signal_upper": 6884309268.309377,
+                "ld_id": "md:CalibrationRange/8e3d9771-5aec-42d8-b0c2-55db56105d14",
+                "ld_type": [
+                    "md:CalibrationRange"
+                ],
+                "ld_context": {
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
+                }
+            },
+            "statistics": {
+                "aic": 197.8591752784957,
+                "bic": 197.65093474772377,
+                "r2": 0.9999723000175641,
+                "rmsd": 12256879.631351836,
+                "ld_id": "md:FitStatistics/2f58333f-1a4b-47ec-9ce4-d9935129144a",
+                "ld_type": [
+                    "md:FitStatistics"
+                ],
+                "ld_context": {
+                    "md": "https://github.com/FAIRChemistry/CaliPytion"
+                }
+            },
+            "ld_id": "md:CalibrationModel/b1102836-29b4-46de-abd2-c0f4c4fe6ba4",
+            "ld_type": [
+                "md:CalibrationModel"
+            ],
+            "ld_context": {
+                "md": "https://github.com/FAIRChemistry/CaliPytion"
+            }
+        },
+        "ld_id": "https://pubchem.ncbi.nlm.nih.gov/compound/60961",
+        "ld_type": [
+            "md:Calibration"
+        ],
+        "ld_context": {
+            "md": "https://github.com/FAIRChemistry/CaliPytion"
+        }
+    },
+    "retention_tolerance": 0.05,
+    "constant": false,
+    "internal_standard": false
+}
