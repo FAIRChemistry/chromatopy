@@ -17,7 +17,7 @@
             "organism": null,
             "organism_tax_id": null,
             "references": [],
-            "ld_id": "enzml:Protein/cf65f1d8-c2b4-4713-b2a6-d1d338a934b2",
+            "ld_id": "enzml:Protein/b7c22a69-7fa9-44e6-955a-e299f431a6eb",
             "ld_type": [
                 "enzml:Protein",
                 "OBO:PR_000000001"
@@ -160,7 +160,7 @@
                     },
                     "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/4613394e-218e-4a4a-b287-e7dfa7f76908",
+                    "ld_id": "enzml:MeasurementData/ca454ba7-de4a-46c3-b85c-39e6a995da50",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -176,7 +176,7 @@
                 {
                     "species_id": "SAH",
                     "prepared": 225.0,
-                    "initial": 215.02217601390657,
+                    "initial": 215.02217846259694,
                     "data_unit": {
                         "id": "umol / l",
                         "name": "umol / l",
@@ -196,13 +196,13 @@
                         ]
                     },
                     "data": [
-                        215.02217601390657,
-                        105.82217209710173,
-                        72.01744403922943,
-                        56.34982200684845,
-                        39.93442877191466,
-                        32.63424187826031,
-                        30.267587018550405
+                        215.02217846259694,
+                        105.8221733022134,
+                        72.01744485937006,
+                        56.34982264856489,
+                        39.93442922669124,
+                        32.63424224990176,
+                        30.267587363240196
                     ],
                     "time": [
                         0.0,
@@ -227,7 +227,7 @@
                     },
                     "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/b783e64d-bde3-4dd3-aeae-28c749f15a5a",
+                    "ld_id": "enzml:MeasurementData/d4cbd5e5-dc7f-46ac-869e-4b156e181033",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -243,7 +243,7 @@
                 {
                     "species_id": "Ado",
                     "prepared": 0.0,
-                    "initial": 12.719310709063759,
+                    "initial": 12.719311082502344,
                     "data_unit": {
                         "id": "umol / l",
                         "name": "umol / l",
@@ -263,13 +263,13 @@
                         ]
                     },
                     "data": [
-                        12.719310709063759,
-                        101.06247587474189,
-                        126.20002577877281,
-                        135.34565063040188,
-                        145.54190350238864,
-                        144.6097026411664,
-                        144.5084394291433
+                        12.719311082502344,
+                        101.06247884193318,
+                        126.20002948400183,
+                        135.34565460414618,
+                        145.5419077754946,
+                        144.60970688690298,
+                        144.5084436719068
                     ],
                     "time": [
                         0.0,
@@ -294,7 +294,7 @@
                     },
                     "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/b509a393-08c5-4709-bb5a-3d999f26b96c",
+                    "ld_id": "enzml:MeasurementData/bafbe42b-b713-4ba7-8dd4-41156555d787",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -329,7 +329,7 @@
                     }
                 ]
             },
-            "ld_id": "enzml:Measurement/58103c08-6106-4bd3-8a16-508d942767ac",
+            "ld_id": "enzml:Measurement/9d2f0606-5515-40b9-8a2b-f9fb72b70643",
             "ld_type": [
                 "enzml:Measurement"
             ],
@@ -350,7 +350,7 @@
     "equations": [],
     "parameters": [],
     "references": [],
-    "ld_id": "enzml:EnzymeMLDocument/0784146e-2bc8-481e-bb15-d23816c9cea7",
+    "ld_id": "enzml:EnzymeMLDocument/6e96826e-be01-4559-920c-0d49d67090a1",
     "ld_type": [
         "enzml:EnzymeMLDocument"
     ],
