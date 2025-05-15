@@ -71,7 +71,7 @@
                     ]
                 },
                 "signal": 206070492.57077637,
-                "ld_id": "md:Sample/bc97ce79-741b-46f7-a943-c4077836af85",
+                "ld_id": "md:Sample/17fcd527-78d0-46c1-aed0-4dd896628b7e",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -100,7 +100,7 @@
                     ]
                 },
                 "signal": 439195099.4666703,
-                "ld_id": "md:Sample/a69976ff-a2d2-46d9-873b-89db41d5a333",
+                "ld_id": "md:Sample/3995d9b2-7070-4142-8426-63c3030a6a06",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -129,7 +129,7 @@
                     ]
                 },
                 "signal": 854035324.340625,
-                "ld_id": "md:Sample/fa0e2714-4cb3-4e8b-b780-8f3194ce6e2d",
+                "ld_id": "md:Sample/bc4213bc-47d3-4eea-b64f-2aa16bb405b6",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -158,7 +158,7 @@
                     ]
                 },
                 "signal": 1746852483.6073058,
-                "ld_id": "md:Sample/5a29c3c8-c7a5-405b-85be-485fe12997bd",
+                "ld_id": "md:Sample/39638e73-6e20-44b0-9936-399fe2ca4706",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -187,7 +187,7 @@
                     ]
                 },
                 "signal": 3435929167.1560173,
-                "ld_id": "md:Sample/4e89590c-1440-450b-b975-4cd538beebad",
+                "ld_id": "md:Sample/1a6695c8-c528-4b66-9d6a-0b8492e3023c",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -216,7 +216,7 @@
                     ]
                 },
                 "signal": 6884309268.309377,
-                "ld_id": "md:Sample/2f8cdea9-432b-412d-ae66-0244692a9000",
+                "ld_id": "md:Sample/f67fb919-428c-4e6a-9f85-6eb929031f87",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -232,12 +232,12 @@
             "parameters": [
                 {
                     "symbol": "a",
-                    "value": 8608005.67770059,
+                    "value": 8608005.424969805,
                     "init_value": 1.0,
-                    "stderr": 14475.399286044209,
-                    "lower_bound": -1e-6,
-                    "upper_bound": 10000000000000.0,
-                    "ld_id": "md:Parameter/db5d4898-8a31-4349-b873-657661c17fbf",
+                    "stderr": 14534.773785595427,
+                    "lower_bound": 0.001,
+                    "upper_bound": 10000000000.0,
+                    "ld_id": "md:Parameter/885230af-c358-4671-a176-862a14999ea2",
                     "ld_type": [
                         "md:Parameter"
                     ],
@@ -252,7 +252,7 @@
                 "conc_upper": 800.0,
                 "signal_lower": 0.0,
                 "signal_upper": 6884309268.309377,
-                "ld_id": "md:CalibrationRange/b4cabefa-af6f-4fe9-801f-de9934a7cfbe",
+                "ld_id": "md:CalibrationRange/8e3d9771-5aec-42d8-b0c2-55db56105d14",
                 "ld_type": [
                     "md:CalibrationRange"
                 ],
@@ -261,11 +261,11 @@
                 }
             },
             "statistics": {
-                "aic": 197.8591752788592,
-                "bic": 197.65093474808725,
-                "r2": 0.9999723000175624,
-                "rmsd": 12256879.63172309,
-                "ld_id": "md:FitStatistics/ce927253-ff1e-47d3-9362-daa88ef02ed0",
+                "aic": 197.8591752784957,
+                "bic": 197.65093474772377,
+                "r2": 0.9999723000175641,
+                "rmsd": 12256879.631351836,
+                "ld_id": "md:FitStatistics/2f58333f-1a4b-47ec-9ce4-d9935129144a",
                 "ld_type": [
                     "md:FitStatistics"
                 ],
@@ -273,7 +273,7 @@
                     "md": "https://github.com/FAIRChemistry/CaliPytion"
                 }
             },
-            "ld_id": "md:CalibrationModel/e696f917-0995-44f2-845e-a51330722705",
+            "ld_id": "md:CalibrationModel/b1102836-29b4-46de-abd2-c0f4c4fe6ba4",
             "ld_type": [
                 "md:CalibrationModel"
             ],
