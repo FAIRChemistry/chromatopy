@@ -729,10 +729,7 @@ def _check_molecule_conc_unit_and_init_conc(molecule: Molecule | Protein) -> Non
         """)
 
     if molecule.conc_unit is None:
-        if molecule.standard:
-            molecule.conc_unit = molecule.standard.samples[0].conc_unit
-        else:
-            raise ValueError(f"""
+        raise ValueError(f"""
             No concentration unit is defined for molecule {molecule.name}.
             Please specify the concentration unit or define a standard for the molecule.
             """)
