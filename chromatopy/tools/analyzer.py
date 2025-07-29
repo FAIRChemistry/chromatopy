@@ -94,6 +94,7 @@ class ChromAnalyzer(BaseModel):
         init_conc: Optional[float] = None,
         conc_unit: Optional[str] = None,
         retention_tolerance: Optional[float] = None,
+        min_signal: float = 0.0,
     ) -> None:
         """
         Adds a molecule to the list of species, allowing to update the initial concentration,
@@ -105,6 +106,8 @@ class ChromAnalyzer(BaseModel):
             conc_unit (UnitDefinitionAnnot | None, optional): The unit of the concentration. Defaults to None.
             retention_tolerance (float | None, optional): Retention time tolerance for peak annotation
                 in minutes. Defaults to None.
+            min_signal (float, optional): Minimum signal threshold for peak assignment. Peaks must have
+                an area >= this value to be assigned to this molecule. Defaults to 0.0 (no minimum threshold).
         """
 
         new_mol = copy.deepcopy(molecule)
@@ -117,6 +120,8 @@ class ChromAnalyzer(BaseModel):
 
         if retention_tolerance is not None:
             new_mol.retention_tolerance = retention_tolerance
+
+        new_mol.min_signal = min_signal
 
         self._update_molecule(new_mol)
 
@@ -136,6 +141,7 @@ class ChromAnalyzer(BaseModel):
         name: Optional[str] = None,
         wavelength: Optional[float] = None,
         is_internal_standard: bool = False,
+        min_signal: float = 0.0,
     ) -> Molecule:
         """
         Defines and adds a molecule to the list of molecules.
@@ -154,6 +160,8 @@ class ChromAnalyzer(BaseModel):
             wavelength (Optional[float], optional): Wavelength of the detector where the molecule was detected. If not provided,
                 it defaults to None.
             is_internal_standard (bool, optional): If True, the molecule is used as internal standard. Defaults to False.
+            min_signal (float, optional): Minimum signal threshold for peak assignment. Peaks must have
+                an area >= this value to be assigned to this molecule. Defaults to 0.0 (no minimum threshold).
 
         Returns:
             Molecule: The molecule object that was added to the list of species.
@@ -181,6 +189,7 @@ class ChromAnalyzer(BaseModel):
             retention_tolerance=retention_tolerance,
             wavelength=wavelength,
             internal_standard=is_internal_standard,
+            min_signal=min_signal,
         )
 
         self._update_molecule(molecule)
@@ -228,6 +237,13 @@ class ChromAnalyzer(BaseModel):
                     < molecule.retention_time
                     < peak.retention_time + ret_tolerance
                 ):
+                    # Check if min_signal criterion is met
+                    if peak.area < molecule.min_signal:
+                        logger.debug(
+                            f"Peak at {peak.retention_time} for molecule {molecule.id} has area {peak.area} below minimum signal threshold {molecule.min_signal}. Skipping assignment."
+                        )
+                        continue
+
                     peak.molecule_id = molecule.id
                     assigned_peak_count += 1
                     logger.debug(

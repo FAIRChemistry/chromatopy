@@ -71,7 +71,7 @@
                     ]
                 },
                 "signal": 206070492.57077637,
-                "ld_id": "md:Sample/17fcd527-78d0-46c1-aed0-4dd896628b7e",
+                "ld_id": "md:Sample/dc25b370-4ae5-4fd7-88d1-01d6de81055e",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -100,7 +100,7 @@
                     ]
                 },
                 "signal": 439195099.4666703,
-                "ld_id": "md:Sample/3995d9b2-7070-4142-8426-63c3030a6a06",
+                "ld_id": "md:Sample/5bdcb5b8-9222-4d98-9da1-4fcc7b1cbf02",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -129,7 +129,7 @@
                     ]
                 },
                 "signal": 854035324.340625,
-                "ld_id": "md:Sample/bc4213bc-47d3-4eea-b64f-2aa16bb405b6",
+                "ld_id": "md:Sample/ff9785d3-a138-4416-9ff0-19ca5a138681",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -158,7 +158,7 @@
                     ]
                 },
                 "signal": 1746852483.6073058,
-                "ld_id": "md:Sample/39638e73-6e20-44b0-9936-399fe2ca4706",
+                "ld_id": "md:Sample/2ffb7910-9a5f-40d1-986b-f1ce9a9943ec",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -187,7 +187,7 @@
                     ]
                 },
                 "signal": 3435929167.1560173,
-                "ld_id": "md:Sample/1a6695c8-c528-4b66-9d6a-0b8492e3023c",
+                "ld_id": "md:Sample/bbf90909-e4fe-4584-b372-33a02b970a3b",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -216,7 +216,7 @@
                     ]
                 },
                 "signal": 6884309268.309377,
-                "ld_id": "md:Sample/f67fb919-428c-4e6a-9f85-6eb929031f87",
+                "ld_id": "md:Sample/e88548a4-2b8d-406a-b769-9de886e41f56",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -237,7 +237,7 @@
                     "stderr": 14534.773785595427,
                     "lower_bound": 0.001,
                     "upper_bound": 10000000000.0,
-                    "ld_id": "md:Parameter/885230af-c358-4671-a176-862a14999ea2",
+                    "ld_id": "md:Parameter/b121d0a2-1070-44c1-b34e-d8f03dad481b",
                     "ld_type": [
                         "md:Parameter"
                     ],
@@ -252,7 +252,7 @@
                 "conc_upper": 800.0,
                 "signal_lower": 0.0,
                 "signal_upper": 6884309268.309377,
-                "ld_id": "md:CalibrationRange/8e3d9771-5aec-42d8-b0c2-55db56105d14",
+                "ld_id": "md:CalibrationRange/25517244-f2c9-42ed-8fad-7f67a5c8c201",
                 "ld_type": [
                     "md:CalibrationRange"
                 ],
@@ -265,7 +265,7 @@
                 "bic": 197.65093474772377,
                 "r2": 0.9999723000175641,
                 "rmsd": 12256879.631351836,
-                "ld_id": "md:FitStatistics/2f58333f-1a4b-47ec-9ce4-d9935129144a",
+                "ld_id": "md:FitStatistics/4cd5c553-9a1d-4ff5-aa77-0599def76d05",
                 "ld_type": [
                     "md:FitStatistics"
                 ],
@@ -273,7 +273,7 @@
                     "md": "https://github.com/FAIRChemistry/CaliPytion"
                 }
             },
-            "ld_id": "md:CalibrationModel/b1102836-29b4-46de-abd2-c0f4c4fe6ba4",
+            "ld_id": "md:CalibrationModel/510c19d6-b18a-4608-8af8-6810968af62f",
             "ld_type": [
                 "md:CalibrationModel"
             ],
@@ -291,5 +291,6 @@
     },
     "retention_tolerance": 0.05,
     "constant": false,
-    "internal_standard": false
+    "internal_standard": false,
+    "min_signal": 0.0
 }

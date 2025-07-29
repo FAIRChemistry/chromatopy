@@ -17,7 +17,7 @@
             "organism": null,
             "organism_tax_id": null,
             "references": [],
-            "ld_id": "enzml:Protein/b7c22a69-7fa9-44e6-955a-e299f431a6eb",
+            "ld_id": "enzml:Protein/ca25a764-e33a-4d68-aea7-c91bdea420da",
             "ld_type": [
                 "enzml:Protein",
                 "OBO:PR_000000001"
@@ -51,7 +51,7 @@
     "small_molecules": [
         {
             "id": "SAH",
-            "name": "S-Adenosylhomocysteine",
+            "name": "Adenosylhomocysteine",
             "constant": false,
             "vessel_id": null,
             "canonical_smiles": null,
@@ -160,7 +160,7 @@
                     },
                     "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/ca454ba7-de4a-46c3-b85c-39e6a995da50",
+                    "ld_id": "enzml:MeasurementData/538f2f5b-3e07-4230-8869-214f180ffce3",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -227,7 +227,7 @@
                     },
                     "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/d4cbd5e5-dc7f-46ac-869e-4b156e181033",
+                    "ld_id": "enzml:MeasurementData/b27266d0-7d94-4237-8da3-dfad53f2b87d",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -294,7 +294,7 @@
                     },
                     "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/bafbe42b-b713-4ba7-8dd4-41156555d787",
+                    "ld_id": "enzml:MeasurementData/7f930159-8bce-475e-a99d-c728a3740433",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -329,7 +329,7 @@
                     }
                 ]
             },
-            "ld_id": "enzml:Measurement/9d2f0606-5515-40b9-8a2b-f9fb72b70643",
+            "ld_id": "enzml:Measurement/3bc64f78-4691-44a2-9fd7-18924ff67584",
             "ld_type": [
                 "enzml:Measurement"
             ],
@@ -350,7 +350,7 @@
     "equations": [],
     "parameters": [],
     "references": [],
-    "ld_id": "enzml:EnzymeMLDocument/6e96826e-be01-4559-920c-0d49d67090a1",
+    "ld_id": "enzml:EnzymeMLDocument/20b80f9a-80b3-4c8b-91b9-827ed1b418ae",
     "ld_type": [
         "enzml:EnzymeMLDocument"
     ],
