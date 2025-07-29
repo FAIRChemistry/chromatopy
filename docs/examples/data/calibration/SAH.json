@@ -1,7 +1,7 @@
 {
     "id": "SAH",
     "pubchem_cid": 439155,
-    "name": "S-Adenosylhomocysteine",
+    "name": "Adenosylhomocysteine",
     "init_conc": null,
     "conc_unit": {
         "id": "umol / l",
@@ -26,7 +26,7 @@
     "standard": {
         "molecule_id": "SAH",
         "pubchem_cid": 439155,
-        "molecule_name": "S-Adenosylhomocysteine",
+        "molecule_name": "Adenosylhomocysteine",
         "ph": 7.4,
         "temperature": 37.0,
         "temp_unit": {
@@ -71,7 +71,7 @@
                     ]
                 },
                 "signal": 212276713.63030648,
-                "ld_id": "md:Sample/08b418c5-1b21-423b-9734-5f61e1fe5185",
+                "ld_id": "md:Sample/a4fe6954-7053-4417-97fa-3bfda0d8e5a0",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -100,7 +100,7 @@
                     ]
                 },
                 "signal": 426496844.1388183,
-                "ld_id": "md:Sample/16e8d579-7ff8-4bc5-9db6-d0cdc0293d7f",
+                "ld_id": "md:Sample/686a41ff-e777-43f1-afa1-3eb291a6fc3c",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -129,7 +129,7 @@
                     ]
                 },
                 "signal": 829903553.6895262,
-                "ld_id": "md:Sample/237c1c3c-e8b0-459b-a8fe-2cfdb36c0cc7",
+                "ld_id": "md:Sample/25f52fce-c8f3-4395-ac48-03956021649b",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -158,7 +158,7 @@
                     ]
                 },
                 "signal": 1611314859.7753315,
-                "ld_id": "md:Sample/147f267e-ae80-4c63-88b5-f481a1d11c41",
+                "ld_id": "md:Sample/5c6a95f2-376b-4d46-8732-ac6dc5d04036",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -187,7 +187,7 @@
                     ]
                 },
                 "signal": 3126849644.6644573,
-                "ld_id": "md:Sample/1bceb798-3da8-4ab0-ad6a-97bfeefae12e",
+                "ld_id": "md:Sample/d217dcac-aac2-4c01-a75e-28f7405f17ff",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -216,7 +216,7 @@
                     ]
                 },
                 "signal": 6030440256.539797,
-                "ld_id": "md:Sample/1e695cfe-0372-459c-8b38-4ebed1b9ac59",
+                "ld_id": "md:Sample/de096481-e9e8-41b3-bd08-e5aa28fe352a",
                 "ld_type": [
                     "md:Sample"
                 ],
@@ -237,7 +237,7 @@
                     "stderr": 76926.81080967555,
                     "lower_bound": 0.001,
                     "upper_bound": 10000000000.0,
-                    "ld_id": "md:Parameter/8f898c21-6c98-46ae-b8b7-8c3a3a4816e4",
+                    "ld_id": "md:Parameter/96f9b940-25bf-4b15-8d10-c2b6429694d0",
                     "ld_type": [
                         "md:Parameter"
                     ],
@@ -252,7 +252,7 @@
                 "conc_upper": 800.0,
                 "signal_lower": 0.0,
                 "signal_upper": 6030440256.539797,
-                "ld_id": "md:CalibrationRange/f18afceb-177c-400a-a286-e5d377120577",
+                "ld_id": "md:CalibrationRange/0327e895-2429-4a69-b8aa-fb9a259085eb",
                 "ld_type": [
                     "md:CalibrationRange"
                 ],
@@ -265,7 +265,7 @@
                 "bic": 217.64676242681003,
                 "r2": 0.9989776149145351,
                 "rmsd": 64871367.98925988,
-                "ld_id": "md:FitStatistics/fe1648c9-0af1-476e-bea9-19fcdf56a849",
+                "ld_id": "md:FitStatistics/d490364e-d56a-4e44-88c6-e9b0ff6da762",
                 "ld_type": [
                     "md:FitStatistics"
                 ],
@@ -273,7 +273,7 @@
                     "md": "https://github.com/FAIRChemistry/CaliPytion"
                 }
             },
-            "ld_id": "md:CalibrationModel/5c4af1de-0e00-4286-9124-f31c1f67b79f",
+            "ld_id": "md:CalibrationModel/4821bbc1-71c1-4091-a30a-ed6412929004",
             "ld_type": [
                 "md:CalibrationModel"
             ],
@@ -291,5 +291,6 @@
     },
     "retention_tolerance": 0.1,
     "constant": false,
-    "internal_standard": false
+    "internal_standard": false,
+    "min_signal": 0.0
 }

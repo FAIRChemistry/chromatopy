@@ -57,6 +57,10 @@ class Molecule(BaseModel):
         description="Boolean indicating whether the molecule is an internal standard",
         default=False,
     )
+    min_signal: float = Field(
+        description="Minimum signal threshold for peak assignment. Peaks must have an area >= this value to be assigned to this molecule.",
+        default=0.0,
+    )
 
     @classmethod
     def from_standard(
