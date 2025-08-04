@@ -17,7 +17,7 @@
             "organism": null,
             "organism_tax_id": null,
             "references": [],
-            "ld_id": "enzml:Protein/bdce6b9c-6d6d-4d69-a331-212c3a11dff9",
+            "ld_id": "enzml:Protein/7c0c7f52-2914-4dcc-8a7e-0cb94ca58cd6",
             "ld_type": [
                 "enzml:Protein",
                 "OBO:PR_000000001"
@@ -160,7 +160,7 @@
                     },
                     "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/46403729-cc40-4e85-a19c-20f38480c491",
+                    "ld_id": "enzml:MeasurementData/48ed3e2c-ba13-4ae3-ba37-fa65b9201ad8",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -227,7 +227,7 @@
                     },
                     "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/abe3c343-967f-4188-ac41-6962aa37adb1",
+                    "ld_id": "enzml:MeasurementData/7d127628-d80d-47a8-88eb-384792fbe89d",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -294,7 +294,7 @@
                     },
                     "data_type": "concentration",
                     "is_simulated": false,
-                    "ld_id": "enzml:MeasurementData/f51386f3-8387-4985-86ea-085b39c6466e",
+                    "ld_id": "enzml:MeasurementData/a7c287a8-31ec-4f54-8ecc-76426d244c5d",
                     "ld_type": [
                         "enzml:MeasurementData"
                     ],
@@ -312,24 +312,18 @@
             "ph": 7.4,
             "temperature": 37.0,
             "temperature_unit": {
-                "id": "C",
-                "name": "C",
+                "id": "deg_C",
+                "name": "deg_C",
                 "base_units": [
                     {
-                        "kind": "ampere",
-                        "exponent": 1,
-                        "multiplier": 1.0,
-                        "scale": 0.0
-                    },
-                    {
-                        "kind": "second",
+                        "kind": "celsius",
                         "exponent": 1,
                         "multiplier": 1.0,
                         "scale": 0.0
                     }
                 ]
             },
-            "ld_id": "enzml:Measurement/2909610b-55ee-49bb-a258-2f45382f55cf",
+            "ld_id": "enzml:Measurement/f196f3d0-5efc-4b46-8d3b-8a9e29d47399",
             "ld_type": [
                 "enzml:Measurement"
             ],
@@ -350,7 +344,7 @@
     "equations": [],
     "parameters": [],
     "references": [],
-    "ld_id": "enzml:EnzymeMLDocument/b4852023-2d13-4759-a176-6d6316e15a51",
+    "ld_id": "enzml:EnzymeMLDocument/e3d75d41-e0d2-4085-8de0-fbd576f8f405",
     "ld_type": [
         "enzml:EnzymeMLDocument"
     ],
