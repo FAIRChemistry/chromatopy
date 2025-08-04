@@ -85,7 +85,7 @@ class AbstractReader(BaseModel):
     )
 
     temperature_unit: UnitDefinitionAnnot = Field(
-        default="C",
+        default="Celsius",
         description="Unit of the temperature. Defaults to Celsius.",
     )
 

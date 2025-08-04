@@ -11,7 +11,7 @@ def thermo_reader() -> ThermoTX0Reader:
         unit="min",
         ph=7.4,
         temperature=25.0,
-        temperature_unit="C",
+        temperature_unit="Celsius",
         silent=True,
         mode="timecourse",
     )
@@ -33,5 +33,5 @@ def test_read_thermo(thermo_reader: ThermoTX0Reader) -> None:
 
     # Test metadata
     assert measurements[0].temperature == 25.0
-    assert measurements[0].temperature_unit.name == "C"
+    assert measurements[0].temperature_unit.name == "deg_C"
     assert measurements[0].ph == 7.4

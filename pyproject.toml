@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "chromatopy"
-version = "0.9.22"
+version = "0.9.23"
 description = "Tool for processing chromatography data"
 authors = ["haeussma <83341109+haeussma@users.noreply.github.com>"]
 license = "MIT"
@@ -10,8 +10,8 @@ packages = [{include = "chromatopy"}]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
-calipytion = { git = "https://github.com/FAIRChemistry/CaliPytion.git" }
-pyenzyme = { git = "https://github.com/EnzymeML/PyEnzyme.git" }
+calipytion = "^1.0.0"
+pyenzyme = "^2.0.0"
 plotly = "^5.19.0"
 rich = "^13.7.1"
 loguru = "^0.7.2"

@@ -52,5 +52,5 @@ d = "day"
 # Temperature
 kelvin = "K"
 K = "K"
-celsius = "C"
-C = "C"
+celsius = "Celsius"
+C = "Celsius"

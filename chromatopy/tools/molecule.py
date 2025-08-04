@@ -99,7 +99,7 @@ class Molecule(BaseModel):
         conc_unit: UnitDefinitionAnnot,
         ph: float,
         temperature: float,
-        temp_unit: UnitDefinitionAnnot = "C",
+        temp_unit: UnitDefinitionAnnot = "Celsius",
         visualize: bool = True,
     ) -> Calibration:
         """Creates a linear standard from the molecule's calibration data.
