@@ -27,7 +27,7 @@ def test_parse_time_and_unit_success(working_data_dir: str) -> None:
         dirpath=working_data_dir,
         ph=7.0,
         temperature=25.0,
-        temperature_unit="C",
+        temperature_unit="Celsius",
         silent=False,
         mode="timecourse",
     )
@@ -57,6 +57,6 @@ def test_parse_time_and_unit_inconsistent_units(inconsistent_units_dir: str) -> 
             unit=None,
             ph=7.0,
             temperature=25.0,
-            temperature_unit="C",
+            temperature_unit="Celsius",
             mode="timecourse",
         )

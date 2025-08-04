@@ -11,7 +11,7 @@ def asm_lc_1() -> ASMReader:
         unit="min",
         ph=7.0,
         temperature=25.0,
-        temperature_unit="C",
+        temperature_unit="Celsius",
         silent=False,
         mode="timecourse",
     )
@@ -26,7 +26,7 @@ def asm_lc_2() -> ASMReader:
         unit="min",
         ph=7.0,
         temperature=25.0,
-        temperature_unit="C",
+        temperature_unit="Celsius",
         silent=False,
         mode="timecourse",
     )
@@ -41,7 +41,7 @@ def asm_gc_1() -> ASMReader:
         unit="min",
         ph=7.0,
         temperature=25.0,
-        temperature_unit="C",
+        temperature_unit="Celsius",
         silent=False,
         mode="timecourse",
     )

@@ -10,7 +10,7 @@ def test_read_chromeleon() -> None:
         unit="min",
         ph=7.4,
         temperature=25.0,
-        temperature_unit="C",
+        temperature_unit="Celsius",
         mode="timecourse",
     )
 
