@@ -456,19 +456,8 @@ def add_measurement_to_MeasurementData(
                         extrapolate=extrapolate,
                         dilution_factor=dilution_factor,
                     )
-        else:
-            # Handle proteins or molecules without peaks - add zero values for molecules with retention times
-            for measurement in measurements:
-                # Check if we already have this time point
-                if not meas_data.time or measurement.data.value not in meas_data.time:
-                    # For molecules, add zero values to data array
-                    if species_id in molecule_ids:
-                        meas_data.time.append(measurement.data.value)
-                        meas_data.data.append(float(0))
-                        if calculate_concentration:
-                            meas_data.data_type = DataTypes.CONCENTRATION
-                        else:
-                            meas_data.data_type = DataTypes.PEAK_AREA
+        # Remove the else block that adds zeros for molecules without peaks
+        # Molecules without peaks should have empty data arrays, not arrays filled with zeros
 
     return measurement_data_instances
 
