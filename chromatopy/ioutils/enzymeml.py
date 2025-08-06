@@ -2,7 +2,7 @@ import warnings
 from enum import Enum
 
 from calipytion.tools.calibrator import Calibrator
-from mdmodels.units.annotation import UnitDefinitionAnnot
+from mdmodels.units.annotation import UnitDefinition
 from pyenzyme import (
     DataTypes,
     EnzymeMLDocument,
@@ -459,6 +459,15 @@ def add_measurement_to_MeasurementData(
         # Remove the else block that adds zeros for molecules without peaks
         # Molecules without peaks should have empty data arrays, not arrays filled with zeros
 
+    # Update data_type for molecules without peaks when calculate_concentration=True
+    if calculate_concentration:
+        molecule_ids = {
+            molecule.id for molecule in molecules if not molecule.internal_standard
+        }
+        for species_id, meas_data in measurement_data_instances.items():
+            if species_id in molecule_ids and species_id not in measured_once:
+                meas_data.data_type = DataTypes.CONCENTRATION
+
     return measurement_data_instances
 
 
@@ -640,7 +649,7 @@ def setup_internal_calibrators(
 
 def extract_measurement_conditions(
     measurements: list[Measurement],
-) -> tuple[float, float, UnitDefinitionAnnot, UnitDefinitionAnnot]:
+) -> tuple[float, float, UnitDefinition, UnitDefinition]:
     """Asserts and extracts the measurement conditions from a list of Measurement instances.
 
     Args:
