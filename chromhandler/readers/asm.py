@@ -4,8 +4,8 @@ from typing import Any
 
 from loguru import logger
 
-from chromatopy.model import Chromatogram, Data, Measurement, Peak
-from chromatopy.readers.abstractreader import AbstractReader
+from chromhandler.model import Chromatogram, Data, Measurement, Peak
+from chromhandler.readers.abstractreader import AbstractReader
 
 
 class ASMReader(AbstractReader):

@@ -2,7 +2,7 @@ import unittest
 
 import pytest
 
-from chromatopy.readers.shimadzu import ShimadzuReader
+from chromhandler.readers.shimadzu import ShimadzuReader
 
 DIR_PATH = "docs/examples/data/shimadzu"
 
@@ -10,7 +10,7 @@ DIR_PATH = "docs/examples/data/shimadzu"
 @pytest.mark.readers
 class TestShimadzuReader(unittest.TestCase):
     # can read a single file and return a dictionary
-    def test_read_shimadzu(self):
+    def test_read_shimadzu(self) -> None:
         reader = ShimadzuReader(
             dirpath=DIR_PATH,
             values=[0] * 9,

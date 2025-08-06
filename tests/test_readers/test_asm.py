@@ -1,6 +1,6 @@
 import pytest
 
-from chromatopy.readers.asm import ASMReader
+from chromhandler.readers.asm import ASMReader
 
 
 @pytest.fixture

@@ -1,9 +1,9 @@
 from loguru import logger
-from mdmodels.units.annotation import UnitDefinitionAnnot
+from mdmodels.units.annotation import UnitDefinition
 from pydantic import BaseModel, Field
 
-from chromatopy.model import Measurement
-from chromatopy.tools.utility import _resolve_chromatogram
+from chromhandler.model import Measurement
+from chromhandler.utility import _resolve_chromatogram
 
 logger.level("INFO")
 
@@ -18,7 +18,7 @@ class InternalStandard(BaseModel):
     molecule_init_conc: float = Field(
         description="The initial concentration of the molecule."
     )
-    molecule_conc_unit: UnitDefinitionAnnot = Field(
+    molecule_conc_unit: UnitDefinition = Field(
         description="The unit of concentration for the molecule."
     )
     standard_init_conc: float = Field(

@@ -1,6 +1,6 @@
 import pytest
 
-from chromatopy.readers.thermo_txt import ThermoTX0Reader
+from chromhandler.readers.thermo_txt import ThermoTX0Reader
 
 
 @pytest.fixture

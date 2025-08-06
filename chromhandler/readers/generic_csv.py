@@ -4,8 +4,8 @@ from typing import Any
 import pandas as pd
 from loguru import logger
 
-from chromatopy.model import Chromatogram, Data, Measurement, Peak
-from chromatopy.readers.abstractreader import AbstractReader
+from chromhandler.model import Chromatogram, Data, Measurement, Peak
+from chromhandler.readers.abstractreader import AbstractReader
 
 
 class GenericCSVReader(AbstractReader):

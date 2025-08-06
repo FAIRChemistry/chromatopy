@@ -1,8 +1,8 @@
 import re
 from typing import Tuple
 
-from chromatopy.model import Chromatogram, Data, Measurement, Peak
-from chromatopy.readers.abstractreader import AbstractReader
+from chromhandler.model import Chromatogram, Data, Measurement, Peak
+from chromhandler.readers.abstractreader import AbstractReader
 
 
 class AgilentRDLReader(AbstractReader):

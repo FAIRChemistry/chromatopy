@@ -3,15 +3,15 @@ from pathlib import Path
 from typing import Any, Dict
 
 from loguru import logger
-from mdmodels.units.annotation import UnitDefinitionAnnot
+from mdmodels.units.annotation import UnitDefinition
 
-from chromatopy.model import (
+from chromhandler.model import (
     Chromatogram,
     Data,
     Measurement,
     SignalType,
 )
-from chromatopy.readers.abstractreader import AbstractReader
+from chromhandler.readers.abstractreader import AbstractReader
 
 
 class AgilentTXTReader(AbstractReader):
@@ -80,7 +80,7 @@ class AgilentTXTReader(AbstractReader):
         self,
         file_content: list[str],
         reaction_time: float,
-        time_unit: UnitDefinitionAnnot,
+        time_unit: UnitDefinition,
         file_path: str,
     ) -> Measurement:
         """Parses the file content into a Measurement object."""

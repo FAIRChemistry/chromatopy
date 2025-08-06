@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from chromatopy.readers.abstractreader import UnitConsistencyError
+from chromhandler.readers.abstractreader import UnitConsistencyError
 from tests.test_readers.dummyreader import DummyReader
 
 

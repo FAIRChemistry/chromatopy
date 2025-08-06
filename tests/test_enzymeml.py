@@ -9,7 +9,8 @@ from pyenzyme import (
 )
 from pyenzyme import Measurement as EnzymeMLMeasurement
 
-from chromatopy.ioutils.enzymeml import (
+from chromhandler.analyzer import ChromAnalyzer
+from chromhandler.enzymeml import (
     CalibratorType,
     _check_molecule_conc_unit_and_init_conc,
     add_data,
@@ -24,11 +25,10 @@ from chromatopy.ioutils.enzymeml import (
     setup_external_calibrators,
     to_enzymeml,
 )
-from chromatopy.model import Chromatogram, Data, Measurement, Peak
-from chromatopy.tools.analyzer import ChromAnalyzer
-from chromatopy.tools.internal_standard import InternalStandard
-from chromatopy.tools.molecule import Molecule
-from chromatopy.tools.protein import Protein as ChromProtein
+from chromhandler.internal_standard import InternalStandard
+from chromhandler.model import Chromatogram, Data, Measurement, Peak
+from chromhandler.molecule import Molecule
+from chromhandler.protein import Protein as ChromProtein
 
 
 class TestCalibratorType:
@@ -113,7 +113,7 @@ class TestFixtures:
         self, chromatogram: Chromatogram, time_unit: str, temp_unit: str
     ) -> Measurement:
         """Create a real Measurement."""
-        from chromatopy.model import DataType
+        from chromhandler.model import DataType
 
         data = Data(value=0.0, unit=time_unit, data_type=DataType.TIMECOURSE)
         return Measurement(
@@ -174,7 +174,7 @@ class TestToEnzymeML(TestFixtures):
     def test_to_enzymeml_multiple_analyzers(self, analyzer: ChromAnalyzer) -> None:
         """Test converting multiple analyzers to EnzymeML."""
         # Create a second measurement for the second analyzer
-        from chromatopy.model import DataType
+        from chromhandler.model import DataType
 
         second_measurement = Measurement(
             id="meas2",
@@ -299,7 +299,7 @@ class TestAddMeasurementsToEnzymeML(TestFixtures):
         doc = EnzymeMLDocument(name="Test Document")
 
         # Create a second measurement
-        from chromatopy.model import DataType
+        from chromhandler.model import DataType
 
         second_measurement = Measurement(
             id="meas2",
@@ -373,7 +373,7 @@ class TestExtractMeasurementConditions(TestFixtures):
         self, measurement: Measurement
     ) -> None:
         """Test error when measurements have different pH values."""
-        from chromatopy.model import DataType
+        from chromhandler.model import DataType
 
         measurement2 = Measurement(
             id="meas2",
@@ -462,7 +462,7 @@ class TestAddMolecule(TestFixtures):
         added_molecule = doc.small_molecules[0]
         assert added_molecule.id == "mol1"
         assert added_molecule.name == "Molecule 1"
-        assert added_molecule.constant == False
+        assert not added_molecule.constant
         assert added_molecule.ld_id == "https://pubchem.ncbi.nlm.nih.gov/compound/123"
 
     def test_add_molecule_without_pubchem_cid(self, unit_definition: str) -> None:

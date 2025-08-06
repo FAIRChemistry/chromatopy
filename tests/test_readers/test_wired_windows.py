@@ -1,9 +1,9 @@
 import os
 
-from chromatopy import ChromAnalyzer
+from chromhandler import ChromAnalyzer
 
 
-def test_windows():
+def test_windows() -> None:
     path = "docs/examples/data/agilent_rdl"
 
     # print path and all files in the directory

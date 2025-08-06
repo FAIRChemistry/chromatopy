@@ -12,11 +12,11 @@ from pyenzyme import (
 )
 from pyenzyme import Measurement as EnzymeMLMeasurement
 
-from ..model import Chromatogram, Measurement
-from ..tools.analyzer import ChromAnalyzer
-from ..tools.internal_standard import InternalStandard
-from ..tools.molecule import Molecule
-from ..tools.protein import Protein as ChromProtein
+from .analyzer import ChromAnalyzer
+from .internal_standard import InternalStandard
+from .model import Chromatogram, Measurement
+from .molecule import Molecule
+from .protein import Protein as ChromProtein
 
 
 class CalibratorType(Enum):

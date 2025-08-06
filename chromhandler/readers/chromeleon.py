@@ -4,10 +4,10 @@ from typing import Any, Dict, List
 
 import pandas as pd
 from loguru import logger
-from mdmodels.units.annotation import UnitDefinitionAnnot
+from mdmodels.units.annotation import UnitDefinition
 
-from chromatopy.model import Chromatogram, Data, Measurement
-from chromatopy.readers.abstractreader import AbstractReader
+from chromhandler.model import Chromatogram, Data, Measurement
+from chromhandler.readers.abstractreader import AbstractReader
 
 
 class ChromeleonReader(AbstractReader):
@@ -65,7 +65,7 @@ class ChromeleonReader(AbstractReader):
         self,
         content: Dict[str, Any],
         reaction_time: float,
-        time_unit: UnitDefinitionAnnot,
+        time_unit: UnitDefinition,
         file_path: str,
     ) -> Measurement:
         """Maps the parsed content to a Measurement object."""
@@ -108,7 +108,7 @@ class ChromeleonReader(AbstractReader):
 
     def _extract_reaction_time(
         self, file_name: str
-    ) -> tuple[float | None, UnitDefinitionAnnot | None]:
+    ) -> tuple[float | None, UnitDefinition | None]:
         """Extracts reaction time and unit from the file name."""
 
         pattern = r"\b(\d+(?:\.\d+)?)\s*(h|min)\b"

@@ -71,7 +71,7 @@ class Molecule(BaseModel):
         Args:
             standard (Calibration): The calibration instance to create the molecule from.
             init_conc (float): The initial concentration of the molecule.
-            conc_unit (UnitDefinitionAnnot): The unit of the concentration.
+            conc_unit (UnitDefinition): The unit of the concentration.
 
         Returns:
             Molecule: The created Molecule instance.
@@ -107,10 +107,10 @@ class Molecule(BaseModel):
         Args:
             areas (list[float]): The areas of the molecule.
             concs (list[float]): The concentrations of the molecule.
-            conc_unit (UnitDefinitionAnnot): The unit of the concentration.
+            conc_unit (UnitDefinition): The unit of the concentration.
             ph (float): The pH of the solution.
             temperature (float): The temperature of the solution.
-            temp_unit (UnitDefinitionAnnot): The unit of the temperature.
+            temp_unit (UnitDefinition): The unit of the temperature.
             visualize (bool): Whether to visualize the standard.
 
         Returns:

@@ -5,8 +5,8 @@ from typing import Any, ClassVar, Dict, List, Optional
 
 import pandas as pd
 
-from chromatopy.model import Data, Measurement, Peak, SignalType
-from chromatopy.readers.abstractreader import AbstractReader
+from chromhandler.model import Data, Measurement, Peak, SignalType
+from chromhandler.readers.abstractreader import AbstractReader
 
 
 class ShimadzuReader(AbstractReader):
@@ -261,7 +261,7 @@ class ShimadzuReader(AbstractReader):
         self._detector_id = detector_id
         self._channel_ids = channel_ids
 
-    def _get_file_paths(self):
+    def _get_file_paths(self) -> None:
         files = []
         directory = Path(self.dirpath)
 
@@ -271,9 +271,9 @@ class ShimadzuReader(AbstractReader):
 
             files.append(str(file_path.absolute()))
 
-        assert (
-            len(files) == len(self.values)
-        ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.values)})."
+        assert len(files) == len(self.values), (
+            f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.values)})."
+        )
 
         self.file_paths = files
 

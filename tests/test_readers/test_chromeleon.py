@@ -1,4 +1,4 @@
-from chromatopy.tools.analyzer import ChromAnalyzer
+from chromhandler.analyzer import ChromAnalyzer
 
 
 def test_read_chromeleon() -> None:

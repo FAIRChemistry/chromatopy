@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import warnings
 from pathlib import Path
 from typing import Literal, Optional
 
@@ -11,21 +12,20 @@ import plotly.graph_objects as go
 import scipy
 import scipy.stats
 from calipytion.model import Calibration
-from calipytion.tools.utility import pubchem_request_molecule_name
 from loguru import logger
 from mdmodels.units.annotation import UnitDefinitionAnnot
 from pydantic import BaseModel, Field, field_validator
 from pyenzyme import EnzymeMLDocument
 
-from chromatopy.model import (
+from .model import (
     Chromatogram,
     DataType,
     Measurement,
     Peak,
 )
-from chromatopy.tools.molecule import Molecule
-from chromatopy.tools.protein import Protein
-from chromatopy.tools.utility import _resolve_chromatogram
+from .molecule import Molecule
+from .protein import Protein
+from .utility import _resolve_chromatogram, pubchem_request_molecule_name
 
 
 class ChromAnalyzer(BaseModel):
@@ -357,7 +357,7 @@ class ChromAnalyzer(BaseModel):
         Returns:
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
         """
-        from chromatopy.readers.asm import ASMReader
+        from .readers.asm import ASMReader
 
         data = {
             "dirpath": str(path),
@@ -414,7 +414,7 @@ class ChromAnalyzer(BaseModel):
         Returns:
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
         """
-        from chromatopy.readers.shimadzu import ShimadzuReader
+        from .readers.shimadzu import ShimadzuReader
 
         data = {
             "dirpath": str(path),
@@ -475,9 +475,9 @@ class ChromAnalyzer(BaseModel):
         Returns:
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
         """
-        from chromatopy.readers.agilent_csv import AgilentCSVReader
-        from chromatopy.readers.agilent_rdl import AgilentRDLReader
-        from chromatopy.readers.agilent_txt import AgilentTXTReader
+        from .readers.agilent_csv import AgilentCSVReader
+        from .readers.agilent_rdl import AgilentRDLReader
+        from .readers.agilent_txt import AgilentTXTReader
 
         directory = Path(path)
 
@@ -533,7 +533,7 @@ class ChromAnalyzer(BaseModel):
         elif csv_paths and not txt_paths:
             data["file_paths"] = csv_paths
             reader = AgilentCSVReader(**data)  # type: ignore
-            measurements = AgilentCSVReader(**data).read()
+            measurements = reader.read()
         else:
             raise IOError(f"No 'REPORT.TXT' or 'RESULTS.CSV' files found in '{path}'.")
 
@@ -578,7 +578,7 @@ class ChromAnalyzer(BaseModel):
         Returns:
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
         """
-        from chromatopy.readers.chromeleon import ChromeleonReader
+        from .readers.chromeleon import ChromeleonReader
 
         data = {
             "dirpath": str(path),
@@ -635,7 +635,7 @@ class ChromAnalyzer(BaseModel):
         Returns:
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
         """
-        from chromatopy.readers.thermo_txt import ThermoTX0Reader
+        from .readers.thermo_txt import ThermoTX0Reader
 
         data = {
             "dirpath": str(path),
@@ -706,7 +706,7 @@ class ChromAnalyzer(BaseModel):
         Returns:
             ChromAnalyzer: ChromAnalyzer object containing the measurements.
         """
-        from chromatopy.readers.generic_csv import GenericCSVReader
+        from .readers.generic_csv import GenericCSVReader
 
         if id is None:
             id = Path(path).name
@@ -767,12 +767,10 @@ class ChromAnalyzer(BaseModel):
         Returns:
             EnzymeMLDocument: _description_
         """
-        import warnings
-
-        from chromatopy.ioutils.enzymeml import create_enzymeml
+        from .enzymeml import create_enzymeml
 
         warnings.warn(
-            "The to_enzymeml method is deprecated and will be removed in version 1.0.0. Use chromatopy.ioutils.enzymeml.to_enzymeml instead.",
+            "The to_enzymeml method is deprecated and will be removed in version 1.0.0. Use chromhandler.to_enzymeml instead.",
             DeprecationWarning,
             stacklevel=2,
         )
@@ -812,7 +810,7 @@ class ChromAnalyzer(BaseModel):
         # make plotly figure for each chromatogram whereas ech chromatogram contains multiple traces and each comatogram is mapped to one slider
         from plotly.express.colors import sample_colorscale
 
-        from chromatopy.tools.utility import generate_gaussian_data, generate_visibility
+        from .utility import generate_gaussian_data, generate_visibility
 
         if dark_mode:
             theme = "plotly_dark"
