@@ -29,7 +29,9 @@ class ThermoTX0Reader(AbstractReader):
 
             measurements.append(
                 Measurement(
-                    id=metadata.get("sample_name", f"sample_{idx}"),
+                    id=metadata.get(
+                        "sample_name", self._get_measurement_id_from_file(path)
+                    ),
                     chromatograms=[chromatogram],
                     data=data,
                     timestamp=metadata.get("acquisition_time"),

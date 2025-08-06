@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List
 
 import pandas as pd
 from loguru import logger
@@ -29,7 +29,7 @@ class ChromeleonReader(AbstractReader):
         for file_id, file in enumerate(self.file_paths):
             content = self._read_chromeleon_file(file)
             measurement = self._map_measurement(
-                content, self.values[file_id], self.unit
+                content, self.values[file_id], self.unit, file
             )
             measurements.append(measurement)
 
@@ -38,20 +38,20 @@ class ChromeleonReader(AbstractReader):
 
         return measurements
 
-    def _read_chromeleon_file(self, file_path: str) -> dict:
+    def _read_chromeleon_file(self, file_path: str) -> Dict[str, Any]:
         """Reads and processes the content of a Chromeleon file."""
 
         with open(file_path, "r", encoding="ISO-8859-1") as file:
             content = file.read()
 
-        content = content.split("\n\n")
-        content = [section.lstrip() for section in content if len(section) > 0]
+        sections = content.split("\n\n")
+        sections = [section.lstrip() for section in sections if len(section) > 0]
 
         content_dict = {}
-        for section in content[1:]:
-            section = section.split("\n")
-            section_name = section[0][:-1]
-            section_content = [line.split("\t") for line in section[1:]]
+        for section in sections[1:]:
+            section_lines = section.split("\n")
+            section_name = section_lines[0][:-1]
+            section_content = [line.split("\t") for line in section_lines[1:]]
             for line_id, line in enumerate(section_content):
                 section_content[line_id] = [value for value in line if value]
 
@@ -62,7 +62,11 @@ class ChromeleonReader(AbstractReader):
         return content_dict
 
     def _map_measurement(
-        self, content: dict, reaction_time: float, time_unit: UnitDefinitionAnnot
+        self,
+        content: Dict[str, Any],
+        reaction_time: float,
+        time_unit: UnitDefinitionAnnot,
+        file_path: str,
     ) -> Measurement:
         """Maps the parsed content to a Measurement object."""
 
@@ -80,8 +84,14 @@ class ChromeleonReader(AbstractReader):
             data_type=self.mode,
         )
 
+        # Try to get ID from sample information, fallback to filename
+        try:
+            measurement_id = content["Sample Information"][5][1]
+        except (KeyError, IndexError):
+            measurement_id = self._get_measurement_id_from_file(file_path)
+
         return Measurement(
-            id=content["Sample Information"][5][1],
+            id=measurement_id,
             chromatograms=[chromatogram],
             injection_volume=float(
                 content["Sample Information"][13][1].replace(",", ".")
@@ -98,7 +108,7 @@ class ChromeleonReader(AbstractReader):
 
     def _extract_reaction_time(
         self, file_name: str
-    ) -> tuple[float, UnitDefinitionAnnot]:
+    ) -> tuple[float | None, UnitDefinitionAnnot | None]:
         """Extracts reaction time and unit from the file name."""
 
         pattern = r"\b(\d+(?:\.\d+)?)\s*(h|min)\b"
@@ -111,7 +121,7 @@ class ChromeleonReader(AbstractReader):
 
         return float(reaction_time), unit_str
 
-    def _transpose_data(self, data: list) -> pd.DataFrame:
+    def _transpose_data(self, data: List[List[str]]) -> pd.DataFrame:
         """Transposes the raw data from the file into a DataFrame."""
 
         df = pd.DataFrame(data[1:], columns=["time", "step", "value"])
@@ -134,9 +144,9 @@ class ChromeleonReader(AbstractReader):
         # check if directory exists
         assert directory.exists(), f"Directory '{self.dirpath}' does not exist."
         assert directory.is_dir(), f"'{self.dirpath}' is not a directory."
-        assert any(
-            directory.rglob("*.txt")
-        ), f"No .txt files found in '{self.dirpath}'."
+        assert any(directory.rglob("*.txt")), (
+            f"No .txt files found in '{self.dirpath}'."
+        )
 
         for file_path in directory.iterdir():
             if file_path.name.startswith(".") or not file_path.name.endswith(".txt"):
@@ -144,8 +154,8 @@ class ChromeleonReader(AbstractReader):
 
             files.append(str(file_path.absolute()))
 
-        assert (
-            len(files) == len(self.values)
-        ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.values)})."
+        assert len(files) == len(self.values), (
+            f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.values)})."
+        )
 
         self.file_paths = sorted(files)

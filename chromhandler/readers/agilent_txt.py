@@ -1,6 +1,6 @@
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict
 
 from loguru import logger
 from mdmodels.units.annotation import UnitDefinitionAnnot
@@ -36,7 +36,7 @@ class AgilentTXTReader(AbstractReader):
         for file, reaction_time in zip(self.file_paths, self.values):
             file_content = self._read_file(file)
             measurement = self._parse_measurement(
-                file_content, reaction_time, self.unit
+                file_content, reaction_time, self.unit, file
             )
             measurements.append(measurement)
 
@@ -51,7 +51,7 @@ class AgilentTXTReader(AbstractReader):
         if directory.is_dir():
             file_paths = [str(p) for p in directory.rglob("Report.TXT")]
         else:
-            file_paths = [self.dirpath]
+            file_paths = [str(self.dirpath)]
 
         try:
             assert file_paths, f"No 'Report.TXT' files found in '{self.dirpath}'."
@@ -81,6 +81,7 @@ class AgilentTXTReader(AbstractReader):
         file_content: list[str],
         reaction_time: float,
         time_unit: UnitDefinitionAnnot,
+        file_path: str,
     ) -> Measurement:
         """Parses the file content into a Measurement object."""
 
@@ -90,8 +91,15 @@ class AgilentTXTReader(AbstractReader):
             data_type=self.mode,
         )
 
+        # Try to get ID from file content first line, fallback to filename
+        measurement_id = (
+            file_content[0]
+            if file_content and file_content[0].strip()
+            else self._get_measurement_id_from_file(file_path)
+        )
+
         measurement = Measurement(
-            id=file_content[0],
+            id=measurement_id,
             ph=self.ph,
             temperature=self.temperature,
             temperature_unit=self.temperature_unit.name,
@@ -126,7 +134,7 @@ class AgilentTXTReader(AbstractReader):
 
         return signal_slices
 
-    def _extract_injection_volume(self, line: str, measurement: Measurement):
+    def _extract_injection_volume(self, line: str, measurement: Measurement) -> None:
         """Extracts the injection volume from a line of text."""
         match = re.search(r"(\d+\s+(µ?[a-zA-Z]?l))", line)
         if match:
@@ -147,7 +155,7 @@ class AgilentTXTReader(AbstractReader):
 
         return signal
 
-    def _extract_peak(self, line: str) -> dict:
+    def _extract_peak(self, line: str) -> Dict[str, Any]:
         """Extracts peak information from a line of text."""
 
         columns = line.split()
@@ -173,7 +181,7 @@ class AgilentTXTReader(AbstractReader):
                 "area_percent": float(columns[6]),
             }
 
-    def _extract_peak_units(self, line: str) -> dict:
+    def _extract_peak_units(self, line: str) -> Dict[str, Any]:
         """Extracts the units of the peak data."""
         unit_slice_dict = {
             "retention_time_unit": slice(5, 12),

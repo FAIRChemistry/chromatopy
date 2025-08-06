@@ -38,7 +38,7 @@ class AbstractReader(BaseModel):
     Abstract class for reading chromatographic data from files.
 
     Attributes:
-        dirpath (str): Path to the directory containing chromatographic data files.
+        dirpath (str | Path): Path to the directory containing chromatographic data files.
         mode (str): Mode of data processing, either 'calibration' or 'timecourse'.
         values (Optional[List[float]]): List of reaction times or concentrations based on the mode.
         unit (Optional[UnitDefinitionAnnot]): Unit of the values (time unit for timecourse, concentration unit for calibration).
@@ -49,7 +49,7 @@ class AbstractReader(BaseModel):
         file_paths (List[str]): List of file paths to process.
     """
 
-    dirpath: str = Field(
+    dirpath: str | Path = Field(
         ...,
         description="Path to the directory containing chromatographic data files.",
     )
@@ -264,11 +264,11 @@ class AbstractReader(BaseModel):
 
             match unit_str:
                 case "min" | "mins" | "minute" | "minutes":
-                    return "minute"  # type: ignore
+                    return "minute"
                 case "sec" | "secs" | "second" | "seconds":
-                    return "second"  # type: ignore
+                    return "second"
                 case "hour" | "hours":
-                    return "hour"  # type: ignore
+                    return "hour"
                 case _:
                     raise ValueError(f"Time unit '{unit_str}' not recognized.")
         elif mode == DataType.CALIBRATION.value:
@@ -287,6 +287,17 @@ class AbstractReader(BaseModel):
                     raise ValueError(f"Concentration unit '{unit_str}' not recognized.")
         else:
             raise ValueError(f"Invalid mode '{mode}'.")
+
+    def _get_measurement_id_from_file(self, file_path: str) -> str:
+        """Helper method to get consistent measurement ID from file path.
+
+        Args:
+            file_path (str): Path to the file
+
+        Returns:
+            str: The filename stem (without extension) to use as measurement ID
+        """
+        return Path(file_path).stem
 
     @abstractmethod
     def read(self) -> list[Measurement]:

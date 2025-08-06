@@ -43,9 +43,9 @@ class ASMReader(AbstractReader):
         # check if directory exists
         assert directory.exists(), f"Directory '{self.dirpath}' does not exist."
         assert directory.is_dir(), f"'{self.dirpath}' is not a directory."
-        assert any(
-            directory.rglob("*.json")
-        ), f"No .json files found in '{self.dirpath}'."
+        assert any(directory.rglob("*.json")), (
+            f"No .json files found in '{self.dirpath}'."
+        )
 
         for file_path in directory.iterdir():
             if file_path.name.startswith(".") or not file_path.name.endswith(".json"):
@@ -53,9 +53,9 @@ class ASMReader(AbstractReader):
 
             files.append(str(file_path.absolute()))
 
-        assert (
-            len(files) == len(self.values)
-        ), f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.values)})."
+        assert len(files) == len(self.values), (
+            f"Number of files ({len(files)}) does not match the number of reaction times ({len(self.values)})."
+        )
 
         self.file_paths = sorted(files)
 
@@ -109,6 +109,10 @@ class ASMReader(AbstractReader):
         sample_id = sample_document.get("sample identifier")
         if not sample_id and name:
             sample_id = name
+
+        # Fallback to filename if no sample ID available
+        if not sample_id:
+            sample_id = self._get_measurement_id_from_file(path)
 
         if isinstance(meas_document, list):
             meas_document = meas_document[0]
@@ -191,6 +195,10 @@ class ASMReader(AbstractReader):
         sample_id = sample_document.get("sample identifier")
         if not sample_id and name:
             sample_id = name
+
+        # Fallback to filename if no sample ID available
+        if not sample_id:
+            sample_id = self._get_measurement_id_from_file(path)
 
         # signal and time
         signal = meas_document["chromatogram data cube"]["data"]["measures"][0]

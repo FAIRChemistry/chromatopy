@@ -168,13 +168,13 @@ class ChromAnalyzer(BaseModel):
         """
 
         if conc_unit:
-            assert (
-                init_conc is not None
-            ), "Initial concentration must be provided if concentration unit is given."
+            assert init_conc is not None, (
+                "Initial concentration must be provided if concentration unit is given."
+            )
         if init_conc:
-            assert (
-                conc_unit
-            ), "Concentration unit must be provided if initial concentration is given."
+            assert conc_unit, (
+                "Concentration unit must be provided if initial concentration is given."
+            )
 
         if name is None:
             name = pubchem_request_molecule_name(pubchem_cid)
@@ -324,7 +324,7 @@ class ChromAnalyzer(BaseModel):
     @classmethod
     def read_asm(
         cls,
-        path: str,
+        path: str | Path,
         ph: float,
         temperature: float,
         temperature_unit: UnitDefinitionAnnot = "Celsius",
@@ -339,7 +339,7 @@ class ChromAnalyzer(BaseModel):
         Measurements are assumed to be named alphabetically, allowing sorting by file name.
 
         Args:
-            path (str): Path to the directory containing the ASM files.
+            path (str | Path): Path to the directory containing the ASM files.
             ph (float): pH value of the measurement.
             temperature (float): Temperature of the measurement.
             temperature_unit (UnitDefinitionAnnot, optional): Unit of the temperature. Defaults to Celsius (C).
@@ -360,7 +360,7 @@ class ChromAnalyzer(BaseModel):
         from chromatopy.readers.asm import ASMReader
 
         data = {
-            "dirpath": path,
+            "dirpath": str(path),
             "values": values,
             "unit": unit,
             "ph": ph,
@@ -374,14 +374,14 @@ class ChromAnalyzer(BaseModel):
         measurements = reader.read()
 
         if id is None:
-            id = path
+            id = Path(path).name
 
         return cls(id=id, name=name, measurements=measurements, mode=reader.mode)
 
     @classmethod
     def read_shimadzu(
         cls,
-        path: str,
+        path: str | Path,
         ph: float,
         temperature: float,
         temperature_unit: UnitDefinitionAnnot = "Celsius",
@@ -396,7 +396,7 @@ class ChromAnalyzer(BaseModel):
         Measurements are assumed to be named alphabetically, allowing sorting by file name.
 
         Args:
-            path (str): Path to the directory containing the Shimadzu files.
+            path (str | Path): Path to the directory containing the Shimadzu files.
             ph (float): pH value of the measurement.
             temperature (float): Temperature of the measurement.
             temperature_unit (UnitDefinitionAnnot, optional): Unit of the temperature. Defaults to Celsius (C).
@@ -417,7 +417,7 @@ class ChromAnalyzer(BaseModel):
         from chromatopy.readers.shimadzu import ShimadzuReader
 
         data = {
-            "dirpath": path,
+            "dirpath": str(path),
             "values": values,
             "unit": unit,
             "ph": ph,
@@ -431,7 +431,7 @@ class ChromAnalyzer(BaseModel):
         measurements = reader.read()
 
         if id is None:
-            id = path
+            id = Path(path).name
 
         return cls(
             id=id,
@@ -443,7 +443,7 @@ class ChromAnalyzer(BaseModel):
     @classmethod
     def read_agilent(
         cls,
-        path: str,
+        path: str | Path,
         ph: float,
         temperature: float,
         temperature_unit: UnitDefinitionAnnot = "Celsius",
@@ -457,7 +457,7 @@ class ChromAnalyzer(BaseModel):
         """Reads Agilent `Report.txt` or `RESULTS.csv` files within a `*.D` directories within the specified path.
 
         Args:
-            path (str): Path to the directory containing the Shimadzu files.
+            path (str | Path): Path to the directory containing the Agilent files.
             ph (float): pH value of the measurement.
             temperature (float): Temperature of the measurement.
             temperature_unit (UnitDefinitionAnnot, optional): Unit of the temperature. Defaults to Celsius (C).
@@ -512,7 +512,7 @@ class ChromAnalyzer(BaseModel):
             txt_paths = txt_paths
 
         data = {
-            "dirpath": path,
+            "dirpath": str(path),
             "values": values,
             "unit": unit,
             "ph": ph,
@@ -538,14 +538,14 @@ class ChromAnalyzer(BaseModel):
             raise IOError(f"No 'REPORT.TXT' or 'RESULTS.CSV' files found in '{path}'.")
 
         if id is None:
-            id = path
+            id = Path(path).name
 
         return cls(id=id, name=name, measurements=measurements, mode=reader.mode)
 
     @classmethod
     def read_chromeleon(
         cls,
-        path: str,
+        path: str | Path,
         ph: float,
         temperature: float,
         temperature_unit: UnitDefinitionAnnot = "Celsius",
@@ -560,7 +560,7 @@ class ChromAnalyzer(BaseModel):
         one calibration or timecourse measurement series.
 
         Args:
-            path (str): Path to the directory containing the Shimadzu files.
+            path (str | Path): Path to the directory containing the Chromeleon files.
             ph (float): pH value of the measurement.
             temperature (float): Temperature of the measurement.
             temperature_unit (UnitDefinitionAnnot, optional): Unit of the temperature. Defaults to Celsius (C).
@@ -581,7 +581,7 @@ class ChromAnalyzer(BaseModel):
         from chromatopy.readers.chromeleon import ChromeleonReader
 
         data = {
-            "dirpath": path,
+            "dirpath": str(path),
             "values": values,
             "unit": unit,
             "ph": ph,
@@ -592,17 +592,17 @@ class ChromAnalyzer(BaseModel):
         }
 
         if id is None:
-            id = path
+            id = Path(path).name
 
         reader = ChromeleonReader(**data)
         measurements = reader.read()
 
-        return cls(id=path, name=name, measurements=measurements, mode=reader.mode)
+        return cls(id=id, name=name, measurements=measurements, mode=reader.mode)
 
     @classmethod
     def read_thermo(
         cls,
-        path: str,
+        path: str | Path,
         ph: float,
         temperature: float,
         temperature_unit: UnitDefinitionAnnot = "Celsius",
@@ -617,7 +617,7 @@ class ChromAnalyzer(BaseModel):
         Measurements are assumed to be named alphabetically, allowing sorting by file name.
 
         Args:
-            path (str): Path to the directory containing the TX0 files.
+            path (str | Path): Path to the directory containing the TX0 files.
             ph (float): pH value of the measurement.
             temperature (float): Temperature of the measurement.
             temperature_unit (UnitDefinitionAnnot, optional): Unit of the temperature. Defaults to Celsius (C).
@@ -638,7 +638,7 @@ class ChromAnalyzer(BaseModel):
         from chromatopy.readers.thermo_txt import ThermoTX0Reader
 
         data = {
-            "dirpath": path,
+            "dirpath": str(path),
             "values": values,
             "unit": unit,
             "ph": ph,
@@ -649,7 +649,7 @@ class ChromAnalyzer(BaseModel):
         }
 
         if id is None:
-            id = path
+            id = Path(path).name
 
         reader = ThermoTX0Reader(**data)
         measurements = reader.read()
@@ -676,7 +676,7 @@ class ChromAnalyzer(BaseModel):
     @classmethod
     def read_csv(
         cls,
-        path: str,
+        path: str | Path,
         mode: Literal["timecourse", "calibration"],
         ph: float,
         temperature: float,
@@ -691,7 +691,7 @@ class ChromAnalyzer(BaseModel):
         """Reads chromatographic data from a CSV file.
 
         Args:
-            path (str): Path to the CSV file.
+            path (str | Path): Path to the CSV file.
             mode (Literal["timecourse", "calibration"]): Mode of the data.
             values (Optional[list[float]]): List of values. Defaults to None.
             unit (Optional[UnitDefinitionAnnot]): Unit of the values. Defaults to None.
@@ -709,10 +709,10 @@ class ChromAnalyzer(BaseModel):
         from chromatopy.readers.generic_csv import GenericCSVReader
 
         if id is None:
-            id = path
+            id = Path(path).name
 
         reader = GenericCSVReader(
-            dirpath=path,
+            dirpath=str(path),
             mode=mode,
             values=values,
             unit=unit,
@@ -725,15 +725,15 @@ class ChromAnalyzer(BaseModel):
             retention_time_col_name=retention_time_col_name,
             peak_area_col_name=peak_area_col_name,
         )
-        return cls(id=id, name=path, measurements=measurements, mode=reader.mode)
+        return cls(id=id, name=str(path), measurements=measurements, mode=reader.mode)
 
     @classmethod
-    def from_json(cls, path: str) -> ChromAnalyzer:
+    def from_json(cls, path: str | Path) -> ChromAnalyzer:
         """
         Load an instance of the class from a JSON file.
 
         Args:
-            path (str): The file path to the JSON file.
+            path (str | Path): The file path to the JSON file.
 
         Returns:
             An instance of the class populated with data from the JSON file.
@@ -1045,9 +1045,9 @@ class ChromAnalyzer(BaseModel):
             wavelength (float | None, optional): The wavelength of the detector. Defaults to None.
             visualize (bool, optional): If True, the standard curve is visualized. Defaults to True.
         """
-        assert any(
-            [molecule in [mol for mol in self.molecules]]
-        ), "Molecule not found in molecules of analyzer."
+        assert any([molecule in [mol for mol in self.molecules]]), (
+            "Molecule not found in molecules of analyzer."
+        )
 
         # check if all measurements only contain one chromatogram
         if all([len(meas.chromatograms) == 1 for meas in self.measurements]):
@@ -1055,15 +1055,15 @@ class ChromAnalyzer(BaseModel):
                 chrom for meas in self.measurements for chrom in meas.chromatograms
             ]
         else:
-            assert (
-                wavelength is not None
-            ), "Multiple chromatograms found for each measurment, wavelength needs to be provided."
+            assert wavelength is not None, (
+                "Multiple chromatograms found for each measurment, wavelength needs to be provided."
+            )
 
             chroms = self._get_chromatograms_by_wavelegnth(wavelength)
 
-            assert (
-                len(chroms) > 0
-            ), "No chromatograms found at the specified wavelength."
+            assert len(chroms) > 0, (
+                "No chromatograms found at the specified wavelength."
+            )
 
         peak_areas = [
             peak.area for chrom in chroms for peak in chrom.peaks if peak.molecule_id
@@ -1072,13 +1072,13 @@ class ChromAnalyzer(BaseModel):
         concs = [meas.data.value for meas in self.measurements]
         conc_unit = self.measurements[0].data.unit
 
-        assert (
-            len(peak_areas) == len(concs)
-        ), f"Number of {molecule.name} peak areas {len(peak_areas)} and concentrations {len(concs)} do not match."
+        assert len(peak_areas) == len(concs), (
+            f"Number of {molecule.name} peak areas {len(peak_areas)} and concentrations {len(concs)} do not match."
+        )
 
-        assert all(
-            meas.ph == self.measurements[0].ph for meas in self.measurements
-        ), "All measurements need to have the same pH value."
+        assert all(meas.ph == self.measurements[0].ph for meas in self.measurements), (
+            "All measurements need to have the same pH value."
+        )
         ph = self.measurements[0].ph
 
         assert all(
