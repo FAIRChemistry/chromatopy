@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from loguru import logger
-from mdmodels.units.annotation import UnitDefinition
+from mdmodels.units.annotation import UnitDefinitionAnnot
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 from chromhandler.model import DataType, Measurement
@@ -41,10 +41,10 @@ class AbstractReader(BaseModel):
         dirpath (str | Path): Path to the directory containing chromatographic data files.
         mode (str): Mode of data processing, either 'calibration' or 'timecourse'.
         values (Optional[List[float]]): List of reaction times or concentrations based on the mode.
-        unit (Optional[UnitDefinition]): Unit of the values (time unit for timecourse, concentration unit for calibration).
+        unit (Optional[UnitDefinitionAnnot]): Unit of the values (time unit for timecourse, concentration unit for calibration).
         ph (float): pH value of the measurement.
         temperature (float): Temperature of the measurement.
-        temperature_unit (UnitDefinition): Unit of the temperature.
+        temperature_unit (UnitDefinitionAnnot): Unit of the temperature.
         silent (bool): If True, suppresses output messages.
         file_paths (List[str]): List of file paths to process.
     """
@@ -66,7 +66,7 @@ class AbstractReader(BaseModel):
         ),
     )
 
-    unit: UnitDefinition = Field(
+    unit: UnitDefinitionAnnot = Field(
         ...,
         description=(
             "Unit of the values: "
@@ -84,7 +84,7 @@ class AbstractReader(BaseModel):
         description="Temperature of the measurement.",
     )
 
-    temperature_unit: UnitDefinition = Field(
+    temperature_unit: UnitDefinitionAnnot = Field(
         default="Celsius",
         description="Unit of the temperature. Defaults to Celsius.",
     )
@@ -231,7 +231,7 @@ class AbstractReader(BaseModel):
             )
 
         try:
-            unit_definition = cls._map_unit_str_to_UnitDefinition(units[0], mode)
+            unit_definition = cls._map_unit_str_to_UnitDefinitionAnnot(units[0], mode)
         except ValueError:
             logger.debug(
                 f"Unit {units[0]} from directory '{data['dirpath']}' not recognized."
@@ -252,11 +252,11 @@ class AbstractReader(BaseModel):
         return data
 
     @staticmethod
-    def _map_unit_str_to_UnitDefinition(
+    def _map_unit_str_to_UnitDefinitionAnnot(
         unit_str: str,
         mode: str,
-    ) -> UnitDefinition:
-        """Maps a string representation of a unit to a `UnitDefinition` object based on the mode."""
+    ) -> UnitDefinitionAnnot:
+        """Maps a string representation of a unit to a `UnitDefinitionAnnot` object based on the mode."""
 
         unit_str = unit_str.lower()
         if mode == DataType.TIMECOURSE.value:

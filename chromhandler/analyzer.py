@@ -12,6 +12,7 @@ import plotly.graph_objects as go
 import scipy
 import scipy.stats
 from calipytion.model import Calibration
+from calipytion.tools.utility import pubchem_request_molecule_name
 from loguru import logger
 from mdmodels.units.annotation import UnitDefinitionAnnot
 from pydantic import BaseModel, Field, field_validator
@@ -25,7 +26,7 @@ from .model import (
 )
 from .molecule import Molecule
 from .protein import Protein
-from .utility import _resolve_chromatogram, pubchem_request_molecule_name
+from .utility import _resolve_chromatogram
 
 
 class ChromAnalyzer(BaseModel):
