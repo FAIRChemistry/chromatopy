@@ -258,7 +258,8 @@ def print_peak_assignment_summary(
     ret_tolerance: float,
 ) -> None:
     """Print a formatted summary of peak assignment results (backward compatibility)."""
-    console = Console()
+    # Use force_terminal=False to avoid encoding issues on Windows CI
+    console = Console(force_terminal=False)
 
     # Only show success message if peaks were assigned, or if there were warnings
     has_warnings = measurements_with_multiple_peaks or measurements_with_no_peaks
@@ -356,7 +357,8 @@ def display_rich_handler(
         debug (bool, optional): If True, shows debug information about what sections are being displayed. Defaults to False.
     """
     if console is None:
-        console = Console()
+        # Use force_terminal=False to avoid encoding issues on Windows CI
+        console = Console(force_terminal=False)
 
     # Debug information
     if debug:
@@ -451,7 +453,8 @@ def display_consolidated_assignment_report(
     handler: Handler, assignment_results: list[dict[str, Any]]
 ) -> None:
     """Display a consolidated peak assignment report for all molecules."""
-    console = Console()
+    # Use force_terminal=False to avoid encoding issues on Windows CI
+    console = Console(force_terminal=False)
 
     # Create and display main assignment summary table
     summary_table = create_peak_assignment_summary_table(handler, assignment_results)
