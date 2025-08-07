@@ -127,13 +127,13 @@ class TestFixtures:
         )
 
     @pytest.fixture
-    def analyzer(
+    def handler(
         self, molecule: Molecule, protein: ChromProtein, measurement: Measurement
     ) -> Handler:
         """Create a real Handler."""
         return Handler(
-            id="analyzer1",
-            name="Test Analyzer",
+            id="handler1",
+            name="Test Handler",
             mode="timecourse",
             molecules=[molecule],
             proteins=[protein],
@@ -157,11 +157,11 @@ class TestFixtures:
 class TestToEnzymeML(TestFixtures):
     """Test the to_enzymeml function."""
 
-    def test_to_enzymeml_single_analyzer(self, analyzer: Handler) -> None:
-        """Test converting a single analyzer to EnzymeML."""
+    def test_to_enzymeml_single_handler(self, handler: Handler) -> None:
+        """Test converting a single handler to EnzymeML."""
         result = to_enzymeml(
             document_name="Test Document",
-            analyzers=analyzer,
+            handlers=handler,  # type: ignore
             calculate_concentration=False,
         )
 
@@ -171,9 +171,9 @@ class TestToEnzymeML(TestFixtures):
         assert len(result.small_molecules) == 1
         assert len(result.proteins) == 1
 
-    def test_to_enzymeml_multiple_analyzers(self, analyzer: Handler) -> None:
-        """Test converting multiple analyzers to EnzymeML."""
-        # Create a second measurement for the second analyzer
+    def test_to_enzymeml_multiple_handlers(self, handler: Handler) -> None:
+        """Test converting multiple handlers to EnzymeML."""
+        # Create a second measurement for the second handler
         from chromhandler.model import DataType
 
         second_measurement = Measurement(
@@ -182,23 +182,23 @@ class TestToEnzymeML(TestFixtures):
             temperature=25.0,
             temperature_unit="Celsius",
             ph=7.0,
-            chromatograms=analyzer.measurements[0].chromatograms,
+            chromatograms=handler.measurements[0].chromatograms,
             dilution_factor=1.0,
         )
 
-        # Create second analyzer with different measurement
-        analyzer2 = Handler(
-            id="analyzer2",
-            name="Test Analyzer 2",
+        # Create second handler with different measurement
+        handler2 = Handler(
+            id="handler2",
+            name="Test Handler 2",
             mode="timecourse",
-            molecules=analyzer.molecules,
-            proteins=analyzer.proteins,
+            molecules=handler.molecules,
+            proteins=handler.proteins,
             measurements=[second_measurement],
         )
 
         result = to_enzymeml(
             document_name="Test Document",
-            analyzers=[analyzer, analyzer2],
+            handlers=[handler, handler2],
             calculate_concentration=False,
         )
 
@@ -209,25 +209,25 @@ class TestToEnzymeML(TestFixtures):
         assert len(result.proteins) == 1
 
     def test_to_enzymeml_with_internal_standard_invalid_count(
-        self, analyzer: Handler
+        self, handler: Handler
     ) -> None:
         """Test with invalid internal standard count (should raise ValueError)."""
-        # No internal standard molecules in the analyzer
+        # No internal standard molecules in the handler
         with pytest.raises(ValueError, match="Exaclty one internal standard molecule"):
             to_enzymeml(
                 document_name="Test Document",
-                analyzers=analyzer,
+                handlers=[handler],
                 calculate_concentration=True,
                 internal_standard=True,
             )
 
-    def test_to_enzymeml_converts_single_analyzer_to_list(
-        self, analyzer: Handler
+    def test_to_enzymeml_converts_single_handler_to_list(
+        self, handler: Handler
     ) -> None:
-        """Test that single analyzer is converted to list."""
+        """Test that single handler is converted to list."""
         result = to_enzymeml(
             document_name="Test Document",
-            analyzers=analyzer,  # Single analyzer, not list
+            handlers=[handler],  # Single handler, not list
             calculate_concentration=False,
         )
 

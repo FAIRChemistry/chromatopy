@@ -4,7 +4,7 @@ from chromhandler import Handler
 
 
 def test_windows() -> None:
-    path = "docs/examples/data/agilent_rdl"
+    path = "docs/usage/data/agilent_rdl"
 
     # print path and all files in the directory
     print(path)

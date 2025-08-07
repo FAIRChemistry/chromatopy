@@ -4,7 +4,7 @@ import pytest
 
 from chromhandler.readers.shimadzu import ShimadzuReader
 
-DIR_PATH = "docs/examples/data/shimadzu"
+DIR_PATH = "docs/usage/data/shimadzu"
 
 
 @pytest.mark.readers

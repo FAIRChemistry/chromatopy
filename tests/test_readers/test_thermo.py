@@ -6,7 +6,7 @@ from chromhandler.readers.thermo_txt import ThermoTX0Reader
 @pytest.fixture
 def thermo_reader() -> ThermoTX0Reader:
     reader = ThermoTX0Reader(
-        dirpath="docs/examples/data/thermo",
+        dirpath="docs/usage/data/thermo",
         values=[0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0],
         unit="min",
         ph=7.4,

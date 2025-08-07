@@ -2,7 +2,7 @@ from chromhandler.handler import Handler
 
 
 def test_read_chromeleon() -> None:
-    dir_path = "docs/examples/data/chromeleon"
+    dir_path = "docs/usage/data/chromeleon"
 
     ana = Handler.read_chromeleon(
         path=dir_path,

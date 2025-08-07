@@ -1,8 +1,24 @@
 # Data Preparation
 
+`chromhandler` supports two fundamental analysis workflows:
+
+__🎯 **Calibration Mode**__  
+- **Purpose**: Create calibration curves from standard samples  
+- **Input**: Peak tables of standard samples  
+- **Output**: Calibration models for concentration calculation  
+- **Typical use**: External standards, method validation  
+
+__⏱️ **Timecourse Mode**__  
+- **Purpose**: Track analyte concentrations over time  
+- **Input**: Peak tables of reaction mixtures at different time points  
+- **Output**: Time-resolved concentration data, EnzymeML documents  
+- **Typical use**: Enzyme kinetics, reaction monitoring  
+
+For facilitating swift processing of data, it has to be organized in a specific way.
+
 ## 📂 Data organization
 
-`chromatopy` requires a specific organization of the measurement data of a time-course or calibration series. The scope of one analysis run is therefore eighter a single sample which is measured over time or a calibration series with multiple samples for different concentrations. 
+`chromhandler` requires a specific organization of the measurement data of a time-course or calibration series. The scope of one analysis run is therefore eighter a single sample which is measured over time or a calibration series with multiple samples for different concentrations. 
 
 !!! example
     An exemplary consisting of calibration mensurements and time-course data should be organized as follows:
@@ -37,18 +53,18 @@
 
 Most output data from chromatographic devices is vendor-specific and proprietary. However, [OpenChrom](https://lablicate.com/platform/openchrom), an open-source software that is free for academic use, provides the tools to convert proprietary data from almost all vendors into a vendor-neutral and machine-readable format, specifically the Allotrope Simple Model (ASM). A complete list of supported formats for pre-processing with OpenChrom can be found [here](https://www.openchrom.net/).
 
-Peak detection and integration with subsequent export to the ASM format is the recommended way to prepare data for subsequent processing with `chromatopy`. For information on how to batch process chromatographic data with OpenChrom, please refer to the section [Spectrum Processing with OpenChrom](#spectrum-processing-with-openchrom-from-lablicate).
+Peak detection and integration with subsequent export to the ASM format is the recommended way to prepare data for subsequent processing with `chromhandler`. For information on how to batch process chromatographic data with OpenChrom, please refer to the section [Spectrum Processing with OpenChrom](#spectrum-processing-with-openchrom-from-lablicate).
 
 ### Allotrope Simple Model
 
 !!! info
     The [Allotrope Simple Model (ASM)](https://www.allotrope.org/asm) is a JSON-based and vendor-independent format for analytical data. It is designed to store chromatographic measurement data.
 
-The ASM format is the preferred format for data import. It can be exported from OpenChrom and contains the measured signal and data of all peaks which were processed by OpenChrom. The format is supported by `chromatopy` and can be imported directly.
+The ASM format is the preferred format for data import. It can be exported from OpenChrom and contains the measured signal and data of all peaks which were processed by OpenChrom. The format is supported by `chromhandler` and can be imported directly.
 
 ### Vendor specific formats
 
-As an alternative to the ASM format, `chromatopy` supports the import of chromatographic data from various vendors.  Samples of all supported formats are provided below.
+As an alternative to the ASM format, `chromhandler` supports the import of chromatographic data from various vendors.  Samples of all supported formats are provided below.
 
 ??? example "File Examples"
 
@@ -380,7 +396,7 @@ As an alternative to the ASM format, `chromatopy` supports the import of chromat
 ## 🌈 Spectrum Processing with OpenChrom (from Lablicate)
 
 !!! info
-    [OpenChrom](https://lablicate.com/platform/openchrom) is an open‑source application for chromatography, spectrometry and spectroscopy. It natively imports data from most GC/MS, GC/FID, HPLC‑DAD and related instruments, offers high‑throughput batch processing (baseline correction, peak detection/integration, reporting) and exports results to the vendor‑independent Allotrope Simple Model (ASM) format—ready for use with `chromatopy`.
+    [OpenChrom](https://lablicate.com/platform/openchrom) is an open‑source application for chromatography, spectrometry and spectroscopy. It natively imports data from most GC/MS, GC/FID, HPLC‑DAD and related instruments, offers high‑throughput batch processing (baseline correction, peak detection/integration, reporting) and exports results to the vendor‑independent Allotrope Simple Model (ASM) format—ready for use with `chromhandler`.
 
 ### Installation & plug‑in setup
 
@@ -416,7 +432,7 @@ As an alternative to the ASM format, `chromatopy` supports the import of chromat
 7. Run the batch process by clicking on the _Execute_ :material-play: icon in the top right corner.
 ![Batch process steps](pics/batch_setup.png)
 
-8. After the processing is finished, the data can be imported with chromatopy.
+8. After the processing is finished, the data can be imported with `chromhandler`.
 
 ### What if my data cannot be processed with OpenChrom?
 
