@@ -9,7 +9,6 @@ from pyenzyme import (
 )
 from pyenzyme import Measurement as EnzymeMLMeasurement
 
-from chromhandler.analyzer import ChromAnalyzer
 from chromhandler.enzymeml import (
     CalibratorType,
     _check_molecule_conc_unit_and_init_conc,
@@ -25,6 +24,7 @@ from chromhandler.enzymeml import (
     setup_external_calibrators,
     to_enzymeml,
 )
+from chromhandler.handler import Handler
 from chromhandler.internal_standard import InternalStandard
 from chromhandler.model import Chromatogram, Data, Measurement, Peak
 from chromhandler.molecule import Molecule
@@ -129,9 +129,9 @@ class TestFixtures:
     @pytest.fixture
     def analyzer(
         self, molecule: Molecule, protein: ChromProtein, measurement: Measurement
-    ) -> ChromAnalyzer:
-        """Create a real ChromAnalyzer."""
-        return ChromAnalyzer(
+    ) -> Handler:
+        """Create a real Handler."""
+        return Handler(
             id="analyzer1",
             name="Test Analyzer",
             mode="timecourse",
@@ -157,7 +157,7 @@ class TestFixtures:
 class TestToEnzymeML(TestFixtures):
     """Test the to_enzymeml function."""
 
-    def test_to_enzymeml_single_analyzer(self, analyzer: ChromAnalyzer) -> None:
+    def test_to_enzymeml_single_analyzer(self, analyzer: Handler) -> None:
         """Test converting a single analyzer to EnzymeML."""
         result = to_enzymeml(
             document_name="Test Document",
@@ -171,7 +171,7 @@ class TestToEnzymeML(TestFixtures):
         assert len(result.small_molecules) == 1
         assert len(result.proteins) == 1
 
-    def test_to_enzymeml_multiple_analyzers(self, analyzer: ChromAnalyzer) -> None:
+    def test_to_enzymeml_multiple_analyzers(self, analyzer: Handler) -> None:
         """Test converting multiple analyzers to EnzymeML."""
         # Create a second measurement for the second analyzer
         from chromhandler.model import DataType
@@ -187,7 +187,7 @@ class TestToEnzymeML(TestFixtures):
         )
 
         # Create second analyzer with different measurement
-        analyzer2 = ChromAnalyzer(
+        analyzer2 = Handler(
             id="analyzer2",
             name="Test Analyzer 2",
             mode="timecourse",
@@ -209,7 +209,7 @@ class TestToEnzymeML(TestFixtures):
         assert len(result.proteins) == 1
 
     def test_to_enzymeml_with_internal_standard_invalid_count(
-        self, analyzer: ChromAnalyzer
+        self, analyzer: Handler
     ) -> None:
         """Test with invalid internal standard count (should raise ValueError)."""
         # No internal standard molecules in the analyzer
@@ -222,7 +222,7 @@ class TestToEnzymeML(TestFixtures):
             )
 
     def test_to_enzymeml_converts_single_analyzer_to_list(
-        self, analyzer: ChromAnalyzer
+        self, analyzer: Handler
     ) -> None:
         """Test that single analyzer is converted to list."""
         result = to_enzymeml(

@@ -14,6 +14,9 @@ _w.warn(
 _new = _il.import_module("chromhandler")
 from chromhandler import *  # noqa: F401,F403
 
+# Also support the new Handler name for backward compatibility with chromatopy
+from chromhandler import Handler  # noqa: F401
+
 __all__ = getattr(_new, "__all__", [n for n in dir(_new) if not n.startswith("_")])
 __version__ = getattr(_new, "__version__", None)
 

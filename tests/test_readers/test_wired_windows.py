@@ -1,6 +1,6 @@
 import os
 
-from chromhandler import ChromAnalyzer
+from chromhandler import Handler
 
 
 def test_windows() -> None:
@@ -10,8 +10,8 @@ def test_windows() -> None:
     print(path)
     print(os.listdir(path))
 
-    # Create a ChromAnalyzer object
-    ana = ChromAnalyzer.read_agilent(
+    # Create a Handler object
+    ana = Handler.read_agilent(
         path=path,
         ph=7.0,
         temperature=25.0,

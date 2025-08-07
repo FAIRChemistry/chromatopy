@@ -41,9 +41,6 @@ class AgilentRDLReader(AbstractReader):
                 )
             )
 
-        if not self.silent:
-            self.print_success(len(measurements))
-
         return measurements
 
     @staticmethod

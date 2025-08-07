@@ -4,20 +4,18 @@ import copy
 import json
 import warnings
 from pathlib import Path
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 
-import numpy as np
-import plotly.colors as pc
 import plotly.graph_objects as go
-import scipy
-import scipy.stats
 from calipytion.model import Calibration
 from calipytion.tools.utility import pubchem_request_molecule_name
 from loguru import logger
 from mdmodels.units.annotation import UnitDefinitionAnnot
 from pydantic import BaseModel, Field, field_validator
 from pyenzyme import EnzymeMLDocument
+from rich.console import Console, Group
 
+from . import pretty, visualize
 from .model import (
     Chromatogram,
     DataType,
@@ -29,13 +27,13 @@ from .protein import Protein
 from .utility import _resolve_chromatogram
 
 
-class ChromAnalyzer(BaseModel):
+class Handler(BaseModel):
     id: str = Field(
         description="Unique identifier of the given object.",
     )
 
     name: str = Field(
-        description="Name of the ChromAnalyzer object.",
+        description="Name of the Handler object.",
     )
 
     mode: str = Field(
@@ -69,14 +67,6 @@ class ChromAnalyzer(BaseModel):
             raise ValueError("Invalid mode. Must be 'calibration' or 'timecourse'.")
         return value
 
-    def __repr__(self) -> str:
-        return (
-            f"ChromAnalyzer(id={self.id!r}, "
-            f"molecules={len(self.molecules)}, "
-            f"proteins={len(self.proteins)}, "
-            f"measurements={len(self.measurements)}"
-        )
-
     def add_molecule_from_standard(
         self,
         standard: Calibration,
@@ -96,6 +86,7 @@ class ChromAnalyzer(BaseModel):
         conc_unit: Optional[str] = None,
         retention_tolerance: Optional[float] = None,
         min_signal: float = 0.0,
+        auto_assign: bool = False,
     ) -> None:
         """
         Adds a molecule to the list of species, allowing to update the initial concentration,
@@ -107,8 +98,10 @@ class ChromAnalyzer(BaseModel):
             conc_unit (UnitDefinitionAnnot | None, optional): The unit of the concentration. Defaults to None.
             retention_tolerance (float | None, optional): Retention time tolerance for peak annotation
                 in minutes. Defaults to None.
-            min_signal (float, optional): Minimum signal threshold for peak assignment. Peaks must have
+            min_signal (float): Minimum signal threshold for peak assignment. Peaks must have
                 an area >= this value to be assigned to this molecule. Defaults to 0.0 (no minimum threshold).
+            auto_assign (bool): If True, automatically assigns peaks after adding molecule.
+                Set to False to add molecules without assignment for later consolidated reporting. Defaults to False.
         """
 
         new_mol = copy.deepcopy(molecule)
@@ -126,7 +119,7 @@ class ChromAnalyzer(BaseModel):
 
         self._update_molecule(new_mol)
 
-        if new_mol.has_retention_time:
+        if auto_assign and new_mol.has_retention_time:
             self._register_peaks(
                 new_mol, new_mol.retention_tolerance, new_mol.wavelength
             )
@@ -143,6 +136,7 @@ class ChromAnalyzer(BaseModel):
         wavelength: Optional[float] = None,
         is_internal_standard: bool = False,
         min_signal: float = 0.0,
+        auto_assign: bool = False,
     ) -> Molecule:
         """
         Defines and adds a molecule to the list of molecules.
@@ -161,8 +155,10 @@ class ChromAnalyzer(BaseModel):
             wavelength (Optional[float], optional): Wavelength of the detector where the molecule was detected. If not provided,
                 it defaults to None.
             is_internal_standard (bool, optional): If True, the molecule is used as internal standard. Defaults to False.
-            min_signal (float, optional): Minimum signal threshold for peak assignment. Peaks must have
+            min_signal (float): Minimum signal threshold for peak assignment. Peaks must have
                 an area >= this value to be assigned to this molecule. Defaults to 0.0 (no minimum threshold).
+            auto_assign (bool): If True, automatically assigns peaks after defining molecule.
+                Set to False to define molecules without assignment for later consolidated reporting. Defaults to False.
 
         Returns:
             Molecule: The molecule object that was added to the list of species.
@@ -195,7 +191,7 @@ class ChromAnalyzer(BaseModel):
 
         self._update_molecule(molecule)
 
-        if molecule.has_retention_time:
+        if auto_assign and molecule.has_retention_time:
             self._register_peaks(molecule, retention_tolerance, wavelength)
 
         return molecule
@@ -217,41 +213,150 @@ class ChromAnalyzer(BaseModel):
         molecule: Molecule,
         ret_tolerance: float,
         wavelength: float | None,
-    ) -> None:
+        silent: bool = False,
+    ) -> dict[str, Any]:
         """Registers the peaks of a molecule based on the retention time tolerance and wavelength.
 
         Args:
             molecule (Molecule): The molecule for which the peaks should be registered.
             ret_tolerance (float): Retention time tolerance for peak annotation in minutes.
             wavelength (float | None): Wavelength of the detector on which the molecule was detected.
+            silent (bool): If True, doesn't print output immediately (for consolidated reporting).
+
+        Returns:
+            dict: Assignment results containing assigned_peak_count, multiple_peaks_info, and no_peaks_info.
         """
         assigned_peak_count = 0
+        measurements_with_multiple_peaks = []
+        measurements_with_no_peaks = []
+
         if not molecule.has_retention_time:
             raise ValueError(f"Molecule {molecule.id} has no retention time.")
 
         for meas in self.measurements:
-            for peak in _resolve_chromatogram(meas.chromatograms, wavelength).peaks:
+            chrom = _resolve_chromatogram(meas.chromatograms, wavelength)
+
+            # Find all peaks within tolerance
+            candidate_peaks = []
+            for peak in chrom.peaks:
                 if (
                     peak.retention_time is not None
                     and molecule.retention_time is not None
-                    and peak.retention_time - ret_tolerance
-                    < molecule.retention_time
-                    < peak.retention_time + ret_tolerance
+                    and abs(peak.retention_time - molecule.retention_time)
+                    <= ret_tolerance
                 ):
                     # Check if min_signal criterion is met
-                    if peak.area < molecule.min_signal:
-                        logger.debug(
-                            f"Peak at {peak.retention_time} for molecule {molecule.id} has area {peak.area} below minimum signal threshold {molecule.min_signal}. Skipping assignment."
-                        )
-                        continue
+                    if peak.area >= molecule.min_signal:
+                        candidate_peaks.append(peak)
 
-                    peak.molecule_id = molecule.id
-                    assigned_peak_count += 1
-                    logger.debug(
-                        f"{molecule.id} assigned as molecule ID for peak at {peak.retention_time}."
-                    )
+            if len(candidate_peaks) == 0:
+                # No peaks found in this measurement
+                measurements_with_no_peaks.append(meas.id)
 
-        print(f"🎯 Assigned {molecule.name} to {assigned_peak_count} peaks")
+            elif len(candidate_peaks) == 1:
+                # Exactly one peak found - assign it
+                peak = candidate_peaks[0]
+                peak.molecule_id = molecule.id
+                assigned_peak_count += 1
+                logger.debug(
+                    f"{molecule.id} assigned as molecule ID for peak at {peak.retention_time} in measurement {meas.id}."
+                )
+
+            else:
+                # Multiple peaks found - assign the closest one and warn
+                closest_peak = min(
+                    candidate_peaks,
+                    key=lambda p: abs(p.retention_time - molecule.retention_time)
+                    if p.retention_time and molecule.retention_time
+                    else float("inf"),
+                )
+                closest_peak.molecule_id = molecule.id
+                assigned_peak_count += 1
+
+                measurements_with_multiple_peaks.append(
+                    {
+                        "measurement_id": meas.id,
+                        "num_peaks": len(candidate_peaks),
+                        "assigned_rt": closest_peak.retention_time,
+                        "all_rts": [p.retention_time for p in candidate_peaks],
+                    }
+                )
+
+                logger.debug(
+                    f"{molecule.id} assigned to closest peak at {closest_peak.retention_time} in measurement {meas.id}."
+                )
+
+        # Prepare return data
+        assignment_result = {
+            "molecule": molecule,
+            "assigned_peak_count": assigned_peak_count,
+            "measurements_with_multiple_peaks": measurements_with_multiple_peaks,
+            "measurements_with_no_peaks": measurements_with_no_peaks,
+            "retention_tolerance": ret_tolerance,
+        }
+
+        # Print summary if not silent (for backward compatibility)
+        if not silent:
+            self._print_peak_assignment_summary(
+                molecule,
+                assigned_peak_count,
+                measurements_with_multiple_peaks,
+                measurements_with_no_peaks,
+                ret_tolerance,
+            )
+
+        return assignment_result
+
+    def assign_all_peaks(self, silent_individual: bool = True) -> None:
+        """Assign peaks for all molecules and display a consolidated report.
+
+        Args:
+            silent_individual (bool): If True, suppress individual molecule output (default: True).
+        """
+        if not self.molecules:
+            print("📊 No molecules defined for peak assignment.")
+            return
+
+        assignment_results = []
+
+        # Process all molecules
+        for molecule in self.molecules:
+            if molecule.has_retention_time:
+                result = self._register_peaks(
+                    molecule,
+                    molecule.retention_tolerance,
+                    molecule.wavelength,
+                    silent=silent_individual,
+                )
+                assignment_results.append(result)
+
+        # Display consolidated report
+        if assignment_results:
+            self._display_consolidated_assignment_report(assignment_results)
+
+    def _display_consolidated_assignment_report(
+        self, assignment_results: list[dict[str, Any]]
+    ) -> None:
+        """Display a consolidated peak assignment report for all molecules."""
+        pretty.display_consolidated_assignment_report(self, assignment_results)
+
+    def _print_peak_assignment_summary(
+        self,
+        molecule: Molecule,
+        assigned_peak_count: int,
+        measurements_with_multiple_peaks: list[dict[str, Any]],
+        measurements_with_no_peaks: list[str],
+        ret_tolerance: float,
+    ) -> None:
+        """Print a formatted summary of peak assignment results."""
+        pretty.print_peak_assignment_summary(
+            self,
+            molecule,
+            assigned_peak_count,
+            measurements_with_multiple_peaks,
+            measurements_with_no_peaks,
+            ret_tolerance,
+        )
 
     def define_protein(
         self,
@@ -335,7 +440,7 @@ class ChromAnalyzer(BaseModel):
         id: str | None = None,
         name: str = "Chromatographic measurement",
         silent: bool = False,
-    ) -> ChromAnalyzer:
+    ) -> Handler:
         """Reads chromatographic data from a directory containing Allotrope Simple Model (ASM) json files.
         Measurements are assumed to be named alphabetically, allowing sorting by file name.
 
@@ -351,12 +456,12 @@ class ChromAnalyzer(BaseModel):
                 (for "calibration" mode), corresponding to each measurement in the directory.
             unit (UnitDefinitionAnnot, optional): Unit of the `values` provided. It can be the time unit for reaction times or
                 the concentration unit for calibration mode, depending on the mode.
-            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            id (str, optional): Unique identifier of the Handler object. If not provided, the `path` is used as ID.
             name (str, optional): Name of the measurement. Defaults to "Chromatographic measurement".
             silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
-            ChromAnalyzer: ChromAnalyzer object containing the measurements.
+            Handler: Handler object containing the measurements.
         """
         from .readers.asm import ASMReader
 
@@ -392,7 +497,7 @@ class ChromAnalyzer(BaseModel):
         id: str | None = None,
         name: str = "Chromatographic measurement",
         silent: bool = False,
-    ) -> ChromAnalyzer:
+    ) -> Handler:
         """Reads chromatographic data from a directory containing Shimadzu files.
         Measurements are assumed to be named alphabetically, allowing sorting by file name.
 
@@ -408,12 +513,12 @@ class ChromAnalyzer(BaseModel):
                 (for "calibration" mode), corresponding to each measurement in the directory.
             unit (UnitDefinitionAnnot, optional): Unit of the `values` provided. It can be the time unit for reaction times or
                 the concentration unit for calibration mode, depending on the mode.
-            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            id (str, optional): Unique identifier of the Handler object. If not provided, the `path` is used as ID.
             name (str, optional): Name of the measurement. Defaults to "Chromatographic measurement".
             silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
-            ChromAnalyzer: ChromAnalyzer object containing the measurements.
+            Handler: Handler object containing the measurements.
         """
         from .readers.shimadzu import ShimadzuReader
 
@@ -454,7 +559,7 @@ class ChromAnalyzer(BaseModel):
         id: str | None = None,
         name: str = "Chromatographic measurement",
         silent: bool = False,
-    ) -> ChromAnalyzer:
+    ) -> Handler:
         """Reads Agilent `Report.txt` or `RESULTS.csv` files within a `*.D` directories within the specified path.
 
         Args:
@@ -469,12 +574,12 @@ class ChromAnalyzer(BaseModel):
                 (for "calibration" mode), corresponding to each measurement in the directory.
             unit (UnitDefinitionAnnot, optional): Unit of the `values` provided. It can be the time unit for reaction times or
                 the concentration unit for calibration mode, depending on the mode.
-            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            id (str, optional): Unique identifier of the Handler object. If not provided, the `path` is used as ID.
             name (str, optional): Name of the measurement. Defaults to "Chromatographic measurement".
             silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
-            ChromAnalyzer: ChromAnalyzer object containing the measurements.
+            Handler: Handler object containing the measurements.
         """
         from .readers.agilent_csv import AgilentCSVReader
         from .readers.agilent_rdl import AgilentRDLReader
@@ -556,7 +661,7 @@ class ChromAnalyzer(BaseModel):
         id: str | None = None,
         name: str = "Chromatographic measurement",
         silent: bool = False,
-    ) -> ChromAnalyzer:
+    ) -> Handler:
         """Reads Chromeleon txt files from a directory. The files in the directory are assumed to be of
         one calibration or timecourse measurement series.
 
@@ -572,12 +677,12 @@ class ChromAnalyzer(BaseModel):
                 (for "calibration" mode), corresponding to each measurement in the directory.
             unit (UnitDefinitionAnnot, optional): Unit of the `values` provided. It can be the time unit for reaction times or
                 the concentration unit for calibration mode, depending on the mode.
-            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            id (str, optional): Unique identifier of the Handler object. If not provided, the `path` is used as ID.
             name (str, optional): Name of the measurement. Defaults to "Chromatographic measurement".
             silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
-            ChromAnalyzer: ChromAnalyzer object containing the measurements.
+            Handler: Handler object containing the measurements.
         """
         from .readers.chromeleon import ChromeleonReader
 
@@ -613,7 +718,7 @@ class ChromAnalyzer(BaseModel):
         id: str | None = None,
         name: str = "Chromatographic measurement",
         silent: bool = False,
-    ) -> ChromAnalyzer:
+    ) -> Handler:
         """Reads chromatographic data from a directory containing Thermo Scientific TX0 files.
         Measurements are assumed to be named alphabetically, allowing sorting by file name.
 
@@ -629,12 +734,12 @@ class ChromAnalyzer(BaseModel):
                 (for "calibration" mode), corresponding to each measurement in the directory.
             unit (UnitDefinitionAnnot, optional): Unit of the `values` provided. It can be the time unit for reaction times or
                 the concentration unit for calibration mode, depending on the mode.
-            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            id (str, optional): Unique identifier of the Handler object. If not provided, the `path` is used as ID.
             name (str, optional): Name of the measurement. Defaults to "Chromatographic measurement".
             silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
-            ChromAnalyzer: ChromAnalyzer object containing the measurements.
+            Handler: Handler object containing the measurements.
         """
         from .readers.thermo_txt import ThermoTX0Reader
 
@@ -688,7 +793,7 @@ class ChromAnalyzer(BaseModel):
         values: Optional[list[float]] = None,
         unit: Optional[UnitDefinitionAnnot] = None,
         silent: bool = False,
-    ) -> ChromAnalyzer:
+    ) -> Handler:
         """Reads chromatographic data from a CSV file.
 
         Args:
@@ -701,11 +806,11 @@ class ChromAnalyzer(BaseModel):
             temperature_unit (UnitDefinitionAnnot): Unit of the temperature.
             retention_time_col_name (str): Name of the retention time column.
             peak_area_col_name (str): Name of the peak area column.
-            id (str, optional): Unique identifier of the ChromAnalyzer object. If not provided, the `path` is used as ID.
+            id (str, optional): Unique identifier of the Handler object. If not provided, the `path` is used as ID.
             silent (bool, optional): If True, no success message is printed. Defaults to False.
 
         Returns:
-            ChromAnalyzer: ChromAnalyzer object containing the measurements.
+            Handler: Handler object containing the measurements.
         """
         from .readers.generic_csv import GenericCSVReader
 
@@ -729,7 +834,7 @@ class ChromAnalyzer(BaseModel):
         return cls(id=id, name=str(path), measurements=measurements, mode=reader.mode)
 
     @classmethod
-    def from_json(cls, path: str | Path) -> ChromAnalyzer:
+    def from_json(cls, path: str | Path) -> Handler:
         """
         Load an instance of the class from a JSON file.
 
@@ -756,7 +861,7 @@ class ChromAnalyzer(BaseModel):
         calculate_concentration: bool = True,
         extrapolate: bool = False,
     ) -> EnzymeMLDocument:
-        """Creates an EnzymeML document from the data in the ChromAnalyzer.
+        """Creates an EnzymeML document from the data in the Handler.
 
         Args:
             name (str): Name of the EnzymeML document.
@@ -804,232 +909,12 @@ class ChromAnalyzer(BaseModel):
         Args:
             assigned_only (bool, optional): If True, only the peaks that are assigned to a molecule are plotted. Defaults to False.
             dark_mode (bool, optional): If True, the figure is displayed in dark mode. Defaults to False.
+            show (bool, optional): If True, shows the figure. Defaults to False.
 
         Returns:
-            go.Figure: _description_
+            go.Figure: The plotly figure object.
         """
-        # make plotly figure for each chromatogram whereas ech chromatogram contains multiple traces and each comatogram is mapped to one slider
-        from plotly.express.colors import sample_colorscale
-
-        from .utility import generate_gaussian_data, generate_visibility
-
-        if dark_mode:
-            theme = "plotly_dark"
-            signal_color = "white"
-        else:
-            theme = "plotly_white"
-            signal_color = "black"
-
-        peak_vis_mode = None
-
-        fig = go.Figure()
-
-        for meas in self.measurements:
-            for chrom in meas.chromatograms[:1]:
-                # model peaks as gaussians
-                if chrom.peaks:
-                    peaks_exist = True
-                    if len(chrom.peaks) == 1:
-                        color_map = ["teal"]
-                    else:
-                        color_map = sample_colorscale("viridis", len(chrom.peaks))
-
-                    for color, peak in zip(color_map, chrom.peaks):
-                        if assigned_only and not peak.molecule_id:
-                            continue
-
-                        if peak.molecule_id:
-                            peak_name = self.get_molecule(peak.molecule_id).name
-                        else:
-                            if peak.retention_time is None:
-                                raise ValueError("Peak retention time cannot be None")
-                            peak_name = f"Peak {peak.retention_time:.2f}"
-
-                        if peak.peak_start and peak.peak_end and peak.width:
-                            if peak.amplitude is None or peak.retention_time is None:
-                                raise ValueError(
-                                    "Peak amplitude and retention time must not be None for Gaussian visualization"
-                                )
-                            x_arr, data = generate_gaussian_data(
-                                amplitude=peak.amplitude,
-                                center=peak.retention_time,
-                                half_height_diameter=peak.width,
-                                start=peak.peak_start,
-                                end=peak.peak_end,
-                            )
-                            peak_vis_mode = "gaussian"
-
-                        elif peak.skew and peak.width:
-                            if peak.retention_time is None or peak.amplitude is None:
-                                raise ValueError(
-                                    "Peak retention time and amplitude must not be None for skewed visualization"
-                                )
-                            x_start = peak.retention_time - 3 * peak.width
-                            x_end = peak.retention_time + 3 * peak.width
-                            x_arr = np.linspace(x_start, x_end, 100).tolist()
-                            data = (
-                                scipy.stats.skewnorm.pdf(
-                                    x_arr,
-                                    peak.skew if peak.skew else 0,
-                                    loc=peak.retention_time,
-                                    scale=peak.width,
-                                )
-                                * peak.amplitude
-                            )
-                            peak_vis_mode = "skewnorm"
-
-                        elif peak.retention_time and peak.amplitude:
-                            interval = 0.03
-                            left_shifted = peak.retention_time - interval
-                            right_shifted = peak.retention_time + interval
-                            x_arr = [
-                                left_shifted,
-                                right_shifted,
-                                right_shifted,
-                                left_shifted,
-                                left_shifted,
-                            ]
-                            data = [0, 0, peak.amplitude, peak.amplitude, 0]
-
-                        else:
-                            interval = 0.03
-                            left_shifted = peak.retention_time - interval
-                            right_shifted = peak.retention_time + interval
-                            x_arr = [
-                                left_shifted,
-                                right_shifted,
-                                right_shifted,
-                                left_shifted,
-                                left_shifted,
-                            ]
-                            data = [0, 0, peak.area, peak.area, 0]
-
-                        custom1 = [round(peak.area)] * len(x_arr)
-                        custom2 = [round(peak.retention_time, 2)] * len(x_arr)
-                        customdata = np.stack((custom1, custom2), axis=-1)
-                        fig.add_trace(
-                            go.Scatter(
-                                visible=False,
-                                x=x_arr,
-                                y=data,
-                                mode="lines",
-                                name=peak_name,
-                                customdata=customdata,
-                                hovertemplate="<b>Area:</b> %{customdata[0]}<br>"
-                                + "<b>Center:</b> %{customdata[1]}<br>"
-                                + "<extra></extra>",
-                                hovertext=f"{meas.id}",
-                                line=dict(
-                                    color=color,
-                                    width=1,
-                                ),
-                                fill="tozeroy",
-                                fillcolor=color,
-                            )
-                        )
-
-                else:
-                    peaks_exist = False
-
-                if chrom.times and chrom.signals:
-                    signal_exist = True
-                    fig.add_trace(
-                        go.Scatter(
-                            visible=False,
-                            x=chrom.times,
-                            y=chrom.signals,
-                            mode="lines",
-                            name="Signal",
-                            hovertext=f"{meas.id}",
-                            line=dict(
-                                color=signal_color,
-                                dash="solid",
-                                width=1,
-                            ),
-                        )
-                    )
-                else:
-                    signal_exist = False
-
-                if chrom.processed_signal and chrom.times:
-                    processed_signal_exist = True
-                    fig.add_trace(
-                        go.Scatter(
-                            visible=False,
-                            x=chrom.times,
-                            y=chrom.processed_signal,
-                            mode="lines",
-                            name="Processed Signal",
-                            hovertext=f"{meas.id}",
-                            line=dict(
-                                color="red",
-                                dash="dot",
-                                width=2,
-                            ),
-                        )
-                    )
-                else:
-                    processed_signal_exist = False
-
-        if assigned_only:
-            n_peaks_in_first_chrom = len(
-                [
-                    peak
-                    for peak in self.measurements[0].chromatograms[0].peaks
-                    if peak.molecule_id
-                ]
-            )
-        else:
-            n_peaks_in_first_chrom = len(self.measurements[0].chromatograms[0].peaks)
-
-        if peak_vis_mode == "gaussian":
-            logger.info(
-                "Gaussian peaks are used for visualization, the actual peak shape might differ and is based on the previous preak processing."
-            )
-
-        if signal_exist and not processed_signal_exist:
-            fig.data[n_peaks_in_first_chrom].visible = True
-        elif signal_exist and processed_signal_exist:
-            fig.data[n_peaks_in_first_chrom].visible = True
-            fig.data[n_peaks_in_first_chrom + 1].visible = True
-
-        if peaks_exist:
-            for i in range(n_peaks_in_first_chrom):
-                fig.data[i].visible = True
-
-        steps = []
-        for meas in self.measurements:
-            for chrom in meas.chromatograms:
-                step = {
-                    "label": f"{meas.id}",
-                    "method": "update",
-                    "args": [
-                        {
-                            "visible": generate_visibility(meas.id, fig),
-                        }
-                    ],
-                }
-                steps.append(step)
-
-        sliders = [
-            {
-                "active": 0,
-                "currentvalue": {"prefix": "Chromatogram: "},
-                "steps": steps,
-            }
-        ]
-
-        fig.update_layout(
-            sliders=sliders,
-            xaxis_title="retention time [min]",
-            yaxis_title="Intensity",
-            template=theme,
-        )
-
-        if show:
-            fig.show()
-        else:
-            return fig
+        return visualize.visualize_all(self, assigned_only, dark_mode, show)
 
     def add_standard(
         self,
@@ -1045,7 +930,7 @@ class ChromAnalyzer(BaseModel):
             visualize (bool, optional): If True, the standard curve is visualized. Defaults to True.
         """
         assert any([molecule in [mol for mol in self.molecules]]), (
-            "Molecule not found in molecules of analyzer."
+            "Molecule not found in molecules of handler."
         )
 
         # check if all measurements only contain one chromatogram
@@ -1144,7 +1029,7 @@ class ChromAnalyzer(BaseModel):
 
     def visualize_spectra(self, dark_mode: bool = False) -> go.Figure:
         """
-        Plots all chromatograms in the ChromAnalyzer in a single plot.
+        Plots all chromatograms in the Handler in a single plot.
 
         Args:
             dark_mode (bool, optional): If True, the figure is displayed in dark mode. Defaults to False.
@@ -1152,40 +1037,7 @@ class ChromAnalyzer(BaseModel):
         Returns:
             go.Figure: The plotly figure object.
         """
-
-        if dark_mode:
-            theme = "plotly_dark"
-        else:
-            theme = "plotly_white"
-
-        fig = go.Figure()
-
-        color_map = pc.sample_colorscale("viridis", len(self.measurements))
-        for meas, color in zip(self.measurements, color_map):
-            for chrom in meas.chromatograms[:1]:
-                fig.add_trace(
-                    go.Scatter(
-                        x=chrom.times,
-                        y=chrom.signals,
-                        name=meas.id,
-                        line=dict(width=2, color=color),
-                    )
-                )
-
-        if chrom.wavelength:
-            wave_string = f"({chrom.wavelength} nm)"
-        else:
-            wave_string = ""
-
-        fig.update_layout(
-            xaxis_title="retention time [min]",
-            yaxis_title=f"Intensity {wave_string}",
-            height=600,
-            legend={"traceorder": "normal"},
-            template=theme,
-        )
-
-        return fig
+        return visualize.visualize_spectra(self, dark_mode)
 
     def visualize(
         self,
@@ -1212,293 +1064,54 @@ class ChromAnalyzer(BaseModel):
             assigned_only (bool, optional): If True, only shows peaks that are assigned to a molecule. Defaults to False.
             overlay (bool, optional): If True, plots all chromatograms on a single axis. Defaults to False.
         """
-        import matplotlib.pyplot as plt
-        import numpy as np
-        from matplotlib.cm import ScalarMappable
-        from matplotlib.colors import Normalize
+        visualize.visualize(
+            self,
+            n_cols,
+            figsize,
+            show_peaks,
+            show_processed,
+            rt_min,
+            rt_max,
+            save_path,
+            assigned_only,
+            overlay,
+        )
 
-        n_measurements = len(self.measurements)
+    def rich_display(self, console: Console | None = None, debug: bool = False) -> None:
+        """
+        Display a comprehensive rich text visualization of the Handler instance.
 
-        # First pass: collect all y-values to determine global y-range
-        y_min = float("inf")
-        y_max = float("-inf")
-        for meas in self.measurements:
-            for chrom in meas.chromatograms[:1]:
-                if chrom.signals:
-                    y_min = min(y_min, min(chrom.signals))
-                    y_max = max(y_max, max(chrom.signals))
-                if show_processed and chrom.processed_signal:
-                    y_min = min(y_min, min(chrom.processed_signal))
-                    y_max = max(y_max, max(chrom.processed_signal))
+        This method provides a beautiful, structured overview of the Handler including:
+        - Basic information (ID, name, mode)
+        - Molecules and their properties
+        - Proteins and their properties
+        - Measurements summary with peak statistics
+        - Chromatogram details
 
-        # Add some padding to the y-range
-        y_range = y_max - y_min
-        y_min = y_min - 0.05 * y_range
-        y_max = y_max + 0.05 * y_range
+        Args:
+            console (Console | None, optional): Rich console instance. If None, creates a new one. Defaults to None.
+            debug (bool, optional): If True, shows debug information about what sections are being displayed. Defaults to False.
+        """
+        pretty.display_rich_handler(self, console, debug)
 
-        # Collect all retention times for consistent coloring
-        all_retention_times = []
-        molecule_ids = set()
-        for meas in self.measurements:
-            for chrom in meas.chromatograms[:1]:
-                if show_peaks and chrom.peaks:
-                    for peak in chrom.peaks:
-                        if peak.retention_time is not None:
-                            all_retention_times.append(peak.retention_time)
-                            if peak.molecule_id:
-                                molecule_ids.add(peak.molecule_id)
+    def __rich__(self) -> Group:
+        """
+        Rich representation for automatic display in rich-aware contexts.
 
-        if all_retention_times:
-            # Create colormap for retention times
-            retention_times = np.array(all_retention_times)
-            norm = Normalize(vmin=min(retention_times), vmax=max(retention_times))
-            cmap = plt.cm.get_cmap("viridis")
-            sm = ScalarMappable(norm=norm, cmap=cmap)
+        This method is called automatically when you:
+        - print(Handler) in a rich-enabled terminal
+        - Display Handler in Jupyter notebooks
+        - Use Handler in any rich-aware context
 
-            # Create a colormap for molecules (use a different colormap to distinguish from retention times)
-            molecule_colors = {}
-            if molecule_ids:
-                molecule_list = list(molecule_ids)
-                molecule_colors_list = plt.cm.get_cmap("tab10")(
-                    np.linspace(0, 1, len(molecule_list))
-                )
-                molecule_colors = {
-                    mol_id: color
-                    for mol_id, color in zip(molecule_list, molecule_colors_list)
-                }
+        Returns:
+            Group: A rich group with the full Handler visualization.
+        """
+        return pretty.create_rich_handler_group(self)
 
-        if overlay:
-            # Create a single figure with one axis
-            fig, ax = plt.subplots(figsize=figsize)
+    def __call__(self) -> None:
+        """
+        Make the Handler callable to display rich visualization.
 
-            # Generate colors for different measurements
-            measurement_colors = plt.cm.get_cmap("tab10")(
-                np.linspace(0, 1, n_measurements)
-            )
-
-            # Plot all measurements on the same axis
-            for i, meas in enumerate(self.measurements):
-                # Plot signal with measurement-specific color
-                for chrom in meas.chromatograms[:1]:
-                    if chrom.times and chrom.signals:
-                        ax.plot(
-                            chrom.times,
-                            chrom.signals,
-                            label=meas.id,
-                            color=measurement_colors[i],
-                            zorder=2,
-                        )
-
-                    # Plot processed signal if requested
-                    if show_processed and chrom.processed_signal and chrom.times:
-                        ax.plot(
-                            chrom.times,
-                            chrom.processed_signal,
-                            label=f"{meas.id} (processed)",
-                            color=measurement_colors[i],
-                            linestyle="--",
-                            alpha=0.7,
-                            zorder=2,
-                        )
-
-                # Plot peaks if requested
-                if show_peaks:
-                    for chrom in meas.chromatograms[:1]:
-                        if chrom.peaks:
-                            for peak in chrom.peaks:
-                                # Skip unassigned peaks if assigned_only is True
-                                if assigned_only and not peak.molecule_id:
-                                    continue
-
-                                if peak.retention_time is not None:
-                                    # Determine color based on whether peak is assigned to a molecule
-                                    if (
-                                        peak.molecule_id
-                                        and peak.molecule_id in molecule_colors
-                                    ):
-                                        # Use molecule-specific color for assigned peaks
-                                        color = molecule_colors[peak.molecule_id]
-                                    else:
-                                        # Use retention time color for unassigned peaks
-                                        # Round to nearest 0.05 interval for discrete colors
-                                        rt_discrete = (
-                                            round(peak.retention_time / 0.05) * 0.05
-                                        )
-                                        color = sm.to_rgba(np.array([rt_discrete]))[0]
-
-                                    # Create label for legend
-                                    if peak.molecule_id:
-                                        try:
-                                            molecule = self.get_molecule(
-                                                peak.molecule_id
-                                            )
-                                            label = f"{molecule.id} {peak.retention_time:.2f}"
-                                        except ValueError:
-                                            label = f"Peak {peak.retention_time:.2f}"
-                                    else:
-                                        label = f"Peak {peak.retention_time:.2f}"
-
-                                    # Plot vertical line with consistent color but measurement-specific linestyle
-                                    # Use a dashed line with increasing dash length based on measurement index
-                                    linestyle = (
-                                        0,
-                                        (1, i + 1),
-                                    )  # (0, (1, 1)) for first measurement, (0, (1, 2)) for second, etc.
-
-                                    ax.axvline(
-                                        x=peak.retention_time,
-                                        color=color,
-                                        linestyle=linestyle,
-                                        alpha=0.7,
-                                        linewidth=1.5,
-                                        label=f"{meas.id}: {label}",
-                                        zorder=1,  # Put behind signal
-                                    )
-
-            # Set plot properties
-            ax.set_ylabel("Intensity")
-            ax.set_xlabel("Retention time [min]")
-            ax.grid(True, alpha=0.3)
-
-            # Add legend with smaller font
-            handles, labels = ax.get_legend_handles_labels()
-            # Only keep unique entries in the legend
-            by_label = dict(zip(labels, handles))
-            ax.legend(
-                by_label.values(),
-                by_label.keys(),
-                loc="upper right",
-                fontsize=8,
-                title="RT [min]",
-                title_fontsize=9,
-            )
-
-            # Set y-axis limits
-            ax.set_ylim(y_min, y_max)
-
-            # Set x-axis limits if specified
-            if rt_min is not None and rt_max is not None:
-                ax.set_xlim(rt_min, rt_max)
-
-        else:
-            # Create figure with multiple subplots for each measurement
-            n_rows = int(np.ceil(n_measurements / n_cols))
-
-            # Create figure with shared y-axis
-            fig, axes = plt.subplots(
-                n_rows, n_cols, figsize=figsize, sharey=True, sharex=True
-            )
-            if n_measurements == 1:
-                axes = np.array([axes])
-            axes = axes.flatten()
-
-            # Hide unused subplots
-            for i in range(n_measurements, len(axes)):
-                axes[i].set_visible(False)
-
-            # Second pass: plot all data with shared y-range
-            for idx, (meas, ax) in enumerate(zip(self.measurements, axes)):
-                # Plot peaks first (behind the signal)
-                if show_peaks:
-                    for chrom in meas.chromatograms[:1]:
-                        if chrom.peaks:
-                            for peak in chrom.peaks:
-                                # Skip unassigned peaks if assigned_only is True
-                                if assigned_only and not peak.molecule_id:
-                                    continue
-
-                                if peak.retention_time is not None:
-                                    # Determine color based on whether peak is assigned to a molecule
-                                    if (
-                                        peak.molecule_id
-                                        and peak.molecule_id in molecule_colors
-                                    ):
-                                        # Use molecule-specific color for assigned peaks
-                                        color = molecule_colors[peak.molecule_id]
-                                    else:
-                                        # Use retention time color for unassigned peaks
-                                        # Round to nearest 0.05 interval for discrete colors
-                                        rt_discrete = (
-                                            round(peak.retention_time / 0.05) * 0.05
-                                        )
-                                        color = sm.to_rgba(np.array([rt_discrete]))[0]
-
-                                    # Create label for legend
-                                    if peak.molecule_id:
-                                        try:
-                                            molecule = self.get_molecule(
-                                                peak.molecule_id
-                                            )
-                                            label = f"{molecule.id} {peak.retention_time:.2f}"
-                                        except ValueError:
-                                            label = f"Peak {peak.retention_time:.2f}"
-                                    else:
-                                        label = f"Peak {peak.retention_time:.2f}"
-
-                                    # Plot vertical line with consistent color
-                                    ax.axvline(
-                                        x=peak.retention_time,
-                                        color=color,
-                                        linestyle="-",
-                                        alpha=0.7,
-                                        linewidth=2,
-                                        label=label,
-                                        zorder=1,  # Put behind signal
-                                    )
-
-                # Plot raw signal
-                for chrom in meas.chromatograms[:1]:
-                    if chrom.times and chrom.signals:
-                        ax.plot(
-                            chrom.times,
-                            chrom.signals,
-                            label="Signal",
-                            color="black",
-                            zorder=2,
-                        )
-
-                    # Plot processed signal if requested
-                    if show_processed and chrom.processed_signal and chrom.times:
-                        ax.plot(
-                            chrom.times,
-                            chrom.processed_signal,
-                            label="Processed",
-                            color="red",
-                            linestyle="--",
-                            zorder=2,
-                        )
-
-                # Remove title and add text annotation in top left corner
-                ax.text(
-                    0.02,
-                    0.95,
-                    meas.id,
-                    transform=ax.transAxes,
-                    fontsize=10,
-                    va="top",
-                    ha="left",
-                )
-
-                # Only show x-axis label for plots in the bottom row
-                if idx >= n_measurements - n_cols:
-                    ax.set_xlabel("Retention time [min]")
-                else:
-                    ax.set_xlabel("")
-
-                if idx % n_cols == 0:  # Only show y-label for leftmost plots
-                    ax.set_ylabel("Intensity")
-                ax.grid(True, alpha=0.3)
-                ax.legend(
-                    loc="upper right", fontsize=8, title="RT [min]", title_fontsize=9
-                )
-                ax.set_ylim(y_min, y_max)  # Set consistent y-range for all plots
-
-                # Set x-axis limits if specified
-                if rt_min is not None and rt_max is not None:
-                    ax.set_xlim(rt_min, rt_max)
-
-        plt.tight_layout()
-        if save_path:
-            plt.savefig(save_path)
-        else:
-            plt.show()
+        This allows you to use: Handler() to get the full rich display.
+        """
+        self.rich_display()

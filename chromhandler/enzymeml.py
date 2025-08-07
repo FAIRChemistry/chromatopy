@@ -12,7 +12,7 @@ from pyenzyme import (
 )
 from pyenzyme import Measurement as EnzymeMLMeasurement
 
-from .analyzer import ChromAnalyzer
+from .handler import Handler
 from .internal_standard import InternalStandard
 from .model import Chromatogram, Measurement
 from .molecule import Molecule
@@ -27,16 +27,16 @@ class CalibratorType(Enum):
 
 def to_enzymeml(
     document_name: str,
-    analyzers: list[ChromAnalyzer],
+    handlers: list[Handler],
     calculate_concentration: bool,
     extrapolate: bool = False,
     internal_standard: bool = False,
 ) -> EnzymeMLDocument:
-    """Converts a list of Analyzer instances to an EnzymeMLDocument instance.
+    """Converts a list of Handler instances to an EnzymeMLDocument instance.
 
     Args:
         document_name (str): Name of the EnzymeMLDocument instance.
-        analyzers (list[Analyzer]): List of ChromAnalyzer objects containing measurement data.
+        handlers (list[Handler]): List of Handler objects containing measurement data.
         calculate_concentration (bool): If True, the concentration of the molecules will be calculated.
         extrapolate (bool): If True, the concentration of the molecules will be extrapolated. Default is False.
         internal_standard (bool): If True, the internal standard will be used to calculate the concentration of the molecules. Default is False.
@@ -45,14 +45,14 @@ def to_enzymeml(
         EnzymeMLDocument: The created EnzymeML document with all measurements added.
     """
 
-    if not isinstance(analyzers, list):
-        analyzers = [analyzers]
+    if not isinstance(handlers, list):
+        handlers = [handlers]
 
-    for idx, analyzer in enumerate(analyzers):
+    for idx, handler in enumerate(handlers):
         if idx == 0:
             if internal_standard:
                 internal_std_molecules = [
-                    mol for mol in analyzer.molecules if mol.internal_standard
+                    mol for mol in handler.molecules if mol.internal_standard
                 ]
                 if len(internal_std_molecules) != 1:
                     raise ValueError(
@@ -63,19 +63,19 @@ def to_enzymeml(
                 internal_standards = setup_internal_calibrators(
                     internal_standard=internal_std_molecules[0],
                     molecules=[
-                        mol for mol in analyzer.molecules if not mol.internal_standard
+                        mol for mol in handler.molecules if not mol.internal_standard
                     ],
-                    first_measurement=analyzer.measurements[0],
+                    first_measurement=handler.measurements[0],
                 )
             else:
                 internal_standards = None
 
             doc = create_enzymeml(
                 document_name=document_name,
-                molecules=analyzer.molecules,
-                proteins=analyzer.proteins,
-                measurements=analyzer.measurements,
-                measurement_id=analyzer.id,
+                molecules=handler.molecules,
+                proteins=handler.proteins,
+                measurements=handler.measurements,
+                measurement_id=handler.id,
                 internal_standards=internal_standards,
                 calculate_concentration=calculate_concentration,
                 extrapolate=extrapolate,
@@ -83,7 +83,7 @@ def to_enzymeml(
         else:
             if internal_standard:
                 internal_std_molecules = [
-                    mol for mol in analyzer.molecules if mol.internal_standard
+                    mol for mol in handler.molecules if mol.internal_standard
                 ]
                 if len(internal_std_molecules) != 1:
                     raise ValueError(
@@ -94,19 +94,19 @@ def to_enzymeml(
                 internal_standards = setup_internal_calibrators(
                     internal_standard=internal_std_molecules[0],
                     molecules=[
-                        mol for mol in analyzer.molecules if not mol.internal_standard
+                        mol for mol in handler.molecules if not mol.internal_standard
                     ],
-                    first_measurement=analyzer.measurements[0],
+                    first_measurement=handler.measurements[0],
                 )
             else:
                 internal_standards = None
 
             add_measurements_to_enzymeml(
                 doc=doc,
-                new_measurements=analyzer.measurements,
-                measurement_id=analyzer.id,
-                molecules=analyzer.molecules,
-                proteins=analyzer.proteins,
+                new_measurements=handler.measurements,
+                measurement_id=handler.id,
+                molecules=handler.molecules,
+                proteins=handler.proteins,
                 calculate_concentration=calculate_concentration,
                 extrapolate=extrapolate,
                 internal_standards=internal_standards,

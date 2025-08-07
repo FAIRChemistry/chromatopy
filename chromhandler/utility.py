@@ -1,7 +1,6 @@
 import sys
 
 import numpy as np
-import plotly.graph_objects as go
 from loguru import logger
 from matplotlib import pyplot as plt
 from matplotlib.figure import Figure
@@ -32,29 +31,6 @@ def _resolve_chromatogram(
         return next(chrom for chrom in chromatograms if chrom.wavelength == wavelength)
 
     raise ValueError("No chromatogram found.")
-
-
-# def pick_peak(chromatograms: list[Chromatogram], retention_time: float, tolerance: float) -> list[Peak]:
-#     current_retention = retention_time
-#     peaks = []
-
-#     for chrom in chromatograms:
-#         for peak in chrom.peaks:
-#             if abs(peak.retention_time - current_retention) < tolerance:
-#                 peaks.append(peak)
-#                 current_retention = peak.retention_time
-#         else:
-#             pass
-
-
-def generate_visibility(hover_text: str, fig: go.Figure) -> list[bool]:
-    visibility = []
-    for trace in fig.data:
-        if trace.hovertext == hover_text:
-            visibility.append(True)
-        else:
-            visibility.append(False)
-    return visibility
 
 
 def generate_gaussian_data(
