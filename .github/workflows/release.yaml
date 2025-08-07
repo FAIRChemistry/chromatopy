@@ -3,9 +3,8 @@ name: Publish Python 🐍 distribution 📦 to PyPI and TestPyPI
 on: 
   pull_request:
     branches: [main]  
-  push:
-    tags:
-      - 'v*' 
+  release:
+    types: [published] 
 
 jobs:
   build:
@@ -35,13 +34,10 @@ jobs:
   publish-to-pypi:
     name: >-
       Publish Python 🐍 distribution 📦 to PyPI
-    if: startsWith(github.ref, 'refs/tags/')  # only publish to PyPI on tag pushes
+    if: github.event_name == 'release'  # only publish to PyPI on releases
     needs:
     - build
     runs-on: ubuntu-latest
-    environment:
-      name: pypi
-      url: https://pypi.org/p/chromatopy  # Replace <package-name> with your PyPI project name
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
