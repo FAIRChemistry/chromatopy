@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from typing import TYPE_CHECKING, Any
 
 from rich.columns import Columns
@@ -10,6 +11,17 @@ from rich.table import Table
 if TYPE_CHECKING:
     from .handler import Handler
     from .molecule import Molecule
+
+
+def _safe_emoji(emoji: str, fallback: str) -> str:
+    """Return emoji if encoding supports it, otherwise return ASCII fallback."""
+    try:
+        # Test if we can encode the emoji in the current output encoding
+        encoding = getattr(sys.stdout, "encoding", "utf-8") or "utf-8"
+        emoji.encode(encoding)
+        return emoji
+    except (UnicodeEncodeError, LookupError):
+        return fallback
 
 
 def create_overview_panel(handler: Handler) -> Panel:
@@ -91,8 +103,11 @@ def create_statistics_table(handler: Handler) -> Table:
 
 def create_species_table(handler: Handler) -> Table:
     """Create a table summarizing molecules and proteins."""
+    species_emoji = _safe_emoji("🧬", "SPECIES")
     species_table = Table(
-        title="🧬 Species Details", show_header=True, header_style="bold green"
+        title=f"{species_emoji} Species Details",
+        show_header=True,
+        header_style="bold green",
     )
     species_table.add_column("Type", min_width=12)
     species_table.add_column("ID", style="magenta", min_width=15)
@@ -146,8 +161,11 @@ def create_stats_and_species_content(handler: Handler) -> Table | Columns:
 
 def create_measurements_content(handler: Handler) -> Table:
     """Create measurements content."""
+    measurements_emoji = _safe_emoji("📈", "DATA")
     measurements_table = Table(
-        title="📈 Measurements", show_header=True, header_style="bold cyan"
+        title=f"{measurements_emoji} Measurements",
+        show_header=True,
+        header_style="bold cyan",
     )
     measurements_table.add_column("ID", style="yellow", min_width=12)
     measurements_table.add_column("Chromatograms", justify="center")
@@ -200,8 +218,9 @@ def create_peak_assignment_summary_table(
     handler: Handler, assignment_results: list[dict[str, Any]]
 ) -> Table:
     """Create the main peak assignment summary table."""
+    target_emoji = _safe_emoji("🎯", ">>")
     summary_table = Table(
-        title=f"🎯 Peak Assignment Summary of {handler.id}",
+        title=f"{target_emoji} Peak Assignment Summary of {handler.id}",
         show_header=True,
         header_style="bold cyan",
         border_style="blue",
@@ -220,18 +239,24 @@ def create_peak_assignment_summary_table(
         # Calculate total measurements for this molecule
         total_measurements = len(handler.measurements)
 
+        # Safe emojis for status
+        success_emoji = _safe_emoji("✅", "[OK]")
+        partial_emoji = _safe_emoji("🟡", "[PARTIAL]")
+        failed_emoji = _safe_emoji("❌", "[FAILED]")
+        overlap_emoji = _safe_emoji("⚠️", "[OVERLAP]")
+
         # Determine status and details (consistent format)
         if assigned_count > 0 and not multiple_peaks and not no_peaks:
-            status = "✅ Success"
+            status = f"{success_emoji} Success"
             details = f"({assigned_count}/{total_measurements}) peaks assigned"
         else:
             if assigned_count > 0:
-                status = "🟡 Partial"
+                status = f"{partial_emoji} Partial"
             else:
-                status = "❌ Failed"
+                status = f"{failed_emoji} Failed"
 
             if multiple_peaks:
-                status = "⚠️ Overlaps"
+                status = f"{overlap_emoji} Overlaps"
                 details = f"({assigned_count}/{total_measurements}) peaks assigned"
             elif no_peaks:
                 # Include retention time details for failed molecules
@@ -264,20 +289,24 @@ def print_peak_assignment_summary(
     # Only show success message if peaks were assigned, or if there were warnings
     has_warnings = measurements_with_multiple_peaks or measurements_with_no_peaks
 
+    # Use safe emoji that falls back to ASCII on encoding issues
+    target_emoji = _safe_emoji("🎯", ">>")
+
     if assigned_peak_count > 0:
         console.print(
-            f"🎯 Assigned [bold green]{molecule.name}[/bold green] to [bold]{assigned_peak_count}[/bold] peaks"
+            f"{target_emoji} Assigned [bold green]{molecule.name}[/bold green] to [bold]{assigned_peak_count}[/bold] peaks"
         )
     elif not has_warnings:
         # Only show 0 peaks message if there are no warnings (warnings will cover this)
         console.print(
-            f"🎯 Assigned [bold green]{molecule.name}[/bold green] to [bold]0[/bold] peaks"
+            f"{target_emoji} Assigned [bold green]{molecule.name}[/bold green] to [bold]0[/bold] peaks"
         )
 
     # Warning for multiple peaks in tolerance
+    warning_emoji = _safe_emoji("⚠️", "!!")
     if measurements_with_multiple_peaks:
         console.print(
-            f"⚠️  [bold yellow]Warning:[/bold yellow] Multiple peaks found within tolerance for [bold]{molecule.name}[/bold]"
+            f"{warning_emoji}  [bold yellow]Warning:[/bold yellow] Multiple peaks found within tolerance for [bold]{molecule.name}[/bold]"
         )
 
         # Create table for multiple peaks details
@@ -303,15 +332,18 @@ def print_peak_assignment_summary(
             )
 
         console.print(table)
+        tip_emoji = _safe_emoji("💡", "TIP:")
         console.print(
-            f"   💡 [dim]Tip: Consider setting a higher min_signal value for {molecule.name} to filter out smaller peaks[/dim]"
+            f"   {tip_emoji} [dim]Tip: Consider setting a higher min_signal value for {molecule.name} to filter out smaller peaks[/dim]"
         )
-        console.print(f"   💡 [dim]Current min_signal: {molecule.min_signal}[/dim]")
+        console.print(
+            f"   {tip_emoji} [dim]Current min_signal: {molecule.min_signal}[/dim]"
+        )
 
     # Warning for no peaks found
     if measurements_with_no_peaks:
         console.print(
-            f"⚠️  [bold red]Warning:[/bold red] No peaks found for [bold]{molecule.name}[/bold] in [bold]{len(measurements_with_no_peaks)}[/bold] measurement(s)"
+            f"{warning_emoji}  [bold red]Warning:[/bold red] No peaks found for [bold]{molecule.name}[/bold] in [bold]{len(measurements_with_no_peaks)}[/bold] measurement(s)"
         )
 
         # Create table for no peaks details
