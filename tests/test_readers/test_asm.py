@@ -1,12 +1,12 @@
 import pytest
 
-from chromatopy.readers.asm import ASMReader
+from chromhandler.readers.asm import ASMReader
 
 
 @pytest.fixture
 def asm_lc_1() -> ASMReader:
     reader = ASMReader(
-        dirpath="docs/examples/data/asm",
+        dirpath="docs/usage/data/asm",
         values=[0.0, 0.33, 3.4, 10],
         unit="min",
         ph=7.0,
@@ -21,7 +21,7 @@ def asm_lc_1() -> ASMReader:
 @pytest.fixture
 def asm_lc_2() -> ASMReader:
     reader = ASMReader(
-        dirpath="docs/examples/data/asm_2",
+        dirpath="docs/usage/data/asm_2",
         values=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
         unit="min",
         ph=7.0,
@@ -36,7 +36,7 @@ def asm_lc_2() -> ASMReader:
 @pytest.fixture
 def asm_gc_1() -> ASMReader:
     reader = ASMReader(
-        dirpath="docs/examples/data/asm_3",
+        dirpath="docs/usage/data/asm_3",
         values=[0.0, 0.33, 3.4, 10, 11],
         unit="min",
         ph=7.0,

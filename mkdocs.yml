@@ -1,22 +1,22 @@
-site_name: Chromatopy Documentation
-repo_url: https://github.com/FAIRChemistry/chromatopy
-repo_name: FAIRChemistry/chromatopy
+site_name: chromhandler Documentation
+repo_url: https://github.com/FAIRChemistry/chromhandler
+repo_name: FAIRChemistry/chromhandler
 edit_uri: edit/main/docs/
-site_url: https://FAIRChemistry.github.io/chromatopy/
+site_url: https://FAIRChemistry.github.io/chromhandler/
 site_author: Max Häußler
 
 nav:
-  - Home: index.md
-  - Data Preparation: supported_formats.md
-  - Usage: examples/usage.ipynb
+  - Overview: index.md
+  - Usage: 
+    - 1. Data Preparation: supported_formats.md
+    - 2. Use chromhandler: usage/usage.ipynb
   - API Reference:
-    - ChromAnalyzer: api_reference/analyzer.md
+    - Handler: api_reference/handler.md
     - Molecule: api_reference/molecule.md
     - Protein: api_reference/protein.md
 
 
 plugins:
-  - plotly
   - mkdocstrings
   - search
   - mkdocs-jupyter
@@ -85,9 +85,6 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
-        - name: plotly
-          class: mkdocs-plotly
-          format: !!python/name:mkdocs_plotly_plugin.fences.fence_plotly
   - tables
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji

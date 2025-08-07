@@ -3,6 +3,6 @@
 
 # Documentation for `Molecule`
 
-::: chromatopy.tools.molecule.Molecule
+::: chromhandler.molecule.Molecule
     options:
       show_source: false

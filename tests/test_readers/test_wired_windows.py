@@ -1,17 +1,17 @@
 import os
 
-from chromatopy import ChromAnalyzer
+from chromhandler import Handler
 
 
-def test_windows():
-    path = "docs/examples/data/agilent_rdl"
+def test_windows() -> None:
+    path = "docs/usage/data/agilent_rdl"
 
     # print path and all files in the directory
     print(path)
     print(os.listdir(path))
 
-    # Create a ChromAnalyzer object
-    ana = ChromAnalyzer.read_agilent(
+    # Create a Handler object
+    ana = Handler.read_agilent(
         path=path,
         ph=7.0,
         temperature=25.0,

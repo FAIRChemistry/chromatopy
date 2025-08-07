@@ -1,8 +1,6 @@
-# Chromatopy
+# Overview
 
-## ℹ️ Overview
-
-`chromatopy` is a Python package which aims to streamline the data processing and analysis of chromatographic time-course and calibration experiments. 
+`chromhandler` is a Python package which aims to streamline the data processing and analysis of chromatographic time-course and calibration experiments. 
 It can read peak area data from various formats, enrich it with metadata such as reaction time, temperature, pH, and initial concentrations of reaction components. Finally, the peaks of interest can be aggregated, concentrations calculated, and the time-course data for each analyte of interest transformed into an EnzymeML Document.
 
 ``` mermaid
@@ -69,7 +67,7 @@ Create calibration standard
 
 ```
 
-For some output formats, `chromatopy` provides a direct interface to read in data. For more information on the supported file formats and data preparation to use the `chromatopy` workflow, refer to the [data preparation](supported_formats.md) section.
+For some output formats, `chromhandler` provides a direct interface to read in data. For more information on the supported file formats and data preparation to use the `chromhandler` workflow, refer to the [data preparation](supported_formats.md) section.
 
 ## ⭐ Key Features
 
@@ -84,14 +82,14 @@ Transform your data into EnzymeML format for subsequent analysis pipelines.
 
 ## 🛠️ Installation
 
-Install `chromatopy` using `pip`:
+Install `chromhandler` using `pip`:
 
 ```bash
-# 🚧 not released yet
+pip install chromhandler
 ```
 
 or from source:
 
 ```bash
-pip install git+https://github.com/FAIRChemistry/chromatopy.git
+pip install git+https://github.com/FAIRChemistry/chromhandler.git
 ```

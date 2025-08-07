@@ -3,6 +3,6 @@
 
 # Documentation for `Protein`
 
-::: chromatopy.tools.protein.Protein
+::: chromhandler.protein.Protein
     options:
       show_source: false

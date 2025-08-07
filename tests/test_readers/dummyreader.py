@@ -1,4 +1,4 @@
-from chromatopy.readers.abstractreader import AbstractReader
+from chromhandler.readers.abstractreader import AbstractReader
 
 
 class DummyReader(AbstractReader):
